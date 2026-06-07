@@ -152,6 +152,8 @@ Add these images under a future `docs/screenshots/` directory when captured:
 - Kubernetes pods and rollout status.
 - Prometheus target page or Grafana dashboard for the local app.
 
+Current command-level validation evidence is tracked in [docs/validation.md](docs/validation.md).
+
 ## Project Structure
 
 ```text
