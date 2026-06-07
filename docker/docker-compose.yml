@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   app:
     build:
@@ -37,6 +35,7 @@ services:
       - "9090:9090"
     volumes:
       - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus-data:/prometheus
     networks:
       - portfolio-net

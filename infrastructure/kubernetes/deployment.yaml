@@ -19,33 +19,18 @@ spec:
     metadata:
       labels:
         app: portfolio-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
     spec:
       containers:
         - name: app
           image: ghcr.io/portfolio/app:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
-            - containerPort: 9090
-              name: metrics
-          env:
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: host
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: password
-            - name: NODE_ENV
-              value: production
           resources:
             requests:
               cpu: 256m
@@ -91,9 +76,6 @@ spec:
     - port: 80
       targetPort: 8080
       name: http
-    - port: 9090
-      targetPort: 9090
-      name: metrics
   selector:
     app: portfolio-app
 ---

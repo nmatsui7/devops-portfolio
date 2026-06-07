@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: #111827;
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
@@ -16,7 +16,7 @@
       justify-content: center;
     }
     .card {
-      background: rgba(30, 41, 59, 0.8);
+      background: rgba(31, 41, 55, 0.92);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(148, 163, 184, 0.1);
       border-radius: 16px;
@@ -62,33 +62,31 @@
 <body>
   <div class="card">
     <h1>Portfolio App</h1>
-    <p>Containerized microservice deployed on Kubernetes</p>
+    <p>Static Nginx demo app packaged for Docker and Kubernetes</p>
     <div class="badge">All systems operational</div>
     <div class="metrics">
       <div class="metric">
-        <div class="metric-value" id="uptime">--</div>
-        <div class="metric-label">Uptime</div>
+        <div class="metric-value">200</div>
+        <div class="metric-label">Health</div>
       </div>
       <div class="metric">
-        <div class="metric-value" id="requests">--</div>
-        <div class="metric-label">Requests</div>
+        <div class="metric-value" id="metrics">--</div>
+        <div class="metric-label">Metrics</div>
       </div>
       <div class="metric">
-        <div class="metric-value" id="pods">3</div>
-        <div class="metric-label">Active Pods</div>
+        <div class="metric-value">1</div>
+        <div class="metric-label">Local App</div>
       </div>
     </div>
-    <div class="version">v2.1.0 &middot; deployed via ArgoCD</div>
+    <div class="version">Demo scope: Docker, Kubernetes manifests, Terraform scaffold</div>
   </div>
   <script>
     async function fetchMetrics() {
       try {
         const res = await fetch('/metrics');
         const text = await res.text();
-        document.getElementById('uptime').textContent =
-          text.match(/process_uptime_seconds (\d+)/)?.[1] + 's' || '--';
-        document.getElementById('requests').textContent =
-          text.match(/http_requests_total (\d+)/)?.[1] || '--';
+        document.getElementById('metrics').textContent =
+          text.includes('portfolio_app_ready 1') ? 'ready' : '--';
       } catch { /* ignore */ }
     }
     fetchMetrics();

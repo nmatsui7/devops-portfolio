@@ -39,6 +39,12 @@ variable "node_instance_types" {
   default     = ["t3.medium", "t3.large"]
 }
 
+variable "enable_nat_gateway" {
+  description = "Create a NAT gateway for private subnet egress. Required for private EKS nodes to pull images, but it adds ongoing AWS cost."
+  type        = bool
+  default     = false
+}
+
 variable "db_instance_class" {
   description = "RDS instance class"
   type        = string

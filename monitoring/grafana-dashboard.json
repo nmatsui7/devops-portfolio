@@ -1,42 +1,33 @@
 {
   "dashboard": {
-    "title": "Portfolio App Overview",
-    "tags": ["kubernetes", "portfolio"],
+    "title": "Portfolio App Local Overview",
+    "tags": ["portfolio", "local-demo"],
     "timezone": "browser",
     "panels": [
       {
-        "title": "CPU Usage",
-        "type": "graph",
+        "title": "Scrape Health",
+        "type": "stat",
         "targets": [
           {
-            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"production\"}[5m])) by (pod)"
+            "expr": "up{job=\"portfolio-app-local\"}"
           }
         ]
       },
       {
-        "title": "Memory Usage",
-        "type": "graph",
+        "title": "Readiness",
+        "type": "stat",
         "targets": [
           {
-            "expr": "sum(container_memory_working_set_bytes{namespace=\"production\"}) by (pod)"
+            "expr": "portfolio_app_ready"
           }
         ]
       },
       {
-        "title": "HTTP Request Rate",
-        "type": "graph",
+        "title": "App Info",
+        "type": "stat",
         "targets": [
           {
-            "expr": "rate(http_requests_total[5m])"
-          }
-        ]
-      },
-      {
-        "title": "Error Rate",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])"
+            "expr": "portfolio_app_info"
           }
         ]
       }
