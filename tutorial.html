@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Portfolio — Step-by-Step Tutorial</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #334155;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --warn: #f59e0b;
+      --code-bg: #0d1117;
+      --border: rgba(148,163,184,0.15);
+      --sidebar-w: 280px;
+    }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      z-index: 100;
+    }
+    .sidebar h2 {
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar nav a {
+      display: block;
+      padding: 6px 12px;
+      margin: 2px 0;
+      color: var(--text2);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--text);
+      background: var(--bg3);
+    }
+    .sidebar nav a.section-label {
+      color: var(--warn);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 16px;
+      cursor: default;
+    }
+    .sidebar nav a.section-label:hover { background: transparent; color: var(--warn); }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 860px;
+      padding: 48px 56px 120px;
+    }
+    .main h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .main .subtitle {
+      color: var(--text2);
+      font-size: 1.05rem;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .main h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 48px 0 12px;
+      color: var(--accent);
+    }
+    .main h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      color: var(--text);
+    }
+    .main h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 20px 0 8px;
+      color: var(--accent2);
+    }
+    .main p, .main li {
+      color: var(--text2);
+      margin-bottom: 12px;
+    }
+    .main ul, .main ol { padding-left: 24px; margin-bottom: 16px; }
+    .main li { margin-bottom: 6px; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      position: relative;
+    }
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 0.85em;
+      background: var(--bg3);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+    }
+    .code-label {
+      position: absolute;
+      top: 6px; right: 12px;
+      font-size: 0.65rem;
+      color: var(--text2);
+      background: var(--bg3);
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-family: system-ui, sans-serif;
+    }
+
+    /* ── Boxes ── */
+    .tip, .warning, .info-box {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 16px 0 20px;
+      border-left: 4px solid;
+    }
+    .tip {
+      background: rgba(34,197,94,0.08);
+      border-color: var(--accent2);
+    }
+    .tip strong { color: var(--accent2); }
+    .warning {
+      background: rgba(245,158,11,0.08);
+      border-color: var(--warn);
+    }
+    .warning strong { color: var(--warn); }
+    .info-box {
+      background: rgba(56,189,248,0.08);
+      border-color: var(--accent);
+    }
+    .info-box strong { color: var(--accent); }
+
+    .step-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0 20px;
+    }
+    .step-box .step-num {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 2px 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--bg2);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    tr:hover td { background: rgba(56,189,248,0.03); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main {
+        margin-left: 0;
+        padding: 24px 20px 80px;
+      }
+      .main h1 { font-size: 1.5rem; }
+    }
+
+    /* ── Scrollbar ── */
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+    /* ── Copy button ── */
+    .copy-btn {
+      position: absolute;
+      top: 6px; right: 80px;
+      background: var(--bg3);
+      border: none;
+      color: var(--text2);
+      font-size: 0.65rem;
+      padding: 2px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+    }
+    .copy-btn:hover { color: var(--text); background: var(--bg); }
+  </style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="sidebar">
+  <h2>&#x2630; Tutorial Contents</h2>
+  <nav>
+    <a href="#intro" class="section-label">Getting Started</a>
+    <a href="#intro">Introduction</a>
+    <a href="#who">Who Is This For?</a>
+    <a href="#setup">Environment Setup</a>
+
+    <a href="#app" class="section-label">The Application</a>
+    <a href="#app-overview">Sample App Overview</a>
+    <a href="#app-run">Running the App</a>
+
+    <a href="#docker" class="section-label">Docker</a>
+    <a href="#docker-what">What Is Docker?</a>
+    <a href="#docker-install">Installing Docker</a>
+    <a href="#dockerfile">The Dockerfile</a>
+    <a href="#docker-build">Building an Image</a>
+    <a href="#docker-run">Running a Container</a>
+    <a href="#docker-hub">Pushing to a Registry</a>
+
+    <a href="#compose" class="section-label">Docker Compose</a>
+    <a href="#compose-what">What Is Compose?</a>
+    <a href="#compose-file">The Compose File</a>
+    <a href="#compose-up">Starting Everything</a>
+    <a href="#compose-down">Stopping Everything</a>
+
+    <a href="#cicd" class="section-label">CI / CD</a>
+    <a href="#cicd-what">What Is CI/CD?</a>
+    <a href="#cicd-ci">The CI Pipeline</a>
+    <a href="#cicd-cd">The CD Pipeline</a>
+    <a href="#cicd-github">Setting Up on GitHub</a>
+
+    <a href="#k8s" class="section-label">Kubernetes</a>
+    <a href="#k8s-what">What Is Kubernetes?</a>
+    <a href="#k8s-concepts">Key Concepts</a>
+    <a href="#k8s-deployment">Deployment Explained</a>
+    <a href="#k8s-service">Service Explained</a>
+    <a href="#k8s-hpa">Auto Scaling (HPA)</a>
+    <a href="#k8s-ingress">Ingress &amp; TLS</a>
+    <a href="#k8s-apply">Applying Manifests</a>
+
+    <a href="#terraform" class="section-label">Terraform</a>
+    <a href="#tf-what">What Is Terraform?</a>
+    <a href="#tf-files">The Terraform Files</a>
+    <a href="#tf-plan">Planning &amp; Applying</a>
+
+    <a href="#ansible" class="section-label">Ansible</a>
+    <a href="#ansible-what">What Is Ansible?</a>
+    <a href="#ansible-playbook">The Playbook</a>
+    <a href="#ansible-run">Running It</a>
+
+    <a href="#monitoring" class="section-label">Monitoring</a>
+    <a href="#mon-what">Why Monitor?</a>
+    <a href="#mon-prom">Prometheus Setup</a>
+    <a href="#mon-alerts">Alerting Rules</a>
+    <a href="#mon-grafana">Grafana Dashboards</a>
+
+    <a href="#glossary" class="section-label">Reference</a>
+    <a href="#glossary">Glossary</a>
+    <a href="#next-steps">Next Steps</a>
+  </nav>
+</aside>
+
+<!-- ==================== MAIN ==================== -->
+<div class="main">
+
+<h1>DevOps Portfolio &mdash; Step-by-Step Tutorial</h1>
+<p class="subtitle">
+  A beginner-friendly walkthrough of the entire DevOps portfolio project.
+  No prior experience required &mdash; just follow each step in order.
+</p>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  INTRODUCTION                                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="intro">
+<h2>1. Introduction</h2>
+
+<p>
+  This tutorial walks you through a complete <strong>DevOps portfolio project</strong>
+  from start to finish. You'll learn how modern software teams deploy and manage
+  applications using tools like Docker, Kubernetes, Terraform, and more.
+</p>
+
+<p>
+  Each section is written for <strong>absolute beginners</strong>. We explain every
+  command, every file, and every concept along the way. By the end, you'll have a
+  working portfolio project you can show to employers.
+</p>
+
+<div class="tip">
+  <strong>&#x1F4A1; Tip:</strong> Don't try to understand everything at once.
+  Follow the steps in order, run the commands, and see what happens.
+  The glossary at the end defines every term used in this tutorial.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  WHO IS THIS FOR                                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="who">
+<h2>2. Who Is This Tutorial For?</h2>
+
+<p>This tutorial is for you if:</p>
+<ul>
+  <li>You're new to DevOps and want a hands-on project for your resume</li>
+  <li>You know how to code but have never deployed anything</li>
+  <li>You've heard terms like "Docker" and "Kubernetes" but don't know what they do</li>
+  <li>You want to understand the <em>whole picture</em> of how software gets from code to production</li>
+</ul>
+
+<h3>What You Should Know</h3>
+<p>
+  You should be comfortable with basic terminal commands (navigating folders,
+  running programs) and have at least a little experience with a programming
+  language (any language). That's it. Everything else is explained here.
+</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  ENVIRONMENT SETUP                                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="setup">
+<h2>3. Environment Setup</h2>
+
+<p>
+  Before we can do anything DevOps-related, we need to install some tools on your computer.
+  Don't skip this section &mdash; every tool here will be used later.
+</p>
+
+<h3>What We'll Install</h3>
+<table>
+  <tr><th>Tool</th><th>Why We Need It</th></tr>
+  <tr><td>Git</td><td>Version control &mdash; tracks changes to code</td></tr>
+  <tr><td>Node.js</td><td>Runs the sample application</td></tr>
+  <tr><td>Docker</td><td>Creates containers for our app</td></tr>
+  <tr><td>Visual Studio Code</td><td>Code editor (recommended, but any editor works)</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Note:</strong> You don't need to install Kubernetes, Terraform,
+  or Ansible on your local machine. We'll explain them conceptually, and they run
+  on cloud servers in real companies.
+</div>
+
+<h3>Step 1: Install Git</h3>
+<p>Git is the industry standard for version control. It lets you save snapshots of your code, collaborate with others, and deploy from specific versions.</p>
+
+<div class="step-box">
+  <span class="step-num">Windows</span>
+  <p>Download from <a href="https://git-scm.com/download/win" style="color:var(--accent)">git-scm.com</a> and run the installer. Accept all defaults.</p>
+</div>
+
+<div class="step-box">
+  <span class="step-num">macOS</span>
+  <p>Open Terminal and run:</p>
+  <pre><code>xcode-select --install</code></pre>
+</div>
+
+<div class="step-box">
+  <span class="step-num">Linux (Ubuntu/Debian)</span>
+  <p>Open a terminal and run:</p>
+  <pre><code>sudo apt update && sudo apt install git -y</code></pre>
+</div>
+
+<h4>Verify Git Installed</h4>
+<p>In your terminal, run:</p>
+<pre><code>git --version</code><span class="code-label">check</span></pre>
+<p>You should see something like <code>git version 2.40.0</code>.</p>
+
+<h3>Step 2: Install Node.js</h3>
+<p>Node.js lets us run JavaScript on our computer (outside of a browser). Our sample app is written in Node.js.</p>
+
+<ol>
+  <li>Go to <a href="https://nodejs.org" style="color:var(--accent)">nodejs.org</a></li>
+  <li>Download the <strong>LTS</strong> version (the left button)</li>
+  <li>Run the installer and accept defaults</li>
+</ol>
+
+<h4>Verify Node.js</h4>
+<pre><code>node --version
+npm --version</code><span class="code-label">check</span></pre>
+<p>You should see version numbers like <code>v20.11.0</code> and <code>10.2.4</code>.</p>
+
+<div class="tip">
+  <strong>&#x1F4A1; What is npm?</strong> npm stands for Node Package Manager.
+  It downloads libraries ("packages") that your project needs. Think of it like
+  an app store for code libraries.
+</div>
+
+<h3>Step 3: Install Visual Studio Code</h3>
+<p>VS Code is a free code editor. We'll use it to edit project files.</p>
+
+<ol>
+  <li>Go to <a href="https://code.visualstudio.com" style="color:var(--accent)">code.visualstudio.com</a></li>
+  <li>Download the version for your operating system</li>
+  <li>Run the installer</li>
+</ol>
+
+<h4>Recommended VS Code Extensions</h4>
+<p>Once VS Code is open, click the Extensions icon on the left sidebar (or press <code>Ctrl+Shift+X</code>) and install these:</p>
+<ul>
+  <li><strong>Docker</strong> &mdash; shows Docker containers inside VS Code</li>
+  <li><strong>YAML</strong> &mdash; helps with Kubernetes and GitHub Actions files</li>
+  <li><strong>Prettier</strong> &mdash; auto-formats code</li>
+</ul>
+
+<h3>Step 4: Get the Project Code</h3>
+<p>Now let's get the portfolio project onto your computer.</p>
+
+<div class="step-box">
+  <span class="step-num">1</span>
+  <p>Open a terminal / PowerShell and navigate to where you want the project:</p>
+  <pre><code>cd Documents</code></pre>
+</div>
+
+<div class="step-box">
+  <span class="step-num">2</span>
+  <p>If you have the project as a folder already, skip this step. Otherwise, create it:</p>
+  <pre><code>mkdir devops-portfolio
+cd devops-portfolio</code></pre>
+</div>
+
+<div class="step-box">
+  <span class="step-num">3</span>
+  <p>Open the folder in VS Code:</p>
+  <pre><code>code .</code></pre>
+  <p>The <code>.</code> means "current folder". VS Code will open with the project loaded.</p>
+</div>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; Important:</strong> Throughout this tutorial, whenever you see a
+  code block, you should <strong>type the commands yourself</strong> rather than
+  copy-pasting. It helps you learn and remember.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  THE APPLICATION                                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="app">
+<h2>4. The Sample Application</h2>
+
+<section id="app-overview">
+<h3>4.1 What's in the App Folder?</h3>
+
+<p>
+  Every DevOps project deploys <em>something</em>. In this portfolio, we have a
+  simple web application. Let's look at what's inside <code>app/</code>:
+</p>
+
+<table>
+  <tr><th>File</th><th>Purpose</th></tr>
+  <tr><td><code>index.html</code></td><td>A status dashboard page that displays system metrics</td></tr>
+  <tr><td><code>nginx.conf</code></td><td>Configuration for the Nginx web server that serves the page</td></tr>
+</table>
+
+<p>
+  The app is intentionally simple &mdash; it's a static HTML page with some
+  JavaScript that fetches and displays metrics. The real point of this portfolio
+  is the <em>infrastructure around it</em>, not the app itself.
+</p>
+
+<h4>What Does the App Do?</h4>
+<ul>
+  <li>Displays a "All systems operational" badge</li>
+  <li>Shows uptime, request count, and active pod count</li>
+  <li>Fetches live metrics every 5 seconds</li>
+  <li>Has a sleek dark UI inspired by modern dashboards</li>
+</ul>
+
+<p>
+  In a real company, the app would be more complex &mdash; maybe a blog, an e-commerce
+  site, or an API. But the deployment process would be exactly the same.
+</p>
+
+<div class="tip">
+  <strong>&#x1F4A1; Key Insight:</strong> DevOps is about <em>how</em> you deploy,
+  not <em>what</em> you deploy. A simple app is fine for learning. You can swap
+  in a complex app later.
+</div>
+</section>
+
+<section id="app-run">
+<h3>4.2 Running the App (Without Docker)</h3>
+
+<p>Let's run the app directly on your computer first, so you understand the baseline.</p>
+
+<p>Since <code>index.html</code> is a static file, we can serve it with any HTTP server. For simplicity, let's use Python's built-in server:</p>
+
+<pre><code># Open a terminal in the project folder
+cd app
+
+# Start a simple HTTP server on port 8000
+python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
+
+<p>If you don't have Python, you can also use the <code>npx</code> command that comes with Node.js:</p>
+
+<pre><code>npx serve app/</code><span class="code-label">alternative</span></pre>
+
+<p>
+  Open your browser to <strong>http://localhost:8000</strong> (or whatever port the
+  command says). You should see the portfolio dashboard page!
+</p>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; The metrics won't work yet</strong> &mdash; they rely on
+  a backend server that we haven't set up. The page will show "--" for the values.
+  That's expected! We'll fix it later with the full Docker setup.
+</div>
+
+<p>Press <code>Ctrl+C</code> in the terminal to stop the server when you're done.</p>
+</section>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  DOCKER                                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="docker">
+<h2>5. Docker</h2>
+
+<section id="docker-what">
+<h3>5.1 What Is Docker?</h3>
+
+<p>
+  Imagine you're moving to a new apartment. You could carry each item one by one
+  (books, dishes, clothes) &mdash; but they might break, get lost, or you might
+  forget something. Instead, you pack everything into <strong>boxes</strong>. Each
+  box contains everything needed for a room.
+</p>
+
+<p>
+  <strong>Docker</strong> is like those boxes, but for software. A Docker
+  <strong>container</strong> packages your application with everything it needs
+  (code, dependencies, settings) so it runs identically on any computer.
+</p>
+
+<h4>Key Terms</h4>
+<table>
+  <tr><th>Term</th><th>Analogy</th><th>Meaning</th></tr>
+  <tr><td><strong>Image</strong></td><td>A recipe / blueprint</td><td>A read-only template with instructions for creating a container</td></tr>
+  <tr><td><strong>Container</strong></td><td>The actual dish you cook</td><td>A running instance of an image</td></tr>
+  <tr><td><strong>Dockerfile</strong></td><td>The recipe card</td><td>A text file with instructions to build an image</td></tr>
+  <tr><td><strong>Registry</strong></td><td>A cookbook library</td><td>A place to store and share images (like Docker Hub)</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>&#x1F4DD; The "It works on my machine!" Problem:</strong>
+  Before Docker, developers would write code, test it, and it would work on their
+  computer. But when they sent it to the server, something would break &mdash; different
+  operating system, missing library, wrong version. Docker solves this by packaging
+  <em>everything</em> together.
+</div>
+</section>
+
+<section id="docker-install">
+<h3>5.2 Installing Docker</h3>
+
+<div class="step-box">
+  <span class="step-num">1</span>
+  <p>Go to <a href="https://docs.docker.com/get-docker/" style="color:var(--accent)">docker.com</a> and download Docker Desktop for your OS.</p>
+</div>
+
+<div class="step-box">
+  <span class="step-num">2</span>
+  <p>Run the installer. On Windows, make sure <strong>WSL 2</strong> is selected during installation (it enables Linux containers on Windows).</p>
+</div>
+
+<div class="step-box">
+  <span class="step-num">3</span>
+  <p>Open Docker Desktop (it will start a background service). You'll see a whale icon in your system tray.</p>
+</div>
+
+<div class="step-box">
+  <span class="step-num">4</span>
+  <p>Verify Docker is working:</p>
+  <pre><code>docker --version
+docker run hello-world</code><span class="code-label">terminal</span></pre>
+</div>
+
+<p>
+  The <code>docker run hello-world</code> command downloads a tiny test image
+  and runs it. If you see a welcome message, Docker is working!
+</p>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; Troubleshooting:</strong> If you get a permission error on Linux,
+  add your user to the <code>docker</code> group: <code>sudo usermod -aG docker $USER</code>
+  then log out and back in. On Windows/Mac, Docker Desktop should handle this automatically.
+</div>
+</section>
+
+<section id="dockerfile">
+<h3>5.3 Understanding the Dockerfile</h3>
+
+<p>Let's look at the Dockerfile in our project (<code>docker/Dockerfile</code>):</p>
+
+<pre><code>FROM node:20-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+
+USER appuser
+EXPOSE 8080
+ENV NODE_ENV=production
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+CMD ["node", "dist/server.js"]</code></pre>
+
+<h4>Line-by-Line Explanation</h4>
+
+<table>
+  <tr><th>Line</th><th>What It Does</th></tr>
+  <tr>
+    <td><code>FROM node:20-alpine AS builder</code></td>
+    <td>Start from an official Node.js image (Alpine = lightweight Linux). This begins the "builder" stage.</td>
+  </tr>
+  <tr>
+    <td><code>WORKDIR /app</code></td>
+    <td>Set the working directory inside the container. All following commands run here.</td>
+  </tr>
+  <tr>
+    <td><code>COPY package*.json ./</code></td>
+    <td>Copy <code>package.json</code> and <code>package-lock.json</code> into the container.</td>
+  </tr>
+  <tr>
+    <td><code>RUN npm ci</code></td>
+    <td>Install dependencies. <code>ci</code> is like <code>install</code> but faster and stricter.</td>
+  </tr>
+  <tr>
+    <td><code>COPY . .</code></td>
+    <td>Copy ALL files from the project into the container.</td>
+  </tr>
+  <tr>
+    <td><code>RUN npm run build</code></td>
+    <td>Build the application (compiles TypeScript, bundles assets, etc.).</td>
+  </tr>
+  <tr>
+    <td><code>FROM node:20-alpine AS runner</code></td>
+    <td>Second stage starts &mdash; fresh image to keep the final image small.</td>
+  </tr>
+  <tr>
+    <td><code>RUN addgroup ... && adduser ...</code></td>
+    <td>Create a non-root user for security. Running as root inside a container is risky.</td>
+  </tr>
+  <tr>
+    <td><code>COPY --from=builder ...</code></td>
+    <td>Copy only the built files from the builder stage. Discard the rest.</td>
+  </tr>
+  <tr>
+    <td><code>USER appuser</code></td>
+    <td>Switch to the non-root user before running the app.</td>
+  </tr>
+  <tr>
+    <td><code>EXPOSE 8080</code></td>
+    <td>Document that this container listens on port 8080. Doesn't actually publish the port.</td>
+  </tr>
+  <tr>
+    <td><code>ENV NODE_ENV=production</code></td>
+    <td>Set an environment variable. Many frameworks behave differently in production vs development.</td>
+  </tr>
+  <tr>
+    <td><code>HEALTHCHECK ...</code></td>
+    <td>Docker checks this URL every 30 seconds. If it fails 3 times, the container is marked unhealthy.</td>
+  </tr>
+  <tr>
+    <td><code>CMD ["node", "dist/server.js"]</code></td>
+    <td>The command that runs when the container starts. The JSON array syntax means "no shell".</td>
+  </tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; Multi-stage builds:</strong> This Dockerfile uses TWO stages.
+  The first stage ("builder") installs everything and compiles the code. The second
+  stage ("runner") only copies the compiled output, ignoring all the build tools.
+  This makes the final image much smaller &mdash; maybe 150MB instead of 1.5GB!
+</div>
+</section>
+
+<section id="docker-build">
+<h3>5.4 Building a Docker Image</h3>
+
+<p>Now let's build an image from our Dockerfile:</p>
+
+<pre><code># Make sure you're in the project root folder
+cd devops-portfolio
+
+# Build the image
+docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="code-label">terminal</span></pre>
+
+<h4>What each part means:</h4>
+<table>
+  <tr><td><code>docker build</code></td><td>The command to build an image</td></tr>
+  <tr><td><code>-t portfolio-app:latest</code></td><td>Tag the image with a name (<code>portfolio-app</code>) and version (<code>latest</code>)</td></tr>
+  <tr><td><code>-f docker/Dockerfile</code></td><td>Tell Docker which Dockerfile to use</td></tr>
+  <tr><td><code>.</code></td><td>The "build context" &mdash; Docker sends this folder to the Docker daemon</td></tr>
+</table>
+
+<p>
+  Watch the output. Docker executes each instruction in the Dockerfile and caches
+  each step. If you build again later and the code hasn't changed, it'll use the
+  cache &mdash; much faster!
+</p>
+
+<h4>List Your Images</h4>
+<pre><code>docker images</code><span class="code-label">terminal</span></pre>
+<p>You should see <code>portfolio-app</code> in the list along with its size.</p>
+</section>
+
+<section id="docker-run">
+<h3>5.5 Running a Container</h3>
+
+<p>Now start a container from your image:</p>
+
+<pre><code>docker run -d -p 8080:8080 --name portfolio-demo portfolio-app:latest</code><span class="code-label">terminal</span></pre>
+
+<h4>What each part means:</h4>
+<table>
+  <tr><td><code>-d</code></td><td>Detached mode &mdash; runs in the background so you can keep using the terminal</td></tr>
+  <tr><td><code>-p 8080:8080</code></td><td>Map port 8080 on your computer to port 8080 in the container</td></tr>
+  <tr><td><code>--name portfolio-demo</code></td><td>Give the container a name so you can reference it easily</td></tr>
+  <tr><td><code>portfolio-app:latest</code></td><td>The image name and tag to run</td></tr>
+</table>
+
+<h4>Check It's Running</h4>
+<pre><code>docker ps</code><span class="code-label">terminal</span></pre>
+<p>This lists running containers. You should see <code>portfolio-demo</code>.</p>
+
+<p>Open your browser to <strong>http://localhost:8080</strong> &mdash; the app is live!</p>
+
+<h4>Stop and Remove the Container</h4>
+<pre><code>docker stop portfolio-demo
+docker rm portfolio-demo</code><span class="code-label">terminal</span></pre>
+
+<div class="tip">
+  <strong>&#x1F4A1; One-line cleanup:</strong> <code>docker rm -f portfolio-demo</code>
+  stops AND removes in one command. The <code>-f</code> flag forces it.
+</div>
+
+<h4>Other Useful Docker Commands</h4>
+<pre><code># View logs from a container
+docker logs portfolio-demo
+
+# Execute a command inside a running container
+docker exec -it portfolio-demo sh
+
+# See running AND stopped containers
+docker ps -a
+
+# Remove unused images to free disk space
+docker image prune</code><span class="code-label">cheatsheet</span></pre>
+</section>
+
+<section id="docker-hub">
+<h3>5.6 Pushing to a Registry</h3>
+
+<p>
+  An <strong>image registry</strong> is like GitHub for Docker images. You upload
+  your image, and servers can download it later to run. Common registries:
+</p>
+<ul>
+  <li><strong>Docker Hub</strong> &mdash; the default, free for public images</li>
+  <li><strong>GitHub Container Registry (GHCR)</strong> &mdash; integrated with GitHub</li>
+  <li><strong>Amazon ECR</strong> &mdash; AWS's registry, used in our Terraform code</li>
+</ul>
+
+<h4>Push to Docker Hub (Optional)</h4>
+<pre><code># Login (you need a free Docker Hub account)
+docker login
+
+# Tag your image with your Docker Hub username
+docker tag portfolio-app:latest yourusername/portfolio-app:latest
+
+# Push it
+docker push yourusername/portfolio-app:latest</code><span class="code-label">terminal</span></pre>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Why Push?</strong> In a real DevOps workflow, you build an image,
+  push it to a registry, and then your production servers pull it from there.
+  This way, every server runs exactly the same image.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  DOCKER COMPOSE                                      -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="compose">
+<h2>6. Docker Compose</h2>
+
+<section id="compose-what">
+<h3>6.1 What Is Docker Compose?</h3>
+
+<p>
+  Our app alone isn't very useful &mdash; it needs a database, and we also want
+  monitoring tools like Prometheus and Grafana. We <em>could</em> start each one
+  with separate <code>docker run</code> commands, but that's tedious and error-prone.
+</p>
+
+<p>
+  <strong>Docker Compose</strong> lets you define multiple containers in one file
+  and start them all with a single command. Think of it as a group recipe &mdash;
+  it sets the table for the whole meal, not just one dish.
+</p>
+</section>
+
+<section id="compose-file">
+<h3>6.2 Understanding docker-compose.yml</h3>
+
+<p>Here's our compose file (<code>docker/docker-compose.yml</code>) broken down section by section:</p>
+
+<pre><code>version: "3.9"
+
+services:</code><span class="code-label">header</span></pre>
+<p><code>version: "3.9"</code> just tells Docker which compose file format to use.</p>
+
+<pre><code>  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      DB_HOST: postgres
+      DB_USER: portfolio
+      DB_PASSWORD: devpassword
+      DB_NAME: portfolio
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - portfolio-net</code><span class="code-label">app service</span></pre>
+
+<table>
+  <tr><th>Setting</th><th>Meaning</th></tr>
+  <tr><td><code>build.context: ..</code></td><td>Build context is the parent folder (the project root, because we're inside <code>docker/</code>)</td></tr>
+  <tr><td><code>ports: ["8080:8080"]</code></td><td>Map host port 8080 to container port 8080</td></tr>
+  <tr><td><code>environment:</code></td><td>Set environment variables inside the container</td></tr>
+  <tr><td><code>depends_on:</code></td><td>Wait for PostgreSQL to be healthy before starting</td></tr>
+  <tr><td><code>networks:</code></td><td>Attach to the custom network so containers can talk to each other</td></tr>
+</table>
+
+<pre><code>  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: portfolio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - portfolio-net</code><span class="code-label">postgres service</span></pre>
+
+<table>
+  <tr><th>Setting</th><th>Meaning</th></tr>
+  <tr><td><code>image: postgres:16-alpine</code></td><td>Use an official PostgreSQL image (no Dockerfile needed)</td></tr>
+  <tr><td><code>volumes: pgdata:...</code></td><td>Persist database files so data survives container restarts</td></tr>
+  <tr><td><code>healthcheck</code></td><td>PostgreSQL has a built-in command to check if it's ready. We use this to delay the app from starting until the DB is ready.</td></tr>
+</table>
+
+<pre><code>  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - portfolio-net</code><span class="code-label">prometheus service</span></pre>
+
+<pre><code>  grafana:
+    image: grafana/grafana:11.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - portfolio-net</code><span class="code-label">grafana service</span></pre>
+
+<pre><code>volumes:
+  pgdata:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  portfolio-net:
+    driver: bridge</code><span class="code-label">bottom</span></pre>
+
+<p>
+  The <code>volumes:</code> section at the bottom <strong>declares</strong> the
+  named volumes used by services. The <code>networks:</code> section declares the
+  network. The <code>bridge</code> driver is the default &mdash; it creates an
+  isolated network on your machine.
+</p>
+
+<div class="tip">
+  <strong>&#x1F4A1; Named Volumes</strong> persist data. Without them, when you
+  restart a container, all your database data would disappear! With volumes,
+  the data lives on your hard drive and is re-attached when the container starts.
+</div>
+</section>
+
+<section id="compose-up">
+<h3>6.3 Starting Everything with docker compose up</h3>
+
+<p>Run this from the project root:</p>
+
+<pre><code>docker compose -f docker/docker-compose.yml up -d</code><span class="code-label">terminal</span></pre>
+
+<h4>What happens:</h4>
+<ol>
+  <li>Docker pulls any images you don't have locally (PostgreSQL, Prometheus, Grafana)</li>
+  <li>Docker builds the app image from the Dockerfile</li>
+  <li>Docker creates a network called <code>portfolio-net</code></li>
+  <li>Docker starts the containers in dependency order (PostgreSQL first, then the app)</li>
+  <li>All containers run in the background (<code>-d</code> flag)</li>
+</ol>
+
+<h4>Check Status</h4>
+<pre><code>docker compose -f docker/docker-compose.yml ps</code><span class="code-label">terminal</span></pre>
+<p>You should see 4 containers: <code>app</code>, <code>postgres</code>, <code>prometheus</code>, <code>grafana</code>.</p>
+
+<h4>What's Running Where?</h4>
+<table>
+  <tr><th>Service</th><th>URL</th><th>Credentials</th></tr>
+  <tr><td>Portfolio App</td><td><a href="http://localhost:8080" style="color:var(--accent)">http://localhost:8080</a></td><td>none</td></tr>
+  <tr><td>Prometheus</td><td><a href="http://localhost:9090" style="color:var(--accent)">http://localhost:9090</a></td><td>none</td></tr>
+  <tr><td>Grafana</td><td><a href="http://localhost:3000" style="color:var(--accent)">http://localhost:3000</a></td><td>admin / admin</td></tr>
+  <tr><td>PostgreSQL</td><td>localhost:5432</td><td>portfolio / devpassword</td></tr>
+</table>
+
+<h4>View Logs</h4>
+<pre><code># See logs from all services
+docker compose -f docker/docker-compose.yml logs
+
+# Follow logs from a specific service
+docker compose -f docker/docker-compose.yml logs -f app
+
+# Follow logs for all services (like tail -f)
+docker compose -f docker/docker-compose.yml logs -f</code><span class="code-label">terminal</span></pre>
+</section>
+
+<section id="compose-down">
+<h3>6.4 Stopping Everything</h3>
+
+<pre><code>docker compose -f docker/docker-compose.yml down</code><span class="code-label">terminal</span></pre>
+
+<p>This stops and removes all containers, but <strong>preserves your data volumes</strong>. To also remove volumes (which deletes database data):</p>
+
+<pre><code>docker compose -f docker/docker-compose.yml down -v</code><span class="code-label">caution</span></pre>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; The <code>-v</code> flag</strong> deletes volumes. Only
+  use this when you want a completely fresh start. Your database data will be gone!
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  CI / CD                                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="cicd">
+<h2>7. CI / CD (Continuous Integration / Continuous Deployment)</h2>
+
+<section id="cicd-what">
+<h3>7.1 What Is CI/CD?</h3>
+
+<p>
+  Imagine you're writing a big essay. You could write the whole thing in one go,
+  then check for errors at the end. But if you find a problem, it's hard to fix.
+  Instead, it's better to check each paragraph <strong>as you write it</strong>.
+</p>
+
+<p>
+  <strong>CI/CD</strong> automates this checking and delivery process for software:
+</p>
+
+<table>
+  <tr><th>Term</th><th>Meaning</th><th>Analogy</th></tr>
+  <tr>
+    <td><strong>CI</strong><br>(Continuous Integration)</td>
+    <td>Every time a developer pushes code, automatically run tests and checks</td>
+    <td>Checking each paragraph for spelling and grammar as you write</td>
+  </tr>
+  <tr>
+    <td><strong>CD</strong><br>(Continuous Deployment)</td>
+    <td>After tests pass, automatically deploy the code to production</td>
+    <td>After the essay is checked, automatically publish it to the class website</td>
+  </tr>
+</table>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Why It Matters:</strong> Without CI/CD, developers have to run
+  tests manually and copy files to servers by hand. They make mistakes, forget steps,
+  and waste time. CI/CD makes it automatic, repeatable, and reliable.
+</div>
+</section>
+
+<section id="cicd-ci">
+<h3>7.2 The CI Pipeline (ci.yml)</h3>
+
+<p>Let's examine our CI pipeline file at <code>.github/workflows/ci.yml</code>:</p>
+
+<pre><code>name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]</code><span class="code-label">trigger</span></pre>
+
+<p>
+  This says: "Run this workflow whenever code is pushed to <code>main</code> or
+  <code>develop</code> branches, OR when a pull request targets <code>main</code>."
+</p>
+
+<pre><code>env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}</code><span class="code-label">jobs</span></pre>
+
+<h4>The Three Jobs (explained simply)</h4>
+
+<table>
+  <tr><th>Job</th><th>Runs</th><th>What It Checks</th></tr>
+  <tr>
+    <td><strong>lint</strong></td>
+    <td>ubuntu-latest</td>
+    <td>Checks code style with ShellCheck (finds bugs like missing quote marks)</td>
+  </tr>
+  <tr>
+    <td><strong>test</strong></td>
+    <td>ubuntu-latest (x3: Node 18, 20, 22)</td>
+    <td>Installs dependencies and runs tests on <em>three different versions</em> of Node.js to catch compatibility issues</td>
+  </tr>
+  <tr>
+    <td><strong>docker</strong></td>
+    <td>ubuntu-latest (only on main branch)</td>
+    <td>If tests pass AND we're on the main branch, build the Docker image and push it to GitHub Container Registry</td>
+  </tr>
+</table>
+
+<h4>Key Concepts</h4>
+<ul>
+  <li><strong>Matrix strategy</strong> &mdash; runs the same job multiple times with different settings (here, different Node versions). This catches bugs that only appear on certain versions.</li>
+  <li><strong><code>needs:</code></strong> &mdash; creates dependencies. <code>test</code> waits for <code>lint</code>. <code>docker</code> waits for <code>test</code>. If lint fails, nothing else runs.</li>
+  <li><strong>Actions</strong> &mdash; <code>uses:</code> references pre-built GitHub Actions. <code>actions/checkout@v4</code> fetches your code. <code>actions/setup-node@v4</code> installs Node.js.</li>
+  <li><strong>Secrets</strong> &mdash; <code>${{ secrets.GITHUB_TOKEN }}</code> is automatically created by GitHub. You don't need to set it up.</li>
+</ul>
+
+<div class="tip">
+  <strong>&#x1F4A1; Why Run Tests on 3 Node Versions?</strong> Your team might have
+  different versions of Node installed locally. The CI pipeline ensures compatibility
+  with all supported versions. If a test fails on Node 22 but passes on 18, you know
+  there's a compatibility issue before it reaches production.
+</div>
+</section>
+
+<section id="cicd-cd">
+<h3>7.3 The CD Pipeline (cd.yml)</h3>
+
+<pre><code>name: CD Pipeline
+
+on:
+  push:
+    tags:
+      - "v*.*.*"</code><span class="code-label">trigger</span></pre>
+
+<p>
+  This pipeline triggers when you push a <strong>tag</strong> that matches the pattern
+  <code>v1.0.0</code>, <code>v2.3.1</code>, etc. Tags are like bookmarks &mdash; they
+  mark a specific version in your git history.
+</p>
+
+<pre><code>jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging</code>
+    <span class="code-label">staging deployment</span></pre>
+
+<p>
+  The first job deploys to <strong>staging</strong> &mdash; a test environment that
+  mimics production. It configures AWS credentials and runs <code>kubectl</code>
+  commands to update the Kubernetes deployment.
+</p>
+
+<pre><code>  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      url: https://app.example.com</code>
+    <span class="code-label">production deployment</span></pre>
+
+<p>
+  Production deployment <strong>waits for staging to succeed</strong>. This is
+  called a "gated" deployment &mdash; if staging fails, production won't update.
+</p>
+
+<h4>The Canary Deployment</h4>
+<pre><code>      - name: Canary deployment (10%)
+        run: |
+          kubectl set image deployment/app-canary \
+            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+      - name: Smoke test
+        run: |
+          sleep 30
+          curl -sf https://canary.app.example.com/health
+
+      - name: Rollout to all
+        run: |
+          kubectl set image deployment/app \
+            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            -n ${{ env.K8S_NAMESPACE }}
+          kubectl rollout status deployment/app -n ${{ env.K8S_NAMESPACE }}</code></pre>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Canary Deployments:</strong> Instead of updating all servers at
+  once (which could break everything), a "canary" update sends the new version to
+  only 10% of servers first. The pipeline runs a smoke test (a quick health check)
+  on the canary. If it passes, the update rolls out to all servers. If it fails,
+  the canary is rolled back and only 10% of users were affected.
+</div>
+</section>
+
+<section id="cicd-github">
+<h3>7.4 Setting This Up on GitHub</h3>
+
+<p>To use GitHub Actions with this project, follow these steps:</p>
+
+<div class="step-box">
+  <span class="step-num">1</span>
+  <p>Create a GitHub repository and push your code:</p>
+  <pre><code># Initialize git
+git init
+git add .
+git commit -m "Initial commit"
+
+# Connect to GitHub (replace YOUR_USER with your GitHub username)
+git remote add origin https://github.com/YOUR_USER/devops-portfolio.git
+git branch -M main
+git push -u origin main</code><span class="code-label">terminal</span></div>
+
+<div class="step-box">
+  <span class="step-num">2</span>
+  <p>Go to your repository on GitHub.com. Click the <strong>Actions</strong> tab. You'll see your CI pipeline ready to run!</p>
+</div>
+
+<div class="step-box">
+  <span class="step-num">3</span>
+  <p>For the CD pipeline, you'd need to add these <strong>secrets</strong> (Settings > Secrets and variables > Actions):</p>
+  <table>
+    <tr><th>Secret</th><th>Value</th></tr>
+    <tr><td><code>AWS_ACCESS_KEY_ID</code></td><td>Your AWS access key</td></tr>
+    <tr><td><code>AWS_SECRET_ACCESS_KEY</code></td><td>Your AWS secret key</td></tr>
+  </table>
+</div>
+
+<div class="tip">
+  <strong>&#x1F4A1; For this tutorial:</strong> You don't actually need AWS to learn
+  from the pipeline files. The important part is understanding <em>how</em> they work.
+  The pipeline files are "portfolio-ready" &mdash; you can show them in interviews
+  to demonstrate you understand CI/CD concepts.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  KUBERNETES                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="k8s">
+<h2>8. Kubernetes</h2>
+
+<section id="k8s-what">
+<h3>8.1 What Is Kubernetes?</h3>
+
+<p>
+  Docker runs containers on your computer. But what if you have 100 computers?
+  What if one computer crashes? What if you need to update all 100 computers at once?
+</p>
+
+<p>
+  <strong>Kubernetes</strong> (often called <strong>K8s</strong> &mdash; the "8" is
+  for the 8 letters between "K" and "s") is a system for managing containers across
+  many computers. It does three main things:
+</p>
+
+<ol>
+  <li><strong>Scheduling</strong> &mdash; decides which computer runs which container</li>
+  <li><strong>Scaling</strong> &mdash; runs more copies when traffic is high, fewer when low</li>
+  <li><strong>Self-healing</strong> &mdash; if a container crashes, starts a new one automatically</li>
+</ol>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Think of it like a hotel manager:</strong> Docker is the
+  individual hotel room (container). Kubernetes is the hotel manager who assigns
+  rooms, handles bookings, fixes issues, and makes sure everything runs smoothly.
+</div>
+</section>
+
+<section id="k8s-concepts">
+<h3>8.2 Key Concepts</h3>
+
+<table>
+  <tr><th>Concept</th><th>Analogy</th><th>YAML File</th></tr>
+  <tr>
+    <td><strong>Pod</strong></td>
+    <td>The smallest unit &mdash; a single running container</td>
+    <td>Defined inside a Deployment</td>
+  </tr>
+  <tr>
+    <td><strong>Deployment</strong></td>
+    <td>An instruction sheet: "Run 3 copies of this container, update them gradually"</td>
+    <td><code>deployment.yaml</code></td>
+  </tr>
+  <tr>
+    <td><strong>Service</strong></td>
+    <td>A reception desk: "Talk to this address, and I'll forward you to a healthy pod"</td>
+    <td><code>deployment.yaml</code> (same file)</td>
+  </tr>
+  <tr>
+    <td><strong>Ingress</strong></td>
+    <td>A building sign: "www.myapp.com points here" (handles DNS and TLS/SSL)</td>
+    <td><code>ingress.yaml</code></td>
+  </tr>
+  <tr>
+    <td><strong>HPA</strong></td>
+    <td>A thermostat: "If CPU > 70%, add more pods; if low, remove some"</td>
+    <td><code>deployment.yaml</code> (same file)</td>
+  </tr>
+  <tr>
+    <td><strong>Namespace</strong></td>
+    <td>A floor in the hotel: separates different departments (production vs staging)</td>
+    <td><code>ingress.yaml</code></td>
+  </tr>
+  <tr>
+    <td><strong>PDB</strong></td>
+    <td>Fire code: "Must keep at least 2 pods running at all times"</td>
+    <td><code>ingress.yaml</code></td>
+  </tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; YAML Format:</strong> Kubernetes uses YAML files. YAML is a
+  human-readable data format. Indentation matters &mdash; use spaces, not tabs!
+  Two spaces per level is the standard.
+</div>
+</section>
+
+<section id="k8s-deployment">
+<h3>8.3 Deployment Explained</h3>
+
+<p>Let's break down <code>infrastructure/kubernetes/deployment.yaml</code>. We'll go piece by piece:</p>
+
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: production
+  labels:
+    app: portfolio-app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: portfolio-app</code></pre>
+
+<h4>What each field does:</h4>
+<table>
+  <tr><td><code>replicas: 3</code></td><td>Always keep 3 copies of the app running</td></tr>
+  <tr><td><code>type: RollingUpdate</code></td><td>Update pods one at a time instead of all at once (zero downtime)</td></tr>
+  <tr><td><code>maxSurge: 1</code></td><td>During update, run at most 1 extra pod above the desired 3</td></tr>
+  <tr><td><code>maxUnavailable: 0</code></td><td>Never have fewer than 3 pods available (zero downtime guarantee)</td></tr>
+  <tr><td><code>matchLabels</code></td><td>The selector tells the Deployment which pods to manage</td></tr>
+</table>
+
+<pre><code>  template:
+    metadata:
+      labels:
+        app: portfolio-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/portfolio/app:latest
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: metrics</code></pre>
+
+<p>This section defines the <strong>pod template</strong> &mdash; what each pod looks like. The labels on the pod must match the selector above.</p>
+
+<pre><code>          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: host</code></pre>
+
+<p>
+  Environment variables can come from <strong>Secrets</strong> (stored separately in
+  Kubernetes, not hard-coded). This is more secure &mdash; passwords never appear
+  in the YAML file.
+</p>
+
+<pre><code>          resources:
+            requests:
+              cpu: 256m
+              memory: 512Mi
+            limits:
+              cpu: 512m
+              memory: 1Gi</code></pre>
+
+<table>
+  <tr><th>Setting</th><th>Meaning</th></tr>
+  <tr><td><code>requests</code></td><td>"Minimum" &mdash; Kubernetes guarantees at least this much CPU and memory</td></tr>
+  <tr><td><code>limits</code></td><td>"Maximum" &mdash; the pod can NEVER use more than this</td></tr>
+  <tr><td><code>256m CPU</code></td><td>256 milli-CPU = one quarter of a CPU core</td></tr>
+  <tr><td><code>512Mi memory</code></td><td>512 Mebibytes of RAM (about 537 MB)</td></tr>
+</table>
+
+<pre><code>          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10</code></pre>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Probes save your app from itself:</strong>
+  <ul>
+    <li><strong>Liveness probe</strong> &mdash; "Is the app alive?" If it fails, Kubernetes kills and restarts the pod.</li>
+    <li><strong>Readiness probe</strong> &mdash; "Is the app ready to serve traffic?" If it fails, Kubernetes removes the pod from the Service (no traffic sent to it).</li>
+  </ul>
+  If your app crashes or gets stuck, these probes detect it and restore it automatically. This is the "self-healing" part of Kubernetes.
+</div>
+
+<pre><code>      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - portfolio-app
+                topologyKey: kubernetes.io/hostname</code></pre>
+
+<p>
+  <strong>Anti-affinity</strong> means "spread pods across different computers."
+  Kubernetes will try (but not require) to put each pod on a different physical
+  machine. This way, if one machine crashes, you still have pods running on others.
+</p>
+
+<div class="tip">
+  <strong>&#x1F4A1; The Rule of Three:</strong> Why 3 replicas? With 3 copies:
+  <ul>
+    <li>If 1 machine fails, 2 pods remain (still serving traffic)</li>
+    <li>During updates, 2 pods stay running while 1 updates</li>
+    <li>You can survive any single point of failure</li>
+  </ul>
+</div>
+</section>
+
+<section id="k8s-service">
+<h3>8.4 Service Explained</h3>
+
+<pre><code>---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: production
+  labels:
+    app: portfolio-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+    - port: 9090
+      targetPort: 9090
+      name: metrics
+  selector:
+    app: portfolio-app</code></pre>
+
+<table>
+  <tr><th>Field</th><th>Meaning</th></tr>
+  <tr><td><code>type: ClusterIP</code></td><td>Internal-only IP (accessible inside the cluster, not from the internet)</td></tr>
+  <tr><td><code>port: 80</code></td><td>The port this Service listens on (inside the cluster)</td></tr>
+  <tr><td><code>targetPort: 8080</code></td><td>The port on the pod that receives traffic</td></tr>
+  <tr><td><code>selector</code></td><td>Routes traffic to any pod with the label <code>app: portfolio-app</code></td></tr>
+</table>
+
+<p>
+  Think of a Service as a <strong>load balancer</strong>. When another service in
+  the cluster connects to <code>http://app:80</code>, the Service forwards the
+  request to one of the 3 healthy pods.
+</p>
+
+<h4>Comparison: Service Types</h4>
+<table>
+  <tr><th>Type</th><th>Accessible From</th><th>Use Case</th></tr>
+  <tr><td><code>ClusterIP</code></td><td>Inside the cluster only</td><td>Internal microservices</td></tr>
+  <tr><td><code>NodePort</code></td><td>Outside (via node IP + a high port)</td><td>Testing, development</td></tr>
+  <tr><td><code>LoadBalancer</code></td><td>Outside (via cloud load balancer)</td><td>External-facing services (creates an AWS/GCP load balancer)</td></tr>
+</table>
+</section>
+
+<section id="k8s-hpa">
+<h3>8.5 Horizontal Pod Autoscaler (HPA)</h3>
+
+<pre><code>apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80</code></pre>
+
+<p>
+  The HPA is like a <strong>smart thermostat</strong> for your deployment:
+</p>
+<ul>
+  <li>It measures CPU and memory usage across all pods</li>
+  <li>If average CPU exceeds 70%, it adds more pods (up to 10)</li>
+  <li>If CPU drops below 70%, it removes pods (down to 3 minimum)</li>
+  <li>Same logic applies to memory at 80% threshold</li>
+</ul>
+
+<div class="tip">
+  <strong>&#x1F4A1; Why Two Metrics?</strong> Using both CPU and memory makes scaling
+  more responsive. A memory-intensive batch job might not raise CPU much, but could
+  still need more pods. With both metrics, you're covered either way.
+</div>
+</section>
+
+<section id="k8s-ingress">
+<h3>8.6 Ingress &amp; TLS</h3>
+
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - app.example.com
+        - api.example.com
+      secretName: app-tls
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 80
+    - host: api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 80</code></pre>
+
+<p>
+  An <strong>Ingress</strong> is the front door to your cluster. It handles:
+</p>
+<ul>
+  <li><strong>DNS routing</strong> &mdash; <code>app.example.com</code> goes to one set of services, <code>api.example.com</code> to another</li>
+  <li><strong>TLS/SSL termination</strong> &mdash; automatically gets HTTPS certificates from Let's Encrypt (free)</li>
+  <li><strong>SSL redirect</strong> &mdash; forces all HTTP traffic to HTTPS</li>
+</ul>
+
+<h4>How cert-manager Works</h4>
+<p>
+  The annotation <code>cert-manager.io/cluster-issuer: letsencrypt-prod</code>
+  tells a tool called <strong>cert-manager</strong> to automatically request and
+  renew SSL certificates from Let's Encrypt. It does this without manual intervention
+  &mdash; the certificates are stored in a Kubernetes Secret called <code>app-tls</code>.
+</p>
+
+<p>There are also two <strong>Namespace</strong> definitions and a <strong>PodDisruptionBudget</strong> (PDB) at the bottom:</p>
+
+<pre><code>apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: portfolio-app</code></pre>
+
+<p>
+  A PDB guarantees that at least 2 pods are always running, even during maintenance
+  (like when an AWS worker node needs to be replaced). Without this, Kubernetes might
+  drain all pods from a node at once, causing downtime.
+</p>
+</section>
+
+<section id="k8s-apply">
+<h3>8.7 Applying Manifests to a Cluster</h3>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; For this tutorial:</strong> You do NOT need a Kubernetes
+  cluster to learn from these files. The commands below are for reference when you
+  have access to a real cluster (like using Minikube locally or an EKS cluster on AWS).
+</div>
+
+<pre><code># Apply all manifests in a folder
+kubectl apply -f infrastructure/kubernetes/
+
+# See what's running
+kubectl get all -n production
+
+# Check on a specific deployment
+kubectl rollout status deployment/app -n production
+
+# View pod logs
+kubectl logs -n production -l app=portfolio-app
+
+# Scale manually
+kubectl scale deployment/app --replicas=5 -n production
+
+# Delete everything
+kubectl delete -f infrastructure/kubernetes/</code><span class="code-label">kubectl commands</span></pre>
+
+<h4>Setting Up a Local Cluster with Minikube</h4>
+<p>If you want to try Kubernetes locally without paying for cloud services:</p>
+
+<pre><code># Install Minikube (one command)
+# Windows: download from minikube.sigs.k8s.io
+# Mac:   brew install minikube
+# Linux: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+# Start a cluster
+minikube start --cpus=4 --memory=8192
+
+# Enable the ingress controller
+minikube addons enable ingress
+
+# Apply our manifests
+kubectl apply -f infrastructure/kubernetes/
+
+# Access the app
+minikube service app -n production</code><span class="code-label">minikube setup</span></pre>
+
+<div class="tip">
+  <strong>&#x1F4A1; Minikube vs. Cloud:</strong> Minikube gives you a single-node
+  Kubernetes cluster on your laptop. It's perfect for learning but NOT for production.
+  Real companies use managed Kubernetes like Amazon EKS, Google GKE, or Azure AKS
+  which handle backups, upgrades, and scaling automatically.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  TERRAFORM                                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="terraform">
+<h2>9. Terraform (Infrastructure as Code)</h2>
+
+<section id="tf-what">
+<h3>9.1 What Is Terraform?</h3>
+
+<p>
+  Before Terraform, when companies needed servers, a person would log into a website
+  (like the AWS Console), click buttons, and create resources manually. This was:
+</p>
+<ul>
+  <li><strong>Slow</strong> &mdash; took hours to click through menus</li>
+  <li><strong>Error-prone</strong> &mdash; easy to forget a setting</li>
+  <li><strong>Undocumented</strong> &mdash; nobody knew exactly what was configured</li>
+</ul>
+
+<p>
+  <strong>Terraform</strong> solves this by letting you define your infrastructure
+  in <strong>code</strong>. You write a file describing what you want (a VPC, a
+  database, a Kubernetes cluster), and Terraform creates it automatically.
+</p>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Infrastructure as Code (IaC):</strong> This is the practice of
+  managing servers, databases, networks, and other infrastructure through code files
+  rather than manual configuration. All the benefits of coding (version control,
+  code review, automation) apply to your infrastructure too.
+</div>
+
+<h4>Key Terraform Concepts</h4>
+<table>
+  <tr><th>Concept</th><th>Meaning</th></tr>
+  <tr><td><strong>Provider</strong></td><td>A plugin that talks to a specific cloud (AWS, Azure, GCP, etc.)</td></tr>
+  <tr><td><strong>Resource</strong></td><td>A single infrastructure component (a VPC, a subnet, a database)</td></tr>
+  <tr><td><strong>Module</strong></td><td>A reusable group of resources (like a recipe for an EKS cluster)</td></tr>
+  <tr><td><strong>State</strong></td><td>A file that tracks what Terraform has created (so it knows what to update/delete)</td></tr>
+  <tr><td><strong>Plan</strong></td><td>A preview of what Terraform will change (like "git diff" but for infrastructure)</td></tr>
+</table>
+</section>
+
+<section id="tf-files">
+<h3>9.2 The Terraform Files</h3>
+
+<p>We have three files in <code>infrastructure/terraform/</code>:</p>
+
+<table>
+  <tr><th>File</th><th>Purpose</th></tr>
+  <tr><td><code>main.tf</code></td><td>The main file with all the resources (VPC, EKS, RDS, ECR)</td></tr>
+  <tr><td><code>variables.tf</code></td><td>Input variables &mdash; lets you customize settings without editing the main file</td></tr>
+  <tr><td><code>outputs.tf</code></td><td>Output values &mdash; shows useful information after creation (like the database URL)</td></tr>
+</table>
+
+<h4>main.tf Breakdown</h4>
+
+<p><strong>Provider Setup:</strong></p>
+<pre><code>terraform {
+  required_version = ">= 1.6"
+  backend "s3" {
+    bucket         = "portfolio-terraform-state"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-state-lock"
+  }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}</code></pre>
+
+<table>
+  <tr><td><code>backend "s3"</code></td><td>Store Terraform state in an S3 bucket so your whole team shares the same state</td></tr>
+  <tr><td><code>dynamodb_table</code></td><td>Prevents two people from running Terraform at the same time (state locking)</td></tr>
+  <tr><td><code>hashicorp/aws</code></td><td>The AWS provider &mdash; lets Terraform create AWS resources</td></tr>
+</table>
+
+<p><strong>VPC and Networking:</strong></p>
+<pre><code>resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+}</code></pre>
+
+<p>
+  A <strong>VPC</strong> (Virtual Private Cloud) is your own private network in AWS.
+  The <code>cidr_block</code> <code>10.0.0.0/16</code> means this VPC has
+  65,536 possible IP addresses (like a huge apartment building with addresses
+  10.0.x.x).
+</p>
+
+<pre><code>resource "aws_subnet" "public" {
+  count                   = 2
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
+}</code></pre>
+
+<p>
+  <strong>Subnets</strong> divide the VPC into smaller networks. We create:
+</p>
+<ul>
+  <li><strong>2 public subnets</strong> &mdash; have internet access (map_public_ip_on_launch = true)</li>
+  <li><strong>2 private subnets</strong> &mdash; no direct internet access (more secure for databases)</li>
+</ul>
+
+<p>
+  The <code>count = 2</code> tells Terraform to create two copies. Each goes to a
+  different <strong>availability zone</strong> (different physical data center),
+  so if one data center has an outage, the other still works.
+</p>
+
+<p><strong>EKS Cluster:</strong></p>
+<pre><code>module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = local.cluster_name
+  cluster_version = "1.29"
+
+  vpc_id     = aws_vpc.main.id
+  subnet_ids = aws_subnet.private[*].id
+
+  cluster_endpoint_public_access = true
+
+  eks_managed_node_groups = {
+    main = {
+      desired_size = var.node_desired_size
+      min_size     = var.node_min_size
+      max_size     = var.node_max_size
+      instance_types = var.node_instance_types
+    }
+  }
+}</code></pre>
+
+<p>
+  This <strong>module</strong> (from the Terraform Registry) creates an EKS cluster
+  (Amazon's managed Kubernetes). It handles most of the complexity &mdash; we just
+  specify the name, version, and node group settings.
+</p>
+
+<p>Key note: <code>subnet_ids = aws_subnet.private[*].id</code> means the Kubernetes
+  nodes run in <strong>private subnets</strong> (no direct internet access). They
+  reach the internet through a NAT gateway (not shown) for updates.
+</p>
+
+<p><strong>RDS Database:</strong></p>
+<pre><code>module "rds" {
+  source  = "terraform-aws-modules/rds/aws"
+  version = "~> 6.0"
+
+  identifier = "portfolio-${var.environment}"
+
+  engine         = "postgres"
+  engine_version = "16"
+  instance_class = var.db_instance_class
+
+  allocated_storage     = 20
+  max_allocated_storage = 100
+
+  db_name  = "portfolio"
+  username = var.db_username
+  password = var.db_password
+  port     = 5432
+
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+
+  skip_final_snapshot = var.environment != "production"
+}</code></pre>
+
+<table>
+  <tr><td><code>engine: postgres</code></td><td>PostgreSQL database</td></tr>
+  <tr><td><code>engine_version: 16</code></td><td>Latest major version of PostgreSQL</td></tr>
+  <tr><td><code>instance_class: db.t3.small</code></td><td>Type of database server (small/cheap for development)</td></tr>
+  <tr><td><code>skip_final_snapshot</code></td><td>If NOT production, skip the final snapshot when destroying (saves time). In production, always take a final backup.</td></tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; Security group:</strong> The RDS security group only allows
+  traffic from the EKS cluster's security group. No other computer can access the
+  database. This is a security best practice &mdash; never expose databases directly
+  to the internet.
+</div>
+
+<p><strong>ECR Repository:</strong></p>
+<pre><code>resource "aws_ecr_repository" "app" {
+  name = "portfolio-${var.environment}"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}</code></pre>
+
+<p>
+  Amazon <strong>ECR</strong> (Elastic Container Registry) stores Docker images.
+  The <code>scan_on_push = true</code> setting automatically scans each pushed
+  image for security vulnerabilities (like outdated libraries with known exploits).
+</p>
+</section>
+
+<section id="tf-plan">
+<h3>9.3 Planning and Applying Terraform</h3>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; Running Terraform costs real money!</strong> Creating
+  an EKS cluster, RDS database, and other AWS resources will incur charges on your
+  AWS account. Only run these commands if you understand the costs.
+</div>
+
+<pre><code># 0. Install Terraform
+# https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+
+# 1. Initialize (downloads providers and sets up state)
+cd infrastructure/terraform
+terraform init
+
+# 2. See what Terraform WOULD create
+terraform plan -var="environment=staging" \
+  -var="db_username=admin" \
+  -var="db_password=changeme123"
+
+# 3. Actually create everything (prompts for confirmation)
+terraform apply -var="environment=staging" \
+  -var="db_username=admin" \
+  -var="db_password=changeme123"
+
+# 4. See the outputs (database URL, cluster endpoint, etc.)
+terraform output
+
+# 5. When you're done, destroy everything to avoid charges
+terraform destroy -var="environment=staging"</code><span class="code-label">terraform workflow</span></pre>
+
+<h4>The Terraform Workflow Explained</h4>
+<ol>
+  <li><strong>init</strong> &mdash; downloads the AWS provider plugin and sets up the state backend</li>
+  <li><strong>plan</strong> &mdash; compares your code with the current state and shows what will be added/changed/deleted (always review this carefully!)</li>
+  <li><strong>apply</strong> &mdash; executes the plan (creates/modifies resources)</li>
+  <li><strong>destroy</strong> &mdash; tears everything down (always do this when experimenting to avoid costs)</li>
+</ol>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Terraform Modules:</strong> Our code uses <strong>community modules</strong>
+  from the Terraform Registry (<code>terraform-aws-modules/eks/aws</code> and
+  <code>terraform-aws-modules/rds/aws</code>). These are pre-built, tested recipes
+  maintained by the community. Using modules saves us from writing hundreds of lines
+  of boilerplate code. The <code>source</code> and <code>version</code> fields tell
+  Terraform where to find them.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  ANSIBLE                                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="ansible">
+<h2>10. Ansible (Configuration Management)</h2>
+
+<section id="ansible-what">
+<h3>10.1 What Is Ansible?</h3>
+
+<p>
+  Imagine you have 50 servers that all need to be set up exactly the same way:
+  install Docker, configure networking, create users, set permissions. Doing this
+  by hand on each server would take days and you'd make mistakes.
+</p>
+
+<p>
+  <strong>Ansible</strong> lets you define the desired state of your servers in
+  a <strong>playbook</strong> (a YAML file), and it makes all servers match that
+  state automatically.
+</p>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Agentless:</strong> Unlike many tools that require software
+  installed on each server, Ansible connects via SSH (secure shell). It's
+  "agentless" &mdash; nothing needs to be installed on the target servers besides
+  Python (which comes pre-installed on most Linux systems).
+</div>
+</section>
+
+<section id="ansible-playbook">
+<h3>10.2 The Playbook Explained</h3>
+
+<p>Our playbook at <code>ansible/playbook.yml</code> has two parts:</p>
+
+<h4>Part 1: Bootstrap Kubernetes Workers</h4>
+<pre><code>- name: Bootstrap Kubernetes workers
+  hosts: workers
+  become: yes
+  vars:
+    k8s_version: "1.29"
+    containerd_version: "1.7.16"</code></pre>
+
+<p>
+  <code>hosts: workers</code> means this runs on servers in the "workers" group
+  (defined in an inventory file). <code>become: yes</code> means "run as root"
+  (needed for installing software).
+</p>
+
+<p>The tasks in order:</p>
+
+<table>
+  <tr><th>Task</th><th>Why</th></tr>
+  <tr><td>Update apt cache</td><td>Refreshes the package list on Ubuntu/Debian servers</td></tr>
+  <tr><td>Install system dependencies</td><td>Installs tools like <code>curl</code> and <code>ca-certificates</code> needed by Kubernetes</td></tr>
+  <tr><td>Disable swap</td><td>Kubernetes requires swap to be disabled (swap interferes with pod memory limits)</td></tr>
+  <tr><td>Load kernel modules</td><td>Enables <code>overlay</code> and <code>br_netfilter</code> &mdash; Linux kernel features Docker needs</td></tr>
+  <tr><td>Configure sysctl</td><td>Sets network settings like IP forwarding (lets containers talk to each other)</td></tr>
+  <tr><td>Install containerd</td><td>Installs the container runtime (the software that actually runs containers)</td></tr>
+  <tr><td>Configure containerd</td><td>Sets up systemd cgroup driver (required by Kubernetes)</td></tr>
+  <tr><td>Add Kubernetes repo</td><td>Adds the official Kubernetes package repository to the server's package manager</td></tr>
+  <tr><td>Install kubelet, kubeadm, kubectl</td><td>The three Kubernetes command-line tools (kubelet runs on every node, kubeadm bootstraps the cluster, kubectl controls it)</td></tr>
+  <tr><td>Hold Kubernetes packages</td><td>Prevents accidental updates &mdash; Kubernetes upgrades should be planned, not accidental</td></tr>
+  <tr><td>Enable kubelet</td><td>Makes kubelet start automatically when the server boots</td></tr>
+</table>
+
+<h4>Part 2: Install Monitoring Stack</h4>
+<pre><code>- name: Install monitoring stack
+  hosts: monitoring
+  become: yes
+  vars:
+    prometheus_version: "2.53.0"
+    node_exporter_version: "1.7.0"</code></pre>
+
+<p>This installs Prometheus and Node Exporter on the monitoring server:</p>
+
+<table>
+  <tr><th>Task</th><th>Why</th></tr>
+  <tr><td>Create monitoring user</td><td>Runs Prometheus as a dedicated user (security best practice)</td></tr>
+  <tr><td>Download Prometheus</td><td>Downloads the Prometheus binary from GitHub releases</td></tr>
+  <tr><td>Create config/data dirs</td><td>Creates folders for Prometheus's configuration and time-series data</td></tr>
+  <tr><td>Install Node Exporter</td><td>Downloads the Node Exporter binary (collects system metrics like CPU, memory, disk)</td></tr>
+  <tr><td>Start Node Exporter</td><td>Enables and starts the Node Exporter as a systemd service (runs on boot)</td></tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; Idempotence:</strong> Ansible is <strong>idempotent</strong>.
+  That means running the playbook once is the same as running it 10 times &mdash;
+  if a package is already installed, it won't reinstall it. If sysctl is already
+  configured, it won't change it. This makes Ansible safe to run on a schedule.
+</div>
+</section>
+
+<section id="ansible-run">
+<h3>10.3 Running Ansible</h3>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; Ansible requires target servers.</strong> You need
+  actual Linux servers (or VMs) to run Ansible against. The commands below are
+  for reference when you have infrastructure to manage.
+</div>
+
+<pre><code># 1. Create an inventory file (defines your servers)
+# Save as: inventory.ini
+[workers]
+worker-1 ansible_host=10.0.1.10 ansible_user=ubuntu
+worker-2 ansible_host=10.0.1.11 ansible_user=ubuntu
+
+[monitoring]
+monitor-1 ansible_host=10.0.1.20 ansible_user=ubuntu
+
+[all:vars]
+ansible_ssh_private_key_file=~/.ssh/production.pem
+
+# 2. Check Ansible can reach all servers
+ansible all -i inventory.ini -m ping
+
+# 3. Run the playbook
+ansible-playbook -i inventory.ini ansible/playbook.yml
+
+# 4. Run only certain tasks (tag-based)
+ansible-playbook -i inventory.ini ansible/playbook.yml --tags containerd</code><span class="code-label">ansible commands</span></pre>
+
+<h4>Testing Ansible Locally</h4>
+<p>You can test Ansible without real servers using Docker:</p>
+
+<pre><code># Create a test container
+docker run -d --name ansible-test -p 2222:22 \
+  -e ROOT_PASSWORD=test \
+  rastasheep/ubuntu-sshd:18.04
+
+# Use this inventory:
+# [workers]
+# test-node ansible_host=localhost ansible_port=2222 ansible_user=root ansible_password=test
+
+# Run the playbook
+ansible-playbook -i inventory.ini ansible/playbook.yml</code><span class="code-label">local testing</span></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  MONITORING                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="monitoring">
+<h2>11. Monitoring (Prometheus &amp; Grafana)</h2>
+
+<section id="mon-what">
+<h3>11.1 Why Monitor?</h3>
+
+<p>
+  Imagine driving a car with no dashboard. You can't see your speed, fuel level,
+  or engine temperature. You'd be driving blind &mdash; and when something breaks,
+  you'd have no warning.
+</p>
+
+<p>
+  <strong>Monitoring</strong> is the dashboard for your software. It tells you:
+</p>
+<ul>
+  <li>Is my app up? (availability)</li>
+  <li>Is it slow? (latency)</li>
+  <li>Is it using too much memory? (resource usage)</li>
+  <li>Are users getting errors? (error rate)</li>
+</ul>
+
+<h4>The Two Tools</h4>
+<table>
+  <tr><th>Tool</th><th>Job</th></tr>
+  <tr><td><strong>Prometheus</strong></td><td>Collects and stores metrics (like a black box data recorder)</td></tr>
+  <tr><td><strong>Grafana</strong></td><td>Visualizes metrics on pretty graphs (like the car's dashboard display)</td></tr>
+</table>
+</section>
+
+<section id="mon-prom">
+<h3>11.2 Prometheus Configuration</h3>
+
+<pre><code>global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: production
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - "alerts/*.yml"</code></pre>
+
+<table>
+  <tr><td><code>scrape_interval: 15s</code></td><td>Check every target for new data every 15 seconds</td></tr>
+  <tr><td><code>evaluation_interval: 15s</code></td><td>Check alerting rules every 15 seconds</td></tr>
+  <tr><td><code>alertmanagers</code></td><td>Where to send alerts (Alertmanager handles notifications: email, Slack, PagerDuty)</td></tr>
+  <tr><td><code>rule_files</code></td><td>Load alert rules from the <code>alerts/</code> folder</td></tr>
+</table>
+
+<p>The <code>scrape_configs</code> section defines <strong>targets</strong> (where to collect metrics):</p>
+
+<pre><code>scrape_configs:
+  - job_name: "kubernetes"
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true</code></pre>
+
+<p>
+  This configuration uses <strong>service discovery</strong> &mdash; Prometheus
+  automatically finds pods that have the annotation
+  <code>prometheus.io/scrape: "true"</code>. You don't need to manually list each
+  pod; Prometheus discovers them dynamically.
+</p>
+
+<p>The other two jobs are simpler (static targets):</p>
+<ul>
+  <li><code>node-exporter:9100</code> &mdash; collects server-level metrics (CPU, RAM, disk)</li>
+  <li><code>postgres-exporter:9187</code> &mdash; collects database metrics (connections, query times)</li>
+</ul>
+</section>
+
+<section id="mon-alerts">
+<h3>11.3 Alerting Rules</h3>
+
+<p>Our <code>monitoring/alerts.yml</code> defines 5 alerts:</p>
+
+<table>
+  <tr><th>Alert Name</th><th>Condition</th><th>Severity</th></tr>
+  <tr>
+    <td>HighCPUUsage</td>
+    <td>CPU > 80% for 5 minutes</td>
+    <td>critical</td>
+  </tr>
+  <tr>
+    <td>HighMemoryUsage</td>
+    <td>Memory > 85% for 5 minutes</td>
+    <td>warning</td>
+  </tr>
+  <tr>
+    <td>PodDown</td>
+    <td>Any deployment has unavailable replicas</td>
+    <td>critical</td>
+  </tr>
+  <tr>
+    <td>HighErrorRate</td>
+    <td>HTTP 5xx errors > 5% for 3 minutes</td>
+    <td>critical</td>
+  </tr>
+  <tr>
+    <td>DiskFull</td>
+    <td>Disk space < 10% for 5 minutes</td>
+    <td>critical</td>
+  </tr>
+</table>
+
+<p>Let's examine one alert rule in detail:</p>
+
+<pre><code>      - alert: HighCPUUsage
+        expr: sum(rate(container_cpu_usage_seconds_total{namespace="production"}[5m])) by (pod) > 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.pod }} CPU usage above 80%"
+          description: "CPU usage has been above 80% for more than 5 minutes."</code></pre>
+
+<table>
+  <tr><td><code>expr</code></td><td>The PromQL (Prometheus Query Language) expression. This one calculates CPU usage rate per pod over 5 minutes and checks if it exceeds 0.8 (80%)</td></tr>
+  <tr><td><code>for: 5m</code></td><td>The condition must be true for 5 minutes before the alert triggers (prevents false alarms from brief spikes)</td></tr>
+  <tr><td><code>labels</code></td><td>Tags on the alert (used for routing &mdash; critical alerts might page someone, warnings just send email)</td></tr>
+  <tr><td><code>annotations</code></td><td>Human-readable messages (shown in the alert notification)</td></tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; PromQL basics:</strong> PromQL is the query language for Prometheus.
+  Some common patterns:
+  <ul>
+    <li><code>rate(metric[5m])</code> &mdash; how fast a counter is increasing per second</li>
+    <li><code>sum(metric) by (pod)</code> &mdash; total per pod</li>
+    <li><code>metric > 0.8</code> &mdash; filter where value exceeds 0.8</li>
+  </ul>
+  You don't need to memorize PromQL &mdash; you can copy and adapt existing queries, and Grafana has a visual query builder.
+</div>
+</section>
+
+<section id="mon-grafana">
+<h3>11.4 Grafana Dashboards</h3>
+
+<p>
+  While Prometheus collects the data, <strong>Grafana</strong> turns it into
+  beautiful graphs. Our JSON file (<code>monitoring/grafana-dashboard.json</code>)
+  defines a dashboard with:
+</p>
+
+<table>
+  <tr><th>Panel</th><th>Query</th><th>What It Shows</th></tr>
+  <tr><td>CPU Usage</td><td><code>sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)</code></td><td>CPU usage per pod over time</td></tr>
+  <tr><td>Memory Usage</td><td><code>sum(container_memory_working_set_bytes) by (pod)</code></td><td>Memory usage per pod over time</td></tr>
+  <tr><td>HTTP Request Rate</td><td><code>rate(http_requests_total[5m])</code></td><td>Requests per second</td></tr>
+  <tr><td>Error Rate</td><td><code>rate(http_requests_total{status="5.."}) / rate(http_requests_total)</code></td><td>Percentage of requests that are errors</td></tr>
+</table>
+
+<h4>To Import the Dashboard in Grafana:</h4>
+<ol>
+  <li>Open Grafana (<a href="http://localhost:3000" style="color:var(--accent)">http://localhost:3000</a>)</li>
+  <li>Login with <code>admin / admin</code></li>
+  <li>Click the <strong>+</strong> icon in the left sidebar &rarr; <strong>Import</strong></li>
+  <li>Upload the JSON file or paste its contents</li>
+  <li>Select your Prometheus data source and click <strong>Import</strong></li>
+</ol>
+
+<div class="info-box">
+  <strong>&#x1F4DD; The Three Pillars of Observability:</strong>
+  <ul>
+    <li><strong>Metrics</strong> &mdash; numerical measurements over time (Prometheus handles this)</li>
+    <li><strong>Logs</strong> &mdash; detailed records of events (like "User 123 logged in at 3:04pm")</li>
+    <li><strong>Traces</strong> &mdash; following a request through multiple services (helps find bottlenecks)</li>
+  </ul>
+  This portfolio covers metrics. For a complete system, you'd add a logging tool
+  (like ELK stack or Loki) and a tracing tool (like Jaeger or Tempo).
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  GLOSSARY                                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="glossary">
+<h2>12. Glossary</h2>
+
+<p>
+  Every term used in this tutorial, defined simply:
+</p>
+
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td><strong>Ansible</strong></td><td>A tool that automates server setup and configuration by running commands over SSH</td></tr>
+  <tr><td><strong>Availability Zone</strong></td><td>A physically separate data center within an AWS region. Using multiple AZs protects against data center outages.</td></tr>
+  <tr><td><strong>Canary Deployment</strong></td><td>Rolling out a new version to a small subset of users first to test before full release</td></tr>
+  <tr><td><strong>CIDR</strong></td><td>A way to describe a range of IP addresses (e.g., <code>10.0.0.0/16</code> = 65,536 addresses).</td></tr>
+  <tr><td><strong>CI/CD</strong></td><td>Continuous Integration / Continuous Deployment — automatically testing and deploying code</td></tr>
+  <tr><td><strong>Container</strong></td><td>A lightweight, standalone package that includes everything needed to run a piece of software</td></tr>
+  <tr><td><strong>Docker</strong></td><td>The most popular tool for creating and running containers</td></tr>
+  <tr><td><strong>Docker Compose</strong></td><td>A tool for defining and running multiple Docker containers together</td></tr>
+  <tr><td><strong>ECR</strong></td><td>Elastic Container Registry — AWS's service for storing Docker images</td></tr>
+  <tr><td><strong>EKS</strong></td><td>Elastic Kubernetes Service — AWS's managed Kubernetes service</td></tr>
+  <tr><td><strong>Grafana</strong></td><td>A visualization tool that turns metrics into graphs and dashboards</td></tr>
+  <tr><td><strong>HPA</strong></td><td>Horizontal Pod Autoscaler — automatically adds/removes Kubernetes pods based on CPU/memory usage</td></tr>
+  <tr><td><strong>IaC</strong></td><td>Infrastructure as Code — managing servers and networks through code files</td></tr>
+  <tr><td><strong>Ingress</strong></td><td>A Kubernetes resource that manages external access (DNS, SSL, routing) to services</td></tr>
+  <tr><td><strong>Kubernetes (K8s)</strong></td><td>A system for automatically deploying, scaling, and managing containerized applications</td></tr>
+  <tr><td><strong>Namespace</strong></td><td>A way to divide a Kubernetes cluster into virtual sub-clusters (e.g., "production" vs "staging")</td></tr>
+  <tr><td><strong>Node</strong></td><td>A worker machine in Kubernetes (physical or virtual computer that runs pods)</td></tr>
+  <tr><td><strong>PDB</strong></td><td>PodDisruptionBudget — guarantees a minimum number of pods stay running during maintenance</td></tr>
+  <tr><td><strong>Playbook</strong></td><td>An Ansible YAML file that defines the desired state of servers</td></tr>
+  <tr><td><strong>Pod</strong></td><td>The smallest deployable unit in Kubernetes — usually one container with its settings</td></tr>
+  <tr><td><strong>Probe</strong></td><td>A health check that Kubernetes uses to know if a pod is alive and ready</td></tr>
+  <tr><td><strong>Prometheus</strong></td><td>A monitoring system that collects and stores metrics (the "database" behind the graphs)</td></tr>
+  <tr><td><strong>PromQL</strong></td><td>Prometheus Query Language — used to ask questions about your metrics</td></tr>
+  <tr><td><strong>RDS</strong></td><td>Relational Database Service — AWS's managed database service (PostgreSQL, MySQL, etc.)</td></tr>
+  <tr><td><strong>Replica</strong></td><td>One copy of a pod. Three replicas = three copies running simultaneously for reliability.</td></tr>
+  <tr><td><strong>Rolling Update</strong></td><td>Updating pods one at a time so the service never goes down</td></tr>
+  <tr><td><strong>Secret</strong></td><td>A Kubernetes resource that stores sensitive data (passwords, API keys) securely</td></tr>
+  <tr><td><strong>Service</strong></td><td>A Kubernetes resource that provides a stable network endpoint for a set of pods</td></tr>
+  <tr><td><strong>State</strong></td><td>Terraform's record of what infrastructure exists (stored in a state file)</td></tr>
+  <tr><td><strong>Tag</strong></td><td>A named version in git (e.g., <code>v1.2.3</code>), used to mark releases</td></tr>
+  <tr><td><strong>Terraform</strong></td><td>An IaC tool that creates, modifies, and deletes cloud resources based on code</td></tr>
+  <tr><td><strong>TLS/SSL</strong></td><td>Encryption protocols that secure web traffic (the "https" in your browser bar)</td></tr>
+  <tr><td><strong>VPC</strong></td><td>Virtual Private Cloud — a private network within AWS where your resources live</td></tr>
+  <tr><td><strong>YAML</strong></td><td>A human-readable data format (like JSON but cleaner). Used by Kubernetes, Ansible, GitHub Actions, Docker Compose, and Terraform.</td></tr>
+</table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!--  NEXT STEPS                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="next-steps">
+<h2>13. Next Steps</h2>
+
+<p>Congratulations on making it through this tutorial! Here's what you can do next:</p>
+
+<h3>Immediate Next Steps</h3>
+<ol>
+  <li><strong>Run Docker Compose locally</strong> &mdash; Get the app, Postgres, Prometheus, and Grafana running on your laptop. See everything working together.</li>
+  <li><strong>Explore the Grafana dashboards</strong> &mdash; Even with no real traffic, you'll see system metrics from the containers.</li>
+  <li><strong>Modify the sample app</strong> &mdash; Change the HTML, rebuild the Docker image, and see your changes live.</li>
+  <li><strong>Fork and push to GitHub</strong> &mdash; Put the project on your GitHub and watch the CI pipeline run.</li>
+</ol>
+
+<h3>Making the Portfolio Your Own</h3>
+<ol>
+  <li><strong>Replace the sample app</strong> &mdash; Swap in your own application (a Python API, a Go service, etc.)</li>
+  <li><strong>Add a real CI/CD demo</strong> &mdash; Use GitHub Actions (free for public repos) to build and push a Docker image</li>
+  <li><strong>Add a custom domain</strong> &mdash; Buy a domain like <code>yourname.dev</code> and point it to your app</li>
+  <li><strong>Document your setup</strong> &mdash; Write a blog post or README about what you built and why</li>
+</ol>
+
+<h3>Learning Paths</h3>
+<table>
+  <tr><th>Interest</th><th>Learn Next</th></tr>
+  <tr><td>Containers</td><td>Docker Swarm, Podman, distroless images, image optimization</td></tr>
+  <tr><td>Orchestration</td><td>Helm charts, service meshes (Istio/Linkerd), custom operators</td></tr>
+  <tr><td>CI/CD</td><td>GitLab CI, Jenkins, ArgoCD, feature flags, blue-green deployments</td></tr>
+  <tr><td>Cloud</td><td>AWS certifications, multi-cloud (GCP/Azure), serverless (Lambda)</td></tr>
+  <tr><td>Monitoring</td><td>ELK stack (Elasticsearch, Logstash, Kibana), OpenTelemetry, incident response</td></tr>
+  <tr><td>Security</td><td>HashiCorp Vault, OPA policies, SBOM, container vulnerability scanning</td></tr>
+  <tr><td>Platform Engineering</td><td>Backstage (developer portals), Crossplane, GitOps with ArgoCD</td></tr>
+</table>
+
+<div class="tip">
+  <strong>&#x1F4A1; Portfolio Tip for Interviews:</strong> When asked about this
+  project in an interview, focus on <strong>why</strong> you made each choice:
+  <ul>
+    <li>"I used Terraform because we wanted infrastructure version-controlled and reviewable"</li>
+    <li>"I chose a canary deployment to minimize risk when releasing new versions"</li>
+    <li>"I set up Prometheus alerts to catch issues before users notice them"</li>
+  </ul>
+  Employers love candidates who understand the reasoning, not just the commands.
+</div>
+
+<p style="margin-top: 48px; text-align: center; color: var(--text2); font-size: 0.85rem;">
+  &mdash; End of Tutorial &mdash;
+</p>
+</section>
+
+</div><!-- /.main -->
+
+<script>
+  // Highlight current section in sidebar
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.sidebar nav a[href]').forEach(a => a.classList.remove('active'));
+        const id = entry.target.getAttribute('id');
+        const link = document.querySelector(`.sidebar nav a[href="#${id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

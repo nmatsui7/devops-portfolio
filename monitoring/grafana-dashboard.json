@@ -1,0 +1,45 @@
+{
+  "dashboard": {
+    "title": "Portfolio App Overview",
+    "tags": ["kubernetes", "portfolio"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"production\"}[5m])) by (pod)"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(container_memory_working_set_bytes{namespace=\"production\"}) by (pod)"
+          }
+        ]
+      },
+      {
+        "title": "HTTP Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])"
+          }
+        ]
+      }
+    ]
+  }
+}

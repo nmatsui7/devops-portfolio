@@ -1,0 +1,71 @@
+name: CD Pipeline
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  K8S_NAMESPACE: production
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name portfolio-cluster --region us-east-1
+
+      - name: Deploy to staging
+        run: |
+          kubectl set image deployment/app \
+            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      url: https://app.example.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name portfolio-cluster --region us-east-1
+
+      - name: Canary deployment (10%)
+        run: |
+          kubectl set image deployment/app-canary \
+            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+      - name: Smoke test
+        run: |
+          sleep 30
+          curl -sf https://canary.app.example.com/health
+
+      - name: Rollout to all
+        run: |
+          kubectl set image deployment/app \
+            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            -n ${{ env.K8S_NAMESPACE }}
+          kubectl rollout status deployment/app -n ${{ env.K8S_NAMESPACE }}

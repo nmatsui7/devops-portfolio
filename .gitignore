@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.tfstate
+*.tfstate.backup
+.terraform/
+terraform.tfvars
+*.log
+.DS_Store
+Thumbs.db
