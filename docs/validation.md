@@ -28,6 +28,13 @@ The previously reported "collapsed file" issue is not present in this checkout. 
 
 ## YAML And JSON Parsing
 
+Dedicated YAML and workflow linting passed:
+
+```bash
+yamllint .github/workflows infrastructure/kubernetes docker/docker-compose.yml monitoring ansible/playbook.yml
+actionlint .github/workflows/ci.yml .github/workflows/cd.yml
+```
+
 Parsed successfully:
 
 ```text
@@ -42,8 +49,6 @@ ok infrastructure/kubernetes/deployment.yaml
 ok infrastructure/kubernetes/ingress.yaml
 ok monitoring/grafana-dashboard.json
 ```
-
-`yamllint` and `actionlint` were not installed locally, so YAML validation used Ruby's YAML parser.
 
 ## Docker
 
