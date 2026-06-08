@@ -832,6 +832,16 @@ docker rm portfolio-demo</code><span class="code-label">terminal</span></pre>
 </div>
 
 <h4>Other Useful Docker Commands</h4>
+
+<p>
+  Use <code>docker exec -it portfolio-demo sh</code> only after the container is
+  already running. It opens a shell inside the container so you can inspect files
+  or debug what Docker packaged. For example, you can run
+  <code>ls /usr/share/nginx/html</code> to see the served HTML file or
+  <code>cat /etc/nginx/conf.d/default.conf</code> to view the Nginx config.
+  Type <code>exit</code> when you are done.
+</p>
+
 <pre><code># View logs from a container
 docker logs portfolio-demo
 
