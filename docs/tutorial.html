@@ -545,6 +545,14 @@ cd devops-portfolio</code></pre>
   <p>The <code>.</code> means "current folder". VS Code will open with the project loaded.</p>
 </div>
 
+<div class="info-box">
+  <strong>Beginner tip:</strong> Open the entire project folder in VS Code, not just
+  one file. The Explorer sidebar will show regular folders like <code>app/</code>,
+  <code>docker/</code>, and <code>docs/</code>. It will also show dot folders such
+  as <code>.github/</code>. Dot folders are sometimes hidden in Finder or other file
+  browsers, but VS Code shows them when the project folder is open.
+</div>
+
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Important:</strong> Throughout this tutorial, whenever you see a
   code block, you should <strong>type the commands yourself</strong> rather than
@@ -1307,6 +1315,15 @@ docker compose -f docker/docker-compose.yml logs -f</code><span class="code-labe
 <h3>7.2 The CI Pipeline (ci.yml)</h3>
 
 <p>Let's examine our CI pipeline file at <code>.github/workflows/ci.yml</code>:</p>
+
+<div class="info-box">
+  <strong>How to find it in VS Code:</strong> In the Explorer sidebar, open
+  <code>.github</code>, then open <code>workflows</code>, then click
+  <code>ci.yml</code>. The <code>.github</code> folder contains GitHub-specific
+  project settings. In this repo, its most important files are the GitHub Actions
+  workflow files: <code>ci.yml</code> for checks and <code>cd.yml</code> for the
+  deployment flow.
+</div>
 
 <pre><code>name: CI Pipeline
 
@@ -2451,100 +2468,102 @@ ansible-playbook -i inventory.ini ansible/playbook.yml</code><span class="code-l
 <section id="mon-prom">
 <h3>11.2 Prometheus Configuration</h3>
 
+<h4>Understanding prometheus.yml</h4>
+
+<p>
+  The file <code>monitoring/prometheus.yml</code> tells Prometheus what to collect,
+  how often to collect it, and where alert rules live. Prometheus does not guess
+  which services to monitor; it needs scrape targets in this config file.
+</p>
+
 <pre><code>global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
     environment: production
 
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: ["alertmanager:9093"]
-
 rule_files:
-  - "alerts/*.yml"</code></pre>
+  - "/etc/prometheus/alerts.yml"
+
+scrape_configs:
+  - job_name: "portfolio-app-local"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - app:8080</code></pre>
 
 <table>
   <tr><td><code>scrape_interval: 15s</code></td><td>Check every target for new data every 15 seconds</td></tr>
   <tr><td><code>evaluation_interval: 15s</code></td><td>Check alerting rules every 15 seconds</td></tr>
-  <tr><td><code>alertmanagers</code></td><td>Where to send alerts (Alertmanager handles notifications: email, Slack, PagerDuty)</td></tr>
-  <tr><td><code>rule_files</code></td><td>Load alert rules from the <code>alerts/</code> folder</td></tr>
+  <tr><td><code>rule_files</code></td><td>Load alert rules from <code>/etc/prometheus/alerts.yml</code> inside the Prometheus container</td></tr>
+  <tr><td><code>job_name</code></td><td>The label/name for one group of scrape targets</td></tr>
+  <tr><td><code>metrics_path: /metrics</code></td><td>The HTTP path Prometheus reads from the app</td></tr>
+  <tr><td><code>targets</code></td><td>The service addresses Prometheus scrapes</td></tr>
 </table>
 
-<p>The <code>scrape_configs</code> section defines <strong>targets</strong> (where to collect metrics):</p>
-
-<pre><code>scrape_configs:
-  - job_name: "kubernetes"
-    kubernetes_sd_configs:
-      - role: pod
-    relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-        action: keep
-        regex: true</code></pre>
-
 <p>
-  This configuration uses <strong>service discovery</strong> &mdash; Prometheus
-  automatically finds pods that have the annotation
-  <code>prometheus.io/scrape: "true"</code>. You don't need to manually list each
-  pod; Prometheus discovers them dynamically.
+  In Docker Compose, containers share a private network. Services can reach each
+  other by service name, so Prometheus can scrape <code>app:8080</code>. That name
+  comes from the <code>app</code> service in <code>docker/docker-compose.yml</code>.
 </p>
 
-<p>The other two jobs are simpler (static targets):</p>
+<div class="warning">
+  <strong>Common beginner mistake:</strong> Inside the Prometheus container,
+  <code>localhost</code> means the Prometheus container itself. It does not mean
+  your Mac and it does not mean the app container. Use the Docker Compose service
+  name, such as <code>app:8080</code>, when one container needs to reach another.
+</div>
+
+<p>
+  The monitoring flow for this repo is:
+</p>
+
 <ul>
-  <li><code>node-exporter:9100</code> &mdash; collects server-level metrics (CPU, RAM, disk)</li>
-  <li><code>postgres-exporter:9187</code> &mdash; collects database metrics (connections, query times)</li>
+  <li>The app exposes metrics at <code>/metrics</code>.</li>
+  <li>Prometheus scrapes <code>http://app:8080/metrics</code>.</li>
+  <li>Grafana queries Prometheus and turns the collected data into dashboards.</li>
 </ul>
+
+<p>
+  The repo also includes a Kubernetes scrape job that can discover pods with
+  Prometheus annotations. That is useful for Kubernetes learning, but the local
+  Docker Compose proof path is the simple static target: <code>app:8080</code>.
+</p>
 </section>
 
 <section id="mon-alerts">
 <h3>11.3 Alerting Rules</h3>
 
-<p>Our <code>monitoring/alerts.yml</code> defines 5 alerts:</p>
+<p>Our <code>monitoring/alerts.yml</code> defines two local demo alerts:</p>
 
 <table>
   <tr><th>Alert Name</th><th>Condition</th><th>Severity</th></tr>
   <tr>
-    <td>HighCPUUsage</td>
-    <td>CPU > 80% for 5 minutes</td>
+    <td>PortfolioAppDown</td>
+    <td>Prometheus cannot scrape the local app target for 1 minute</td>
     <td>critical</td>
   </tr>
   <tr>
-    <td>HighMemoryUsage</td>
-    <td>Memory > 85% for 5 minutes</td>
+    <td>PortfolioAppNotReady</td>
+    <td>The app readiness metric is not reporting <code>portfolio_app_ready = 1</code> for 2 minutes</td>
     <td>warning</td>
-  </tr>
-  <tr>
-    <td>PodDown</td>
-    <td>Any deployment has unavailable replicas</td>
-    <td>critical</td>
-  </tr>
-  <tr>
-    <td>HighErrorRate</td>
-    <td>HTTP 5xx errors > 5% for 3 minutes</td>
-    <td>critical</td>
-  </tr>
-  <tr>
-    <td>DiskFull</td>
-    <td>Disk space < 10% for 5 minutes</td>
-    <td>critical</td>
   </tr>
 </table>
 
 <p>Let's examine one alert rule in detail:</p>
 
-<pre><code>      - alert: HighCPUUsage
-        expr: sum(rate(container_cpu_usage_seconds_total{namespace="production"}[5m])) by (pod) > 0.8
-        for: 5m
+<pre><code>      - alert: PortfolioAppDown
+        expr: up{job="portfolio-app-local"} == 0
+        for: 1m
         labels:
           severity: critical
         annotations:
-          summary: "Pod {{ $labels.pod }} CPU usage above 80%"
-          description: "CPU usage has been above 80% for more than 5 minutes."</code></pre>
+          summary: "Portfolio app target is down"
+          description: "Prometheus cannot scrape the local portfolio app target."</code></pre>
 
 <table>
-  <tr><td><code>expr</code></td><td>The PromQL (Prometheus Query Language) expression. This one calculates CPU usage rate per pod over 5 minutes and checks if it exceeds 0.8 (80%)</td></tr>
-  <tr><td><code>for: 5m</code></td><td>The condition must be true for 5 minutes before the alert triggers (prevents false alarms from brief spikes)</td></tr>
+  <tr><td><code>expr</code></td><td>The PromQL (Prometheus Query Language) expression. Here, <code>up == 0</code> means Prometheus cannot successfully scrape the app target</td></tr>
+  <tr><td><code>for: 1m</code></td><td>The condition must be true for 1 minute before the alert triggers, which prevents brief startup blips from becoming alerts</td></tr>
   <tr><td><code>labels</code></td><td>Tags on the alert (used for routing &mdash; critical alerts might page someone, warnings just send email)</td></tr>
   <tr><td><code>annotations</code></td><td>Human-readable messages (shown in the alert notification)</td></tr>
 </table>
@@ -2572,10 +2591,9 @@ rule_files:
 
 <table>
   <tr><th>Panel</th><th>Query</th><th>What It Shows</th></tr>
-  <tr><td>CPU Usage</td><td><code>sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)</code></td><td>CPU usage per pod over time</td></tr>
-  <tr><td>Memory Usage</td><td><code>sum(container_memory_working_set_bytes) by (pod)</code></td><td>Memory usage per pod over time</td></tr>
-  <tr><td>HTTP Request Rate</td><td><code>rate(http_requests_total[5m])</code></td><td>Requests per second</td></tr>
-  <tr><td>Error Rate</td><td><code>rate(http_requests_total{status="5.."}) / rate(http_requests_total)</code></td><td>Percentage of requests that are errors</td></tr>
+  <tr><td>Scrape Health</td><td><code>up{job="portfolio-app-local"}</code></td><td>Whether Prometheus can scrape the app target</td></tr>
+  <tr><td>Readiness</td><td><code>portfolio_app_ready</code></td><td>Whether the app reports ready through its demo metric</td></tr>
+  <tr><td>App Info</td><td><code>portfolio_app_info</code></td><td>A simple info metric showing the demo app is present</td></tr>
 </table>
 
 <h4>To Import the Dashboard in Grafana:</h4>
