@@ -645,6 +645,14 @@ python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
   <tr><td><strong>Registry</strong></td><td>A cookbook library</td><td>A place to store and share images (like Docker Hub)</td></tr>
 </table>
 
+<p>
+  The most important relationship is this: a <strong>Dockerfile</strong> is used
+  to build an <strong>image</strong>, and an <strong>image</strong> is used to
+  start one or more <strong>containers</strong>. The image stays saved on your
+  computer like a reusable template. A container is the live running copy of that
+  template, with its own process, filesystem view, network settings, and logs.
+</p>
+
 <div class="info-box">
   <strong>&#x1F4DD; The "It works on my machine!" Problem:</strong>
   Before Docker, developers would write code, test it, and it would work on their
@@ -765,6 +773,13 @@ docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="c
   cache &mdash; much faster!
 </p>
 
+<div class="info-box">
+  <strong>&#x1F4DD; What did you just create?</strong> The build command creates
+  a Docker <strong>image</strong> named <code>portfolio-app:latest</code>. It is
+  not running yet. It is a packaged version of the static app, Nginx, and the
+  Nginx configuration, ready to be started as a container.
+</div>
+
 <h4>List Your Images</h4>
 <pre><code>docker images</code><span class="code-label">terminal</span></pre>
 <p>You should see <code>portfolio-app</code> in the list along with its size.</p>
@@ -784,6 +799,14 @@ docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="c
   <tr><td><code>--name portfolio-demo</code></td><td>Give the container a name so you can reference it easily</td></tr>
   <tr><td><code>portfolio-app:latest</code></td><td>The image name and tag to run</td></tr>
 </table>
+
+<p>
+  This command creates a <strong>container</strong> named
+  <code>portfolio-demo</code> from the <code>portfolio-app:latest</code> image.
+  If you run the same image again with a different name, Docker creates another
+  separate container from the same template. The image is the source; containers
+  are the running copies.
+</p>
 
 <h4>Check It's Running</h4>
 <pre><code>docker ps</code><span class="code-label">terminal</span></pre>
