@@ -906,10 +906,51 @@ docker push yourusername/portfolio-app:latest</code><span class="code-label">ter
   and start them all with a single command. Think of it as a group recipe &mdash;
   it sets the table for the whole meal, not just one dish.
 </p>
+
+<h4>What Are These Extra Services?</h4>
+<table>
+  <tr><th>Service</th><th>What It Does</th><th>Why It Is Here</th></tr>
+  <tr>
+    <td><strong>PostgreSQL</strong></td>
+    <td>A relational database that stores structured data in tables</td>
+    <td>Included so you can practice running a database container, health checks, ports, and persistent volumes</td>
+  </tr>
+  <tr>
+    <td><strong>Prometheus</strong></td>
+    <td>A monitoring system that collects and stores numeric metrics over time</td>
+    <td>Scrapes the app's <code>/metrics</code> endpoint so you can see how monitoring data is collected</td>
+  </tr>
+  <tr>
+    <td><strong>Grafana</strong></td>
+    <td>A dashboard tool that turns metrics into charts and visual panels</td>
+    <td>Connects to Prometheus so you can explore the collected metrics visually</td>
+  </tr>
+</table>
 </section>
 
 <section id="compose-file">
 <h3>6.2 Understanding docker-compose.yml</h3>
+
+<p>
+  You are not expected to memorize every Docker Compose option. Most engineers
+  start from a known template, official docs, an image publisher's example, or a
+  previous project file, then validate the result with
+  <code>docker compose config</code>. The important skill is understanding the
+  basic shape of the file and what each common section is responsible for.
+</p>
+
+<table>
+  <tr><th>Compose Key</th><th>What To Remember</th></tr>
+  <tr><td><code>services</code></td><td>The containers you want to run</td></tr>
+  <tr><td><code>image</code></td><td>Use an existing image from a registry or your local machine</td></tr>
+  <tr><td><code>build</code></td><td>Build an image from a Dockerfile</td></tr>
+  <tr><td><code>ports</code></td><td>Map a port on your computer to a port inside the container</td></tr>
+  <tr><td><code>environment</code></td><td>Set environment variables inside the container</td></tr>
+  <tr><td><code>volumes</code></td><td>Persist data or mount files into the container</td></tr>
+  <tr><td><code>depends_on</code></td><td>Describe startup ordering or dependency relationships</td></tr>
+  <tr><td><code>networks</code></td><td>Control how containers talk to each other</td></tr>
+  <tr><td><code>healthcheck</code></td><td>Tell Docker how to check whether a service is healthy</td></tr>
+</table>
 
 <p>Here's our compose file (<code>docker/docker-compose.yml</code>) broken down section by section:</p>
 
