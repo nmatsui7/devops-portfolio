@@ -2638,78 +2638,113 @@ scrape_configs:
 
 <h3>12.1 Validation Tool Map</h3>
 <table>
-  <tr><th>Tool</th><th>What It Validates</th></tr>
-  <tr><td><code>yamllint</code></td><td>YAML formatting and syntax style</td></tr>
-  <tr><td><code>actionlint</code></td><td>GitHub Actions workflow correctness</td></tr>
-  <tr><td><code>shellcheck</code></td><td>Shell script bugs and unsafe patterns</td></tr>
-  <tr><td><code>docker compose config</code></td><td>Docker Compose file parsing and merged config output</td></tr>
-  <tr><td><code>docker build</code></td><td>Dockerfile syntax and image build correctness</td></tr>
-  <tr><td><code>terraform fmt -check</code></td><td>Terraform formatting consistency</td></tr>
-  <tr><td><code>terraform init -backend=false</code></td><td>Terraform provider/module setup without touching remote state</td></tr>
-  <tr><td><code>terraform validate</code></td><td>Terraform configuration validity</td></tr>
-  <tr><td><code>kubectl apply --dry-run</code></td><td>Kubernetes manifest validity before applying changes</td></tr>
-  <tr><td><code>ansible-playbook --syntax-check</code></td><td>Ansible playbook syntax</td></tr>
-  <tr><td><code>ansible-lint</code></td><td>Ansible best practices and common mistakes</td></tr>
+  <tr><th>Tool</th><th>What It Checks</th><th>Why It Matters</th></tr>
+  <tr><td><code>yamllint</code></td><td>YAML syntax and style</td><td>YAML indentation controls meaning in CI, Kubernetes, Compose, Prometheus, and Ansible</td></tr>
+  <tr><td><code>actionlint</code></td><td>GitHub Actions workflow correctness</td><td>Broken CI/CD workflows can block builds or deploy the wrong thing</td></tr>
+  <tr><td><code>shellcheck</code></td><td>Shell script bugs and unsafe patterns</td><td>Automation scripts often run with credentials or production access</td></tr>
+  <tr><td><code>docker compose config</code></td><td>Compose parsing and final merged config</td><td>Local stacks should fail fast before containers are started</td></tr>
+  <tr><td><code>terraform fmt -check</code></td><td>Terraform formatting</td><td>Consistent IaC formatting makes reviews easier and reduces noisy diffs</td></tr>
+  <tr><td><code>terraform validate</code></td><td>Terraform configuration validity</td><td>Infrastructure mistakes are expensive when discovered during apply</td></tr>
+  <tr><td><code>kubectl apply --dry-run=client</code></td><td>Kubernetes manifest structure</td><td>Manifests should parse before touching a cluster</td></tr>
+  <tr><td><code>ansible-playbook --syntax-check</code></td><td>Ansible playbook syntax</td><td>Host automation should parse before it reaches any server</td></tr>
+  <tr><td><code>ansible-lint</code></td><td>Ansible quality and best practices</td><td>Linting catches maintainability and safety issues in operations code</td></tr>
 </table>
 
 <section id="val-yaml">
 <h3>12.2 YAML, GitHub Actions, and Shell Scripts</h3>
 
-<p>
-  YAML is used by GitHub Actions, Docker Compose, Kubernetes, Prometheus, and
-  Ansible. A tiny indentation mistake can change the meaning of a file, so run
-  YAML checks before you trust the configuration.
-</p>
+<h4>yamllint</h4>
+
+<p><strong>What it checks:</strong> YAML syntax, indentation, document structure, and style rules.</p>
+
+<p><strong>Why it matters in DevOps:</strong> YAML is used by GitHub Actions, Docker Compose, Kubernetes, Prometheus, and Ansible. A tiny indentation mistake can change the meaning of a file or make an automation job fail before it even starts.</p>
+
+<p><strong>Command used in this repo:</strong></p>
 
 <pre><code>yamllint .github/workflows infrastructure/kubernetes docker/docker-compose.yml monitoring ansible</code><span class="code-label">YAML</span></pre>
 
-<p>
-  GitHub Actions workflows have their own rules for jobs, steps, expressions, and
-  event triggers. <code>actionlint</code> catches mistakes that plain YAML tools
-  cannot understand.
-</p>
+<p><strong>Common error it catches:</strong> Bad indentation, such as putting a Kubernetes <code>containers</code> list at the wrong level under <code>spec</code>.</p>
+
+<h4>actionlint</h4>
+
+<p><strong>What it checks:</strong> GitHub Actions workflow syntax, job dependencies, expressions, event triggers, and action usage.</p>
+
+<p><strong>Why it matters in DevOps:</strong> CI/CD is the automation gate for the project. If a workflow is wrong, builds, validation, image publishing, or deployment can stop unexpectedly.</p>
+
+<p><strong>Command used in this repo:</strong></p>
 
 <pre><code>actionlint .github/workflows/ci.yml .github/workflows/cd.yml</code><span class="code-label">GitHub Actions</span></pre>
 
-<p>
-  Shell scripts are easy to make subtly unsafe. <code>shellcheck</code> warns
-  about quoting problems, missing error handling, and commands that behave
-  differently than they look.
-</p>
+<p><strong>Common error it catches:</strong> A workflow step that references a missing context value, misspells an expression, or uses invalid workflow structure.</p>
 
-<pre><code>shellcheck scripts/*.sh</code><span class="code-label">shell</span></pre>
+<h4>shellcheck</h4>
+
+<p><strong>What it checks:</strong> Shell script quoting, variable expansion, command behavior, unreachable branches, and unsafe patterns.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Shell scripts often run backups, deployments, and cleanup tasks. A small quoting mistake can delete or copy the wrong files.</p>
+
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>shellcheck scripts/backup.sh</code><span class="code-label">shell</span></pre>
+
+<p><strong>Common error it catches:</strong> Unquoted variables like <code>$BACKUP_DIR</code>, which can break when a path contains spaces or unexpected characters.</p>
 </section>
 
 <section id="val-docker">
 <h3>12.3 Docker Validation</h3>
 
-<p>
-  First, ask Docker Compose to parse the Compose file and print the final merged
-  configuration. This catches bad service names, invalid keys, and YAML mistakes.
-</p>
+<h4>docker compose config</h4>
+
+<p><strong>What it checks:</strong> Docker Compose file parsing, service definitions, network/volume references, environment variables, and the final merged configuration.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Compose is the local lab version of the app stack. Validating it first catches mistakes before Docker starts containers.</p>
+
+<p><strong>Command used in this repo:</strong></p>
 
 <pre><code>docker compose -f docker/docker-compose.yml config</code><span class="code-label">Compose</span></pre>
 
-<p>
-  Then build the app image. A successful build proves the Dockerfile can package
-  the static HTML page and Nginx configuration into a runnable image.
-</p>
+<p><strong>Common error it catches:</strong> A service depending on a network or volume name that does not exist.</p>
 
-<pre><code>docker build -f docker/Dockerfile -t portfolio/app:validation .</code><span class="code-label">Dockerfile</span></pre>
+<p>
+  CI also runs a Docker image build, which proves the Dockerfile can package the
+  static HTML page and Nginx configuration. This tutorial focuses on the requested
+  validation tools; the build evidence belongs in <code>docs/validation.md</code>.
+</p>
 </section>
 
 <section id="val-terraform">
 <h3>12.4 Terraform Validation</h3>
 
+<h4>terraform fmt -check</h4>
+
+<p><strong>What it checks:</strong> Whether Terraform files use the standard Terraform formatter.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Infrastructure-as-code should be easy to review. Formatting consistency keeps diffs focused on real infrastructure changes.</p>
+
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>terraform fmt -recursive -check infrastructure/terraform</code><span class="code-label">Terraform fmt</span></pre>
+
+<p><strong>Common error it catches:</strong> Terraform blocks or arguments that work syntactically but are not formatted in the standard style.</p>
+
+<h4>terraform validate</h4>
+
+<p><strong>What it checks:</strong> Terraform syntax, variable references, provider/resource structure, and whether the configuration is internally valid.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Terraform creates real infrastructure. Validation catches many mistakes before a plan or apply reaches AWS.</p>
+
 <p>
-  Terraform validation should be safe for a local tutorial. Use
-  <code>-backend=false</code> during init so Terraform does not try to connect to
-  the remote S3 backend or DynamoDB lock table.
+  Run <code>terraform init -backend=false</code> first so Terraform can prepare
+  providers without connecting to the remote S3 backend or DynamoDB lock table.
 </p>
 
-<pre><code>terraform -chdir=infrastructure/terraform fmt -recursive -check
-terraform -chdir=infrastructure/terraform init -backend=false
-terraform -chdir=infrastructure/terraform validate</code><span class="code-label">Terraform</span></pre>
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>cd infrastructure/terraform
+terraform init -backend=false
+terraform validate</code><span class="code-label">Terraform validate</span></pre>
+
+<p><strong>Common error it catches:</strong> A resource that references an undefined variable, local value, or output.</p>
 
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Do not run apply casually.</strong> <code>terraform validate</code>
@@ -2721,17 +2756,23 @@ terraform -chdir=infrastructure/terraform validate</code><span class="code-label
 <section id="val-k8s">
 <h3>12.5 Kubernetes Validation</h3>
 
+<h4>kubectl apply --dry-run=client</h4>
+
+<p><strong>What it checks:</strong> Kubernetes manifest parsing and client-side object structure before changes are sent to a cluster.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Kubernetes YAML is detailed and easy to mistype. A dry run catches basic manifest problems without changing the cluster.</p>
+
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>kubectl apply --dry-run=client -f infrastructure/kubernetes/</code><span class="code-label">kubectl client dry-run</span></pre>
+
+<p><strong>Common error it catches:</strong> Invalid YAML, a missing <code>apiVersion</code>, or a missing <code>kind</code> field.</p>
+
 <p>
-  Kubernetes manifests can be checked before deployment. A client-side dry run
-  checks file structure locally. A server-side dry run checks against the API
-  server in your current cluster, which is stronger when Minikube is running.
+  CI also uses a stronger server-side dry run against a temporary Kind cluster:
 </p>
 
-<pre><code># Local file validation
-kubectl apply --dry-run=client -f infrastructure/kubernetes/
-
-# Stronger validation when Minikube or another cluster is running
-kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">dry-run</span></pre>
+<pre><code>kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">server dry-run</span></pre>
 
 <p>
   For a full local Kubernetes smoke test, start Minikube, apply the manifests,
@@ -2760,14 +2801,39 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 <section id="val-ansible">
 <h3>12.6 Ansible Validation</h3>
 
-<p>
-  You can validate Ansible without changing any servers. The syntax check makes
-  sure the playbook can be parsed, and <code>ansible-lint</code> checks for common
-  maintainability and safety issues.
-</p>
+<h4>ansible-playbook --syntax-check</h4>
 
-<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
-ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible</span></pre>
+<p><strong>What it checks:</strong> Whether the playbook, inventory, roles, and task files can be parsed by Ansible.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Ansible can configure real hosts. Syntax validation catches broken automation before it connects to an admin or bastion node.</p>
+
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check</code><span class="code-label">Ansible syntax</span></pre>
+
+<p><strong>Common error it catches:</strong> A malformed task, missing role reference, or invalid YAML structure in a playbook.</p>
+
+<h4>ansible-lint</h4>
+
+<p><strong>What it checks:</strong> Ansible best practices, maintainability rules, risky task patterns, and common role/playbook mistakes.</p>
+
+<p><strong>Why it matters in DevOps:</strong> Host automation should be readable, repeatable, and safe. Linting helps keep operational code from becoming fragile shell glue.</p>
+
+<p><strong>Command used in this repo:</strong></p>
+
+<pre><code>ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible lint</span></pre>
+
+<p><strong>Common error it catches:</strong> Tasks that use command-style modules without clear change detection, or tasks that ignore idempotency.</p>
+
+<h3>12.7 Optional Future Additions</h3>
+
+<p>
+  Do not add more tools until you understand the current validation path. Later,
+  this repo could add <code>hadolint</code> for Dockerfile linting,
+  <code>tflint</code> for Terraform-specific quality checks, and
+  <code>kubeconform</code> for Kubernetes schema validation. For now, keep the
+  tutorial focused on the tools above.
+</p>
 
 <p>
   After you run these checks, update <code>docs/validation.md</code> with the date,
