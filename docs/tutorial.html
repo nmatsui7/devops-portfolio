@@ -783,6 +783,14 @@ docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="c
 <h4>List Your Images</h4>
 <pre><code>docker images</code><span class="code-label">terminal</span></pre>
 <p>You should see <code>portfolio-app</code> in the list along with its size.</p>
+
+<p>
+  In the output, <code>IMAGE</code> is the image name and tag, and
+  <code>ID</code> is Docker's internal image ID. The tutorial image should appear
+  as <code>portfolio-app:latest</code>. If Docker Desktop shows a
+  <code>U</code> or "In Use" marker, it means that image is currently being used
+  by a container or related Docker runtime.
+</p>
 </section>
 
 <section id="docker-run">
