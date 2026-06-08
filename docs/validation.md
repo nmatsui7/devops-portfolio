@@ -1,15 +1,15 @@
 # Validation Evidence
 
-Last checked: 2026-06-07 17:17:16 EDT
+Last checked: 2026-06-07 17:31:50 EDT
 
 This file records local validation evidence for the portfolio scaffold. It is not a production certification; it is a concise proof trail that the committed local demo and infrastructure examples parse, build, and run in the tested environment.
 
 ## GitHub Remote
 
-Remote `main` was confirmed at:
+Remote `main` can be checked with:
 
-```text
-f164a319ec399de684ad22ada7d9278152298950 refs/heads/main
+```bash
+git ls-remote origin refs/heads/main
 ```
 
 ## File Formatting
@@ -17,13 +17,13 @@ f164a319ec399de684ad22ada7d9278152298950 refs/heads/main
 The previously reported "collapsed file" issue is not present in this checkout. Representative line counts:
 
 ```text
-  57 .github/workflows/ci.yml
+ 108 .github/workflows/ci.yml
  104 .github/workflows/cd.yml
    9 docker/Dockerfile
   61 docker/docker-compose.yml
  242 infrastructure/terraform/main.tf
  106 infrastructure/kubernetes/deployment.yaml
- 167 README.md
+ 171 README.md
 ```
 
 ## YAML And JSON Parsing
@@ -48,6 +48,23 @@ ok infrastructure/kubernetes/namespaces.yaml
 ok infrastructure/kubernetes/deployment.yaml
 ok infrastructure/kubernetes/ingress.yaml
 ok monitoring/grafana-dashboard.json
+```
+
+## CI Coverage
+
+GitHub Actions CI now validates more than the static HTML page:
+
+```text
+yamllint
+actionlint
+ShellCheck
+HTML parse check
+docker compose config
+docker build
+terraform fmt -recursive -check
+terraform init -backend=false
+terraform validate
+kubectl apply --dry-run=server
 ```
 
 ## Docker
@@ -79,7 +96,32 @@ Validation output:
 Success! The configuration is valid.
 ```
 
+CI also runs:
+
+```bash
+terraform init -backend=false
+```
+
 ## Local Kubernetes
+
+Kubernetes manifest dry-run command:
+
+```bash
+kubectl apply -f infrastructure/kubernetes/namespaces.yaml
+kubectl apply --dry-run=server -f infrastructure/kubernetes/
+```
+
+Output:
+
+```text
+deployment.apps/app configured (server dry run)
+service/app unchanged (server dry run)
+horizontalpodautoscaler.autoscaling/app unchanged (server dry run)
+ingress.networking.k8s.io/app unchanged (server dry run)
+poddisruptionbudget.policy/app configured (server dry run)
+namespace/production unchanged (server dry run)
+namespace/staging unchanged (server dry run)
+```
 
 Validated and smoke-tested on Minikube with a locally loaded image.
 

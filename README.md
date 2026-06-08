@@ -53,6 +53,8 @@ terraform destroy -var="environment=staging"
 - **Private subnet design:** EKS and RDS are placed in private subnets. NAT is optional and documented because it is useful but costly.
 - **Environment separation:** Use separate backend keys, workspaces, or directories per environment before treating this as production infrastructure.
 
+See [docs/architecture.md](docs/architecture.md) for the architecture diagram and boundaries.
+
 ## Stack
 
 | Layer | Tool |
