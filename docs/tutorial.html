@@ -289,6 +289,7 @@
     <a href="#k8s-hpa">Auto Scaling (HPA)</a>
     <a href="#k8s-ingress">Ingress &amp; TLS</a>
     <a href="#k8s-apply">Applying Manifests</a>
+    <a href="#k8s-local">Local Minikube Lab</a>
 
     <a href="#terraform" class="section-label">Terraform</a>
     <a href="#tf-what">What Is Terraform?</a>
@@ -305,6 +306,14 @@
     <a href="#mon-prom">Prometheus Setup</a>
     <a href="#mon-alerts">Alerting Rules</a>
     <a href="#mon-grafana">Grafana Dashboards</a>
+
+    <a href="#validation" class="section-label">Validation</a>
+    <a href="#validation">Validating the Project</a>
+    <a href="#val-yaml">YAML &amp; Workflows</a>
+    <a href="#val-docker">Docker</a>
+    <a href="#val-terraform">Terraform</a>
+    <a href="#val-k8s">Kubernetes</a>
+    <a href="#val-ansible">Ansible</a>
 
     <a href="#glossary" class="section-label">Reference</a>
     <a href="#glossary">Glossary</a>
@@ -379,20 +388,70 @@
   Don't skip this section &mdash; every tool here will be used later.
 </p>
 
-<h3>What We'll Install</h3>
+<h3>Prerequisites for the Full Local Lab</h3>
+<p>
+  The full hands-on path uses Docker Compose first, then a local Kubernetes
+  cluster with Minikube. AWS/EKS is optional infrastructure scaffolding later in
+  the project; you do not need AWS to run the local tutorial.
+</p>
+
+<h4>Required Tools</h4>
 <table>
   <tr><th>Tool</th><th>Why We Need It</th></tr>
   <tr><td>Git</td><td>Version control &mdash; tracks changes to code</td></tr>
-  <tr><td>Node.js</td><td>Runs the sample application</td></tr>
-  <tr><td>Docker</td><td>Creates containers for our app</td></tr>
-  <tr><td>Visual Studio Code</td><td>Code editor (recommended, but any editor works)</td></tr>
+  <tr><td>Docker Desktop</td><td>Runs containers on your laptop</td></tr>
+  <tr><td>Docker Compose</td><td>Starts the app, Postgres, Prometheus, and Grafana together</td></tr>
+  <tr><td>kubectl</td><td>Talks to Kubernetes clusters</td></tr>
+  <tr><td>Minikube</td><td>Runs a small local Kubernetes cluster</td></tr>
+  <tr><td>Terraform</td><td>Validates and plans the infrastructure scaffold</td></tr>
+  <tr><td>Python 3</td><td>Used by validation and helper tooling</td></tr>
 </table>
 
-<div class="info-box">
-  <strong>&#x1F4DD; Note:</strong> You don't need to install Kubernetes, Terraform,
-  or Ansible on your local machine. We'll explain them conceptually, and they run
-  on cloud servers in real companies.
-</div>
+<h4>Recommended Tools</h4>
+<ul>
+  <li><strong>Homebrew on macOS</strong> &mdash; easiest way to install command-line tools</li>
+  <li><strong>yamllint</strong> &mdash; checks YAML formatting</li>
+  <li><strong>actionlint</strong> &mdash; checks GitHub Actions workflows</li>
+  <li><strong>shellcheck</strong> &mdash; checks shell scripts</li>
+  <li><strong>ansible</strong> and <strong>ansible-lint</strong> &mdash; validate the optional host operations code</li>
+  <li><strong>helm</strong> &mdash; common Kubernetes package manager used in real projects</li>
+  <li><strong>Visual Studio Code</strong> &mdash; code editor, though any editor works</li>
+</ul>
+
+<h4>macOS Installation with Homebrew</h4>
+<p>Install the command-line tools:</p>
+<pre><code>brew install git kubectl minikube terraform python yamllint actionlint shellcheck ansible ansible-lint helm</code><span class="code-label">macOS</span></pre>
+
+<p>
+  Install Docker Desktop separately from
+  <a href="https://docs.docker.com/get-docker/" style="color:var(--accent)">Docker's website</a>.
+  After installation, open Docker Desktop and wait for it to finish starting
+  before running Docker Compose or Minikube.
+</p>
+
+<h4>Verify Installation</h4>
+<pre><code>git --version
+docker --version
+docker compose version
+kubectl version --client
+minikube version
+terraform version
+python3 --version
+yamllint --version
+actionlint --version
+shellcheck --version
+ansible --version
+ansible-lint --version
+helm version</code><span class="code-label">check</span></pre>
+
+<h4>Local Lab Sequence</h4>
+<pre><code>Install tools
+-> run Docker Compose local stack
+-> start Minikube
+-> apply Kubernetes manifests
+-> check pods/services/HPA
+-> test health endpoint
+-> view Prometheus/Grafana</code><span class="code-label">order</span></pre>
 
 <h3>Step 1: Install Git</h3>
 <p>Git is the industry standard for version control. It lets you save snapshots of your code, collaborate with others, and deploy from specific versions.</p>
@@ -1668,17 +1727,28 @@ spec:
 <section id="k8s-apply">
 <h3>8.7 Applying Manifests to a Cluster</h3>
 
-<div class="warning">
-  <strong>&#x26A0;&#xFE0F; For this tutorial:</strong> You do NOT need a Kubernetes
-  cluster to learn from these files. The commands below are for reference when you
-  have access to a real cluster (like using Minikube locally or an EKS cluster on AWS).
+<div class="info-box">
+  <strong>&#x1F4DD; Local first:</strong> Use Minikube for this tutorial. It gives
+  you a real Kubernetes API on your laptop without creating cloud resources.
+  AWS/EKS is not required for the local lab.
 </div>
 
-<pre><code># Apply all manifests in a folder
+<p>
+  Run this from the repository root. The dry-run command asks Kubernetes to
+  validate the manifests without saving anything.
+</p>
+
+<pre><code># Check that kubectl can see your cluster
+kubectl get nodes
+
+# Validate the manifests without applying them
+kubectl apply --dry-run=server -f infrastructure/kubernetes/
+
+# Apply all manifests in the Kubernetes folder
 kubectl apply -f infrastructure/kubernetes/
 
 # See what's running
-kubectl get all -n production
+kubectl get pods,svc,hpa -n production
 
 # Check on a specific deployment
 kubectl rollout status deployment/app -n production
@@ -1686,31 +1756,53 @@ kubectl rollout status deployment/app -n production
 # View pod logs
 kubectl logs -n production -l app=portfolio-app
 
-# Scale manually
-kubectl scale deployment/app --replicas=5 -n production
-
 # Delete everything
 kubectl delete -f infrastructure/kubernetes/</code><span class="code-label">kubectl commands</span></pre>
 
-<h4>Setting Up a Local Cluster with Minikube</h4>
-<p>If you want to try Kubernetes locally without paying for cloud services:</p>
+<h4 id="k8s-local">Setting Up a Local Cluster with Minikube</h4>
+<p>
+  After installing Docker Desktop, kubectl, and Minikube, start the local cluster
+  and deploy the app image into it.
+</p>
 
-<pre><code># Install Minikube (one command)
-# Windows: download from minikube.sigs.k8s.io
-# Mac:   brew install minikube
-# Linux: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-
-# Start a cluster
-minikube start --cpus=4 --memory=8192
+<pre><code># Start local Kubernetes
+minikube start
+kubectl get nodes
 
 # Enable the ingress controller
 minikube addons enable ingress
 
-# Apply our manifests
+# Build the app image and load it into Minikube
+docker build -f docker/Dockerfile -t portfolio/app:local .
+minikube image load portfolio/app:local
+
+# Validate and apply the repo manifests
+kubectl apply --dry-run=server -f infrastructure/kubernetes/
 kubectl apply -f infrastructure/kubernetes/
 
-# Access the app
-minikube service app -n production</code><span class="code-label">minikube setup</span></pre>
+# Use the locally built image for this lab
+kubectl set image deployment/app app=portfolio/app:local -n production
+kubectl rollout status deployment/app -n production
+
+# Check the workload, service, and autoscaler
+kubectl get pods,svc,hpa -n production</code><span class="code-label">minikube setup</span></pre>
+
+<p>To test the app endpoint, keep this command running in one terminal:</p>
+
+<pre><code>kubectl port-forward svc/app 18080:80 -n production</code><span class="code-label">terminal 1</span></pre>
+
+<p>Then open a second terminal and run:</p>
+
+<pre><code>curl -sf http://127.0.0.1:18080/health
+curl -sf http://127.0.0.1:18080/ready
+curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 2</span></pre>
+
+<h4>Stopping or Deleting Minikube</h4>
+<pre><code># Stop the local cluster but keep it available for later
+minikube stop
+
+# Delete the local cluster completely
+minikube delete</code><span class="code-label">cleanup</span></pre>
 
 <div class="tip">
   <strong>&#x1F4A1; Minikube vs. Cloud:</strong> Minikube gives you a single-node
@@ -2303,10 +2395,170 @@ rule_files:
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
+<!--  VALIDATION                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="validation">
+<h2>12. Validating the DevOps Project</h2>
+
+<p>
+  Before deploying anything, validate the configuration files locally. Validation
+  catches syntax errors, unsafe shell patterns, broken workflow files, invalid
+  Terraform configuration, and Kubernetes manifest problems before they reach
+  CI/CD or a cloud environment.
+</p>
+
+<div class="info-box">
+  <strong>&#x1F4DD; Tutorial vs. evidence:</strong> This chapter teaches what to
+  run and why. Record the commands you actually ran, their results, and screenshot
+  references in <a href="validation.md" style="color:var(--accent)">docs/validation.md</a>.
+</div>
+
+<h3>12.1 Validation Tool Map</h3>
+<table>
+  <tr><th>Tool</th><th>What It Validates</th></tr>
+  <tr><td><code>yamllint</code></td><td>YAML formatting and syntax style</td></tr>
+  <tr><td><code>actionlint</code></td><td>GitHub Actions workflow correctness</td></tr>
+  <tr><td><code>shellcheck</code></td><td>Shell script bugs and unsafe patterns</td></tr>
+  <tr><td><code>docker compose config</code></td><td>Docker Compose file parsing and merged config output</td></tr>
+  <tr><td><code>docker build</code></td><td>Dockerfile syntax and image build correctness</td></tr>
+  <tr><td><code>terraform fmt -check</code></td><td>Terraform formatting consistency</td></tr>
+  <tr><td><code>terraform init -backend=false</code></td><td>Terraform provider/module setup without touching remote state</td></tr>
+  <tr><td><code>terraform validate</code></td><td>Terraform configuration validity</td></tr>
+  <tr><td><code>kubectl apply --dry-run</code></td><td>Kubernetes manifest validity before applying changes</td></tr>
+  <tr><td><code>ansible-playbook --syntax-check</code></td><td>Ansible playbook syntax</td></tr>
+  <tr><td><code>ansible-lint</code></td><td>Ansible best practices and common mistakes</td></tr>
+</table>
+
+<section id="val-yaml">
+<h3>12.2 YAML, GitHub Actions, and Shell Scripts</h3>
+
+<p>
+  YAML is used by GitHub Actions, Docker Compose, Kubernetes, Prometheus, and
+  Ansible. A tiny indentation mistake can change the meaning of a file, so run
+  YAML checks before you trust the configuration.
+</p>
+
+<pre><code>yamllint .github/workflows infrastructure/kubernetes docker/docker-compose.yml monitoring ansible</code><span class="code-label">YAML</span></pre>
+
+<p>
+  GitHub Actions workflows have their own rules for jobs, steps, expressions, and
+  event triggers. <code>actionlint</code> catches mistakes that plain YAML tools
+  cannot understand.
+</p>
+
+<pre><code>actionlint .github/workflows/ci.yml .github/workflows/cd.yml</code><span class="code-label">GitHub Actions</span></pre>
+
+<p>
+  Shell scripts are easy to make subtly unsafe. <code>shellcheck</code> warns
+  about quoting problems, missing error handling, and commands that behave
+  differently than they look.
+</p>
+
+<pre><code>shellcheck scripts/*.sh</code><span class="code-label">shell</span></pre>
+</section>
+
+<section id="val-docker">
+<h3>12.3 Docker Validation</h3>
+
+<p>
+  First, ask Docker Compose to parse the Compose file and print the final merged
+  configuration. This catches bad service names, invalid keys, and YAML mistakes.
+</p>
+
+<pre><code>docker compose -f docker/docker-compose.yml config</code><span class="code-label">Compose</span></pre>
+
+<p>
+  Then build the app image. A successful build proves the Dockerfile can install
+  its dependencies and produce a runnable image.
+</p>
+
+<pre><code>docker build -f docker/Dockerfile -t portfolio/app:validation .</code><span class="code-label">Dockerfile</span></pre>
+</section>
+
+<section id="val-terraform">
+<h3>12.4 Terraform Validation</h3>
+
+<p>
+  Terraform validation should be safe for a local tutorial. Use
+  <code>-backend=false</code> during init so Terraform does not try to connect to
+  the remote S3 backend or DynamoDB lock table.
+</p>
+
+<pre><code>terraform -chdir=infrastructure/terraform fmt -recursive -check
+terraform -chdir=infrastructure/terraform init -backend=false
+terraform -chdir=infrastructure/terraform validate</code><span class="code-label">Terraform</span></pre>
+
+<div class="warning">
+  <strong>&#x26A0;&#xFE0F; Do not run apply casually.</strong> <code>terraform validate</code>
+  checks the configuration. <code>terraform apply</code> can create real AWS
+  resources that cost money.
+</div>
+</section>
+
+<section id="val-k8s">
+<h3>12.5 Kubernetes Validation</h3>
+
+<p>
+  Kubernetes manifests can be checked before deployment. A client-side dry run
+  checks file structure locally. A server-side dry run checks against the API
+  server in your current cluster, which is stronger when Minikube is running.
+</p>
+
+<pre><code># Local file validation
+kubectl apply --dry-run=client -f infrastructure/kubernetes/
+
+# Stronger validation when Minikube or another cluster is running
+kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">dry-run</span></pre>
+
+<p>
+  For a full local Kubernetes smoke test, start Minikube, apply the manifests,
+  and inspect the resources in the <code>production</code> namespace.
+</p>
+
+<pre><code>minikube start
+kubectl get nodes
+
+kubectl apply -f infrastructure/kubernetes/
+kubectl rollout status deployment/app -n production
+kubectl get pods,svc,hpa -n production</code><span class="code-label">Minikube</span></pre>
+
+<p>
+  If you built and loaded a local image as shown in the Kubernetes chapter, test
+  the app through a port-forward:
+</p>
+
+<pre><code>kubectl port-forward svc/app 18080:80 -n production</code><span class="code-label">terminal 1</span></pre>
+
+<pre><code>curl -sf http://127.0.0.1:18080/health
+curl -sf http://127.0.0.1:18080/ready
+curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 2</span></pre>
+</section>
+
+<section id="val-ansible">
+<h3>12.6 Ansible Validation</h3>
+
+<p>
+  You can validate Ansible without changing any servers. The syntax check makes
+  sure the playbook can be parsed, and <code>ansible-lint</code> checks for common
+  maintainability and safety issues.
+</p>
+
+<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
+ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible</span></pre>
+
+<p>
+  After you run these checks, update <code>docs/validation.md</code> with the date,
+  commands, results, and any screenshot references. That keeps the tutorial stable
+  while the evidence log reflects what was actually tested.
+</p>
+</section>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
 <!--  GLOSSARY                                            -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section id="glossary">
-<h2>12. Glossary</h2>
+<h2>13. Glossary</h2>
 
 <p>
   Every term used in this tutorial, defined simply:
@@ -2355,7 +2607,7 @@ rule_files:
 <!--  NEXT STEPS                                          -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section id="next-steps">
-<h2>13. Next Steps</h2>
+<h2>14. Next Steps</h2>
 
 <p>Congratulations on making it through this tutorial! Here's what you can do next:</p>
 

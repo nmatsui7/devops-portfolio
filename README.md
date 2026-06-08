@@ -2,6 +2,70 @@
 
 Small DevOps portfolio project for a containerized static web app. The repo is intentionally split between working local demo assets and cloud infrastructure scaffolding so recruiters can see both the runnable path and the infrastructure design direction without confusing this for a production system.
 
+## Prerequisites
+
+Install these tools before starting the local lab.
+
+### Required
+
+- Git
+- Docker Desktop
+- Docker Compose
+- kubectl
+- Minikube
+- Terraform
+- Python 3
+
+### Recommended
+
+- Homebrew on macOS
+- yamllint
+- actionlint
+- shellcheck
+- ansible
+- ansible-lint
+- helm
+
+### macOS Installation
+
+Install command-line tools with Homebrew:
+
+```bash
+brew install git kubectl minikube terraform python yamllint actionlint shellcheck ansible ansible-lint helm
+```
+
+Install Docker Desktop separately from Docker's website. After installation, start Docker Desktop before running Docker Compose or Minikube.
+
+Verify the tools:
+
+```bash
+git --version
+docker --version
+docker compose version
+kubectl version --client
+minikube version
+terraform version
+python3 --version
+yamllint --version
+actionlint --version
+shellcheck --version
+ansible --version
+ansible-lint --version
+helm version
+```
+
+The local learning sequence is:
+
+```text
+Install tools
+-> run Docker Compose local stack
+-> start Minikube
+-> apply Kubernetes manifests
+-> check pods/services/HPA
+-> test health endpoint
+-> view Prometheus/Grafana
+```
+
 ## What Works Locally
 
 ```bash
@@ -101,23 +165,36 @@ kubectl apply --dry-run=server -f infrastructure/kubernetes/
 
 ## Local Kubernetes Smoke Test
 
-For Minikube or Kind, build the image locally, load it into the cluster, and override the demo deployment image:
+For Minikube, start a local Kubernetes cluster, build the image locally, load it into the cluster, and apply the repo manifests. This is a local validation path; AWS/EKS is not required for the tutorial.
 
 ```bash
-docker build -f docker/Dockerfile -t portfolio/app:kind .
-minikube image load portfolio/app:kind
+minikube start
+kubectl get nodes
+
+docker build -f docker/Dockerfile -t portfolio/app:local .
+minikube image load portfolio/app:local
+
+kubectl apply --dry-run=server -f infrastructure/kubernetes/
 kubectl apply -f infrastructure/kubernetes/
-kubectl set image deployment/app app=portfolio/app:kind -n production
+kubectl set image deployment/app app=portfolio/app:local -n production
 kubectl rollout status deployment/app -n production
+kubectl get pods,svc,hpa -n production
 kubectl port-forward svc/app 18080:80 -n production
 ```
 
-Then check:
+In another terminal, check the app endpoints:
 
 ```bash
 curl -sf http://127.0.0.1:18080/health
 curl -sf http://127.0.0.1:18080/ready
 curl -sf http://127.0.0.1:18080/metrics
+```
+
+When you are done, stop or delete the local cluster:
+
+```bash
+minikube stop
+minikube delete
 ```
 
 ## Terraform State
