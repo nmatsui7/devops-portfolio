@@ -215,6 +215,33 @@
     }
     tr:hover td { background: rgba(56,189,248,0.03); }
 
+    /* ── Tutorial figures ── */
+    .figure-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin: 16px 0 20px;
+    }
+    .tutorial-figure {
+      margin: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .tutorial-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0f172a;
+    }
+    .tutorial-figure figcaption {
+      padding: 10px 14px;
+      color: var(--text2);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
@@ -692,6 +719,43 @@ docker run hello-world</code><span class="code-label">terminal</span></pre>
   and runs it. If you see a welcome message, Docker is working!
 </p>
 
+<h4>Docker Desktop: Local and Hub Tabs</h4>
+<p>
+  Docker Desktop gives you a visual way to inspect the same things you manage
+  from the terminal. In the <strong>Images</strong> view, the
+  <strong>Local</strong> tab shows images stored on your computer, such as
+  <code>portfolio-app:latest</code>, <code>postgres:16-alpine</code>, or
+  <code>grafana/grafana:11.0.0</code>. This is the visual version of running
+  <code>docker images</code>.
+</p>
+
+<p>
+  The <strong>Docker Hub repositories</strong> or <strong>My Hub</strong> tab
+  shows images in Docker Hub repositories that your signed-in Docker account can
+  access. Use this area when you want to pull an image from Docker Hub, inspect a
+  remote repository, or push an image you have tagged with your Docker Hub
+  username. Docker Desktop's UI changes over time, but the idea is the same:
+  <strong>Local</strong> means images on your machine, and <strong>Hub</strong>
+  means images stored in Docker Hub.
+</p>
+
+<div class="figure-grid">
+  <figure class="tutorial-figure">
+    <img src="screenshots/docker-desktop-local.svg" alt="Illustration of Docker Desktop Images Local tab showing local images">
+    <figcaption>
+      Local shows images stored on your computer. This is the visual version of
+      <code>docker images</code>.
+    </figcaption>
+  </figure>
+  <figure class="tutorial-figure">
+    <img src="screenshots/docker-desktop-my-hub.svg" alt="Illustration of Docker Desktop My Hub tab showing Docker Hub repositories">
+    <figcaption>
+      My Hub or Docker Hub repositories shows remote repositories available to
+      your signed-in Docker account.
+    </figcaption>
+  </figure>
+</div>
+
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Troubleshooting:</strong> If you get a permission error on Linux,
   add your user to the <code>docker</code> group: <code>sudo usermod -aG docker $USER</code>
@@ -791,6 +855,28 @@ docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="c
   <code>U</code> or "In Use" marker, it means that image is currently being used
   by a container or related Docker runtime.
 </p>
+
+<h4>Practice: Remove the hello-world Image</h4>
+<p>
+  The <code>hello-world:latest</code> image is safe to use for cleanup practice.
+  First check whether a container was created from it:
+</p>
+
+<pre><code>docker ps -a --filter ancestor=hello-world:latest</code><span class="code-label">terminal</span></pre>
+
+<p>
+  If the command lists a container, remove that container first, then remove the
+  image:
+</p>
+
+<pre><code>docker rm &lt;container-id&gt;
+docker rmi hello-world:latest</code><span class="code-label">terminal</span></pre>
+
+<p>
+  Check your images again with <code>docker images</code>. Remember:
+  <code>docker rm</code> removes containers, while <code>docker rmi</code>
+  removes images.
+</p>
 </section>
 
 <section id="docker-run">
@@ -867,6 +953,41 @@ docker image prune</code><span class="code-label">cheatsheet</span></pre>
   <li><strong>GitHub Container Registry (GHCR)</strong> &mdash; integrated with GitHub</li>
   <li><strong>Amazon ECR</strong> &mdash; AWS's registry, used in our Terraform code</li>
 </ul>
+
+<h4>How to See Docker Hub</h4>
+<p>
+  You can browse Docker Hub in your web browser at
+  <a href="https://hub.docker.com" style="color:var(--accent)">https://hub.docker.com</a>.
+  Search for image names like <code>nginx</code>, <code>postgres</code>,
+  <code>grafana/grafana</code>, or <code>prom/prometheus</code>. If you push
+  your own image, search for your Docker Hub username and repository name, such
+  as <code>yourusername/portfolio-app</code>.
+</p>
+
+<p>
+  You can also use Docker Desktop. Open <strong>Images</strong>, then choose
+  <strong>Hub</strong>, <strong>Docker Hub repositories</strong>, or
+  <strong>My Hub</strong>, depending on your Docker Desktop version. That area
+  shows images from Docker Hub and repositories available to your signed-in
+  Docker account.
+</p>
+
+<p>
+  From the terminal, use <code>docker search</code> to search Docker Hub and
+  <code>docker pull</code> to download an image:
+</p>
+
+<pre><code>docker search postgres
+docker search nginx
+
+docker pull postgres:16-alpine
+docker images</code><span class="code-label">terminal</span></pre>
+
+<div class="tip">
+  <strong>&#x1F4A1; Remember:</strong> Docker Hub is the online image store.
+  Docker Desktop <strong>Images &rarr; Local</strong> shows images already
+  downloaded on your computer.
+</div>
 
 <h4>Push to Docker Hub (Optional)</h4>
 <pre><code># Login (you need a free Docker Hub account)
@@ -1100,11 +1221,41 @@ docker compose -f docker/docker-compose.yml logs -f</code><span class="code-labe
 <section id="compose-down">
 <h3>6.4 Stopping Everything</h3>
 
+<p>
+  Turning off your computer does not wipe Docker data. Docker Desktop stops, so
+  running containers stop too, but most Docker objects stay on disk until you
+  remove them.
+</p>
+
+<table>
+  <tr><th>Docker Object</th><th>What Usually Happens After Shutdown</th></tr>
+  <tr><td><strong>Images</strong></td><td>Stay on disk unless you remove them</td></tr>
+  <tr><td><strong>Volumes</strong></td><td>Stay on disk unless you remove volumes</td></tr>
+  <tr><td><strong>Containers</strong></td><td>Usually stay, but are stopped</td></tr>
+  <tr><td><strong>Networks</strong></td><td>May stay or be recreated by Compose later</td></tr>
+</table>
+
+<p>
+  When Docker Desktop is running again, you can bring the lab back with:
+</p>
+
+<pre><code>docker compose -f docker/docker-compose.yml up -d</code><span class="code-label">terminal</span></pre>
+
+<p>
+  For normal stopping at the end of a study session, use:
+</p>
+
 <pre><code>docker compose -f docker/docker-compose.yml down</code><span class="code-label">terminal</span></pre>
 
 <p>This stops and removes all containers, but <strong>preserves your data volumes</strong>. To also remove volumes (which deletes database data):</p>
 
 <pre><code>docker compose -f docker/docker-compose.yml down -v</code><span class="code-label">caution</span></pre>
+
+<p>
+  To also remove images created or used by the Compose project, use
+  <code>docker compose -f docker/docker-compose.yml down --rmi all</code>.
+  This is optional cleanup, not part of the normal study flow.
+</p>
 
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; The <code>-v</code> flag</strong> deletes volumes. Only
