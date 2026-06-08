@@ -1,0 +1,17 @@
+---
+- name: Install common operations packages
+  ansible.builtin.import_tasks: common.yml
+
+- name: Check admin tool availability
+  ansible.builtin.import_tasks: tool_checks.yml
+
+- name: Deploy backup helper script
+  ansible.builtin.import_tasks: backup.yml
+
+- name: Configure optional node exporter
+  ansible.builtin.import_tasks: node_exporter.yml
+  when: admin_ops_enable_node_exporter | bool
+
+- name: Apply basic SSH hardening
+  ansible.builtin.import_tasks: ssh_hardening.yml
+  when: admin_ops_ssh_hardening_enabled | bool

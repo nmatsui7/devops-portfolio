@@ -31,7 +31,7 @@ The previously reported "collapsed file" issue is not present in this checkout. 
 Dedicated YAML and workflow linting passed:
 
 ```bash
-yamllint .github/workflows infrastructure/kubernetes docker/docker-compose.yml monitoring ansible/playbook.yml
+yamllint .github/workflows infrastructure/kubernetes docker/docker-compose.yml monitoring ansible
 actionlint .github/workflows/ci.yml .github/workflows/cd.yml
 ```
 
@@ -50,6 +50,21 @@ ok infrastructure/kubernetes/ingress.yaml
 ok monitoring/grafana-dashboard.json
 ```
 
+## Ansible
+
+Ansible syntax and lint checks passed:
+
+```bash
+ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
+ansible-lint ansible/playbook.yml
+```
+
+`ansible-lint` passed with the production profile:
+
+```text
+Passed: 0 failure(s), 0 warning(s)
+```
+
 ## CI Coverage
 
 GitHub Actions CI now validates more than the static HTML page:
@@ -58,6 +73,8 @@ GitHub Actions CI now validates more than the static HTML page:
 yamllint
 actionlint
 ShellCheck
+ansible-playbook --syntax-check
+ansible-lint
 HTML parse check
 docker compose config
 docker build

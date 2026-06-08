@@ -28,7 +28,7 @@ The current app is static HTML behind Nginx. It does not run Node.js, does not c
 - Kubernetes manifests show deployment, service, probes, HPA, ingress, namespace, and disruption-budget patterns for the static app.
 - GitHub Actions CI builds and publishes the Docker image to GHCR from `docker/Dockerfile`.
 - GitHub Actions CD demonstrates AWS OIDC authentication, EKS kubeconfig setup, rolling deployment, smoke testing, and rollback on rollout failure.
-- Ansible is included as a reference playbook for self-managed worker/monitoring hosts, not as the main path for EKS.
+- Ansible configures host-level operational tooling on an optional bastion/admin node. It does not deploy the app or manage Kubernetes workloads.
 
 ## Cost Warning
 
@@ -52,6 +52,7 @@ terraform destroy -var="environment=staging"
 - **Rolling deploy scope:** The current manifests include one deployment, so CD uses Kubernetes rolling updates with rollback traps.
 - **Private subnet design:** EKS and RDS are placed in private subnets. NAT is optional and documented because it is useful but costly.
 - **Environment separation:** Use separate backend keys, workspaces, or directories per environment before treating this as production infrastructure.
+- **Ansible boundary:** Terraform owns infrastructure provisioning, Kubernetes owns app workloads, and Ansible owns optional admin-node operational tooling.
 
 See [docs/architecture.md](docs/architecture.md) for the architecture diagram and boundaries.
 
@@ -65,6 +66,7 @@ See [docs/architecture.md](docs/architecture.md) for the architecture diagram an
 | Orchestration | Kubernetes |
 | CI/CD | GitHub Actions |
 | Monitoring demo | Prometheus, Grafana |
+| Host ops | Ansible |
 | App | Nginx static site |
 
 ## Quick Start
@@ -144,6 +146,18 @@ The CD workflow also expects:
 - Namespaces and deployment already present in the target cluster.
 - `PRODUCTION_URL` set to a real domain before production use.
 
+## Ansible Scope
+
+Ansible is limited to optional host-level operations for a bastion/admin node:
+
+- common operations packages
+- `kubectl`, `helm`, and `aws` availability checks
+- backup helper script deployment
+- optional `node_exporter` setup
+- basic SSH hardening
+
+See [ansible/README.md](ansible/README.md) for inventory, role boundaries, and validation commands. App deployment remains owned by Kubernetes manifests and GitHub Actions.
+
 ## Screenshots To Add
 
 Add these images under a future `docs/screenshots/` directory when captured:
@@ -166,6 +180,6 @@ infrastructure/
   kubernetes/          Deployment, service, HPA, ingress, namespaces
   terraform/           AWS infrastructure scaffold
 monitoring/            Prometheus config, alerts, dashboard JSON
-ansible/               Reference provisioning playbook
+ansible/               Optional admin-node operations playbook
 scripts/               Utility scripts
 ```

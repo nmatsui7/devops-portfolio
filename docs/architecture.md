@@ -54,4 +54,4 @@ GitHub Actions -> GHCR image -> EKS rolling deployment
 
 - The app is a static Nginx demo, not a Node.js or database-backed service.
 - RDS and Postgres are included to demonstrate infrastructure design, not active application persistence.
-- Ansible is reference material for self-managed hosts and is not the primary EKS deployment path.
+- Ansible configures optional admin-node operational tooling and is not the EKS app deployment path.

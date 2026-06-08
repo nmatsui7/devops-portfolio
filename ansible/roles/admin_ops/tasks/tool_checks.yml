@@ -1,0 +1,25 @@
+---
+- name: Check required admin tools
+  ansible.builtin.command:
+    cmd: "{{ item.command }}"
+  changed_when: false
+  failed_when: false
+  register: admin_ops_tool_checks
+  loop: "{{ admin_ops_required_tool_commands }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Report missing admin tools
+  ansible.builtin.assert:
+    that:
+      - admin_ops_missing_tools | length == 0
+    fail_msg: >-
+      Missing required admin tools: {{ admin_ops_missing_tools | join(', ') }}.
+      Install them on the admin node or adjust admin_ops_required_tool_commands.
+    success_msg: "Required admin tools are available."
+  vars:
+    admin_ops_missing_tools: >-
+      {{ admin_ops_tool_checks.results
+        | selectattr('rc', 'ne', 0)
+        | map(attribute='item.name')
+        | list }}

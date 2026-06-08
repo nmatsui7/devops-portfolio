@@ -1,0 +1,30 @@
+---
+- name: Create backup script directory
+  ansible.builtin.file:
+    path: "{{ admin_ops_backup_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy portfolio backup helper
+  ansible.builtin.copy:
+    src: "{{ admin_ops_backup_script_source }}"
+    dest: "{{ admin_ops_backup_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Document backup bucket placeholder
+  ansible.builtin.copy:
+    dest: "{{ admin_ops_backup_install_dir }}/backup.env.example"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Example only. Replace with a real bucket and provide DB_PASSWORD at runtime.
+      BACKUP_BUCKET={{ admin_ops_backup_bucket }}
+      DB_HOST=localhost
+      DB_PORT=5432
+      DB_USER=portfolio
+      DB_NAME=portfolio

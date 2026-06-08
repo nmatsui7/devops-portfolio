@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BACKUP_BUCKET="s3://portfolio-backups"
+BACKUP_BUCKET="${BACKUP_BUCKET:-s3://example-portfolio-backups}"
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
 DB_USER="${DB_USER:-portfolio}"

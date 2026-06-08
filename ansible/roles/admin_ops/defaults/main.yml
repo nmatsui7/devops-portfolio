@@ -1,0 +1,35 @@
+---
+admin_ops_common_packages:
+  - ca-certificates
+  - curl
+  - git
+  - gnupg
+  - jq
+  - unzip
+  - vim
+  - awscli
+  - postgresql-client
+
+admin_ops_required_tool_commands:
+  - name: aws
+    command: aws --version
+  - name: helm
+    command: helm version --short
+  - name: kubectl
+    command: kubectl version --client
+
+admin_ops_backup_install_dir: /opt/portfolio/bin
+admin_ops_backup_script_source: "{{ playbook_dir }}/../scripts/backup.sh"
+admin_ops_backup_script_path: "{{ admin_ops_backup_install_dir }}/portfolio-backup.sh"
+admin_ops_backup_bucket: s3://example-portfolio-backups
+
+admin_ops_enable_node_exporter: false
+admin_ops_node_exporter_version: "1.7.0"
+admin_ops_node_exporter_user: node_exporter
+admin_ops_node_exporter_install_dir: /usr/local/bin
+admin_ops_node_exporter_archive_url: >-
+  https://github.com/prometheus/node_exporter/releases/download/v{{ admin_ops_node_exporter_version }}/node_exporter-{{ admin_ops_node_exporter_version }}.linux-amd64.tar.gz
+
+admin_ops_ssh_hardening_enabled: true
+admin_ops_ssh_password_authentication: "no"
+admin_ops_ssh_permit_root_login: "no"

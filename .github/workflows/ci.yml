@@ -28,7 +28,7 @@ jobs:
             infrastructure/kubernetes
             docker/docker-compose.yml
             monitoring
-            ansible/playbook.yml
+            ansible
 
       - name: GitHub Actions lint
         uses: raven-actions/actionlint@v2
@@ -37,6 +37,19 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           severity: warning
+
+      - name: Install Ansible lint tools
+        run: pipx install --include-deps ansible-lint
+
+      - name: Ansible syntax check
+        run: >
+          ansible-playbook
+          -i ansible/inventory.example.ini
+          ansible/playbook.yml
+          --syntax-check
+
+      - name: Ansible lint
+        run: ansible-lint ansible/playbook.yml
 
   validate-html:
     runs-on: ubuntu-latest
