@@ -546,6 +546,15 @@ cd devops-portfolio</code></pre>
 </table>
 
 <p>
+  <strong>What is Nginx doing here?</strong> Nginx is the lightweight web server
+  inside the Docker container. It receives HTTP requests, serves
+  <code>index.html</code> from its web root, and returns simple built-in responses
+  for <code>/health</code>, <code>/ready</code>, and <code>/metrics</code> as
+  defined in <code>app/nginx.conf</code>. That gives the project realistic
+  health checks and monitoring endpoints without needing a backend application.
+</p>
+
+<p>
   The app is intentionally simple &mdash; it's a static HTML page with a small
   browser script that checks the Nginx <code>/metrics</code> endpoint. The real
   point of this portfolio is the <em>infrastructure around it</em>, not the app itself.
