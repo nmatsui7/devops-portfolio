@@ -584,7 +584,7 @@ cd app
 # Start a simple HTTP server on port 8000
 python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 
-<p>If you already have Node.js installed, you can optionally use the <code>npx</code> command instead:</p>
+<p>If you already use Node tooling locally, you can optionally serve the static files with <code>npx</code> instead:</p>
 
 <pre><code>npx serve app/</code><span class="code-label">alternative</span></pre>
 
@@ -845,9 +845,10 @@ docker push yourusername/portfolio-app:latest</code><span class="code-label">ter
 <h3>6.1 What Is Docker Compose?</h3>
 
 <p>
-  Our app alone isn't very useful &mdash; it needs a database, and we also want
-  monitoring tools like Prometheus and Grafana. We <em>could</em> start each one
-  with separate <code>docker run</code> commands, but that's tedious and error-prone.
+  The static Nginx app can run by itself, but this lab also starts PostgreSQL,
+  Prometheus, and Grafana so you can practice running a small local environment.
+  We <em>could</em> start each one with separate <code>docker run</code> commands,
+  but that's tedious and error-prone.
 </p>
 
 <p>
@@ -862,10 +863,8 @@ docker push yourusername/portfolio-app:latest</code><span class="code-label">ter
 
 <p>Here's our compose file (<code>docker/docker-compose.yml</code>) broken down section by section:</p>
 
-<pre><code>version: "3.9"
-
-services:</code><span class="code-label">header</span></pre>
-<p><code>version: "3.9"</code> just tells Docker which compose file format to use.</p>
+<pre><code>services:</code><span class="code-label">header</span></pre>
+<p>The file starts with <code>services:</code>, which is where each container is defined.</p>
 
 <pre><code>  app:
     build:
@@ -873,13 +872,6 @@ services:</code><span class="code-label">header</span></pre>
       dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"
-      - "9090:9090"
-    environment:
-      DB_HOST: postgres
-      DB_USER: portfolio
-      DB_PASSWORD: devpassword
-      DB_NAME: portfolio
-      NODE_ENV: development
     depends_on:
       postgres:
         condition: service_healthy
@@ -889,11 +881,20 @@ services:</code><span class="code-label">header</span></pre>
 <table>
   <tr><th>Setting</th><th>Meaning</th></tr>
   <tr><td><code>build.context: ..</code></td><td>Build context is the parent folder (the project root, because we're inside <code>docker/</code>)</td></tr>
+  <tr><td><code>dockerfile: docker/Dockerfile</code></td><td>Build the static Nginx app image from this repo's Dockerfile</td></tr>
   <tr><td><code>ports: ["8080:8080"]</code></td><td>Map host port 8080 to container port 8080</td></tr>
-  <tr><td><code>environment:</code></td><td>Set environment variables inside the container</td></tr>
-  <tr><td><code>depends_on:</code></td><td>Wait for PostgreSQL to be healthy before starting</td></tr>
+  <tr><td><code>depends_on:</code></td><td>Demonstrate Compose startup ordering by waiting for the lab PostgreSQL service to be healthy before starting the app container</td></tr>
   <tr><td><code>networks:</code></td><td>Attach to the custom network so containers can talk to each other</td></tr>
 </table>
+
+<div class="info-box">
+  <strong>&#x1F4DD; PostgreSQL scope:</strong> PostgreSQL is present in
+  <code>docker/docker-compose.yml</code>, but the current static Nginx app does
+  not read from it, write to it, or connect to it. It is included only as an
+  infrastructure and observability practice service, so you can work with Compose
+  dependencies, health checks, persistent volumes, database ports, and monitoring
+  targets in a local lab.
+</div>
 
 <pre><code>  postgres:
     image: postgres:16-alpine
@@ -917,7 +918,7 @@ services:</code><span class="code-label">header</span></pre>
   <tr><th>Setting</th><th>Meaning</th></tr>
   <tr><td><code>image: postgres:16-alpine</code></td><td>Use an official PostgreSQL image (no Dockerfile needed)</td></tr>
   <tr><td><code>volumes: pgdata:...</code></td><td>Persist database files so data survives container restarts</td></tr>
-  <tr><td><code>healthcheck</code></td><td>PostgreSQL has a built-in command to check if it's ready. We use this to delay the app from starting until the DB is ready.</td></tr>
+  <tr><td><code>healthcheck</code></td><td>PostgreSQL has a built-in command to check if it's ready. Compose uses this for lab startup ordering; the static app itself still does not use the database.</td></tr>
 </table>
 
 <pre><code>  prometheus:
@@ -925,7 +926,8 @@ services:</code><span class="code-label">header</span></pre>
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus-data:/prometheus
     networks:
       - portfolio-net</code><span class="code-label">prometheus service</span></pre>
