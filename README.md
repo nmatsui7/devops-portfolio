@@ -22,6 +22,19 @@ Local services:
 
 The current app is static HTML behind Nginx. It does not run Node.js, does not connect to Postgres, and does not implement business logic yet.
 
+## Learning Path
+
+Use this repo as a small DevOps lab in this order:
+
+1. Run the local app with Docker Compose and inspect `/health`, `/ready`, and `/metrics`.
+2. Read the CI workflow and compare it with the validation evidence in [docs/validation.md](docs/validation.md).
+3. Apply the Kubernetes manifests to Minikube or Kind and check the rollout status.
+4. Review the Terraform scaffold, run `terraform init -backend=false`, and inspect a plan before applying anything in AWS.
+5. Open Prometheus/Grafana locally and confirm how the demo metrics are wired.
+6. Review the Ansible admin-node role and its syntax/lint checks without using it to deploy the app.
+
+The full tutorial lives at [docs/tutorial.html](docs/tutorial.html).
+
 ## What Is Demo Or Scaffold
 
 - Terraform models AWS VPC, subnets, optional NAT, EKS, RDS, and ECR, but it is a scaffold that needs account-specific review before apply.
