@@ -2825,16 +2825,6 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 
 <p><strong>Common error it catches:</strong> Tasks that use command-style modules without clear change detection, or tasks that ignore idempotency.</p>
 
-<h3>12.7 Optional Future Additions</h3>
-
-<p>
-  Do not add more tools until you understand the current validation path. Later,
-  this repo could add <code>hadolint</code> for Dockerfile linting,
-  <code>tflint</code> for Terraform-specific quality checks, and
-  <code>kubeconform</code> for Kubernetes schema validation. For now, keep the
-  tutorial focused on the tools above.
-</p>
-
 <p>
   After you run these checks, update <code>docs/validation.md</code> with the date,
   commands, results, and any screenshot references. That keeps the tutorial stable
