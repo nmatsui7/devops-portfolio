@@ -1,6 +1,6 @@
 # Validation Evidence
 
-Last checked: 2026-06-07 17:31:50 EDT
+Last checked: 2026-06-07 21:24:31 EDT
 
 This file records local validation evidence for the portfolio scaffold. It is not a production certification; it is a concise proof trail that the committed local demo and infrastructure examples parse, build, and run in the tested environment.
 
@@ -23,8 +23,10 @@ The previously reported "collapsed file" issue is not present in this checkout. 
   61 docker/docker-compose.yml
  242 infrastructure/terraform/main.tf
  106 infrastructure/kubernetes/deployment.yaml
- 171 README.md
+ 198 README.md
 ```
+
+Screenshots and run logs from the local stack, Minikube, and GitHub Actions are tracked in [docs/screenshots](screenshots/README.md).
 
 ## YAML And JSON Parsing
 

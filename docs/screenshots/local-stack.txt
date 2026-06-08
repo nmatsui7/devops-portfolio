@@ -1,0 +1,23 @@
+# Local Stack Evidence
+
+Generated: 2026-06-08T01:24:31Z
+
+## docker compose ps
+NAME                  IMAGE                     COMMAND                  SERVICE      CREATED          STATUS                    PORTS
+docker-app-1          docker-app                "/docker-entrypoint.…"   app          24 seconds ago   Up 23 seconds (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+docker-grafana-1      grafana/grafana:11.0.0    "/run.sh"                grafana      6 minutes ago    Up 6 minutes              0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+docker-postgres-1     postgres:16-alpine        "docker-entrypoint.s…"   postgres     6 minutes ago    Up 6 minutes (healthy)    0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+docker-prometheus-1   prom/prometheus:v2.53.0   "/bin/prometheus --c…"   prometheus   6 minutes ago    Up 6 minutes              0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+
+## /health
+healthy
+
+## /ready
+ready
+
+## /metrics
+portfolio_app_info{service="portfolio-static"} 1
+portfolio_app_ready 1
+
+## Prometheus targets API
+{"status":"success","data":{"activeTargets":[{"discoveredLabels":{"__address__":"app:8080","__metrics_path__":"/metrics","__scheme__":"http","__scrape_interval__":"15s","__scrape_timeout__":"10s","job":"portfolio-app-local"},"labels":{"instance":"app:8080","job":"portfolio-app-local"},"scrapePool":"portfolio-app-local","scrapeUrl":"http://app:8080/metrics","globalUrl":"http://app:8080/metrics","lastError":"","lastScrape":"2026-06-08T01:24:22.285310595Z","lastScrapeDuration":0.00146625,"health":"up","scrapeInterval":"15s","scrapeTimeout":"10s"}],"droppedTargets":[],"droppedTargetCounts":{"kubernetes":0,"portfolio-app-local":0}}}

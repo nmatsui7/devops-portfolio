@@ -1,0 +1,21 @@
+# Kubernetes Status Evidence
+
+Generated: 2026-06-08T01:23:21Z
+
+## kubectl get pods,svc,hpa,pdb,ingress -n production -o wide
+NAME                      READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+pod/app-7954664c5-fplsf   1/1     Running   0          4h14m   10.244.0.8    minikube   <none>           <none>
+pod/app-7954664c5-gkkqp   1/1     Running   0          4h14m   10.244.0.10   minikube   <none>           <none>
+pod/app-7954664c5-q94lg   1/1     Running   0          4h14m   10.244.0.9    minikube   <none>           <none>
+
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+service/app   ClusterIP   10.103.115.206   <none>        80/TCP    4h17m   app=portfolio-app
+
+NAME                                      REFERENCE        TARGETS                                     MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/app   Deployment/app   cpu: <unknown>/70%, memory: <unknown>/80%   3         10        3          4h17m
+
+NAME                             MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+poddisruptionbudget.policy/app   2               N/A               1                     4h17m
+
+NAME                            CLASS   HOSTS                     ADDRESS   PORTS     AGE
+ingress.networking.k8s.io/app   nginx   app.your-domain.example             80, 443   4h13m

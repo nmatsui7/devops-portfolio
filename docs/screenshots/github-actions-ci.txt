@@ -1,0 +1,13 @@
+# GitHub Actions Evidence
+
+Generated: 2026-06-08T01:23:22Z
+
+## gh run list --limit 5
+completed	success	Move tutorial into docs and add learning path	CI Pipeline	main	push	27110679601	1m52s	2026-06-08T01:15:43Z
+completed	success	Define Ansible admin-node operations role	CI Pipeline	main	push	27110556602	1m58s	2026-06-08T01:11:03Z
+completed	success	Expand CI validation and add architecture docs	CI Pipeline	main	push	27110280024	1m53s	2026-06-08T01:00:57Z
+completed	failure	Add YAML and workflow linting	CI Pipeline	main	push	27105178467	50s	2026-06-07T21:21:51Z
+completed	success	Add validation evidence for portfolio demo	CI Pipeline	main	push	27105095559	28s	2026-06-07T21:18:10Z
+
+## latest successful CI run metadata
+{"conclusion":"success","createdAt":"2026-06-08T01:15:43Z","headSha":"d03eb53538754fe0c1fe0692ec76be8911a9c9e0","name":"CI Pipeline","status":"completed","updatedAt":"2026-06-08T01:17:35Z","url":"https://github.com/nmatsui7/devops-portfolio/actions/runs/27110679601"}

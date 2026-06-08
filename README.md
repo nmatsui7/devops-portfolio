@@ -171,17 +171,17 @@ Ansible is limited to optional host-level operations for a bastion/admin node:
 
 See [ansible/README.md](ansible/README.md) for inventory, role boundaries, and validation commands. App deployment remains owned by Kubernetes manifests and GitHub Actions.
 
-## Screenshots To Add
+## Screenshots And Evidence
 
-Add these images under a future `docs/screenshots/` directory when captured:
+Proof artifacts are tracked in [docs/screenshots](docs/screenshots/README.md):
 
-- CI run showing lint, HTML validation, and Docker image build.
-- Local Docker Compose stack with app, Postgres, Prometheus, and Grafana running.
-- Terraform plan output for staging.
-- Kubernetes pods and rollout status.
-- Prometheus target page or Grafana dashboard for the local app.
+- GitHub Actions CI pipeline pass.
+- Local Docker Compose stack with app, Postgres, Prometheus, and Grafana reachable.
+- App `/health`, `/ready`, and `/metrics` output.
+- Prometheus scraping the app metrics endpoint.
+- Minikube Kubernetes pod, service, HPA, PDB, and ingress status.
 
-Current command-level validation evidence is tracked in [docs/validation.md](docs/validation.md).
+Command-level validation evidence is tracked in [docs/validation.md](docs/validation.md). Terraform remains documented as validation/scaffold evidence until a real AWS plan is captured with safe, redacted values.
 
 ## Project Structure
 
