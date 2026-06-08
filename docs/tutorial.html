@@ -478,27 +478,7 @@ helm version</code><span class="code-label">check</span></pre>
 <pre><code>git --version</code><span class="code-label">check</span></pre>
 <p>You should see something like <code>git version 2.40.0</code>.</p>
 
-<h3>Step 2: Install Node.js</h3>
-<p>Node.js lets us run JavaScript on our computer (outside of a browser). Our sample app is written in Node.js.</p>
-
-<ol>
-  <li>Go to <a href="https://nodejs.org" style="color:var(--accent)">nodejs.org</a></li>
-  <li>Download the <strong>LTS</strong> version (the left button)</li>
-  <li>Run the installer and accept defaults</li>
-</ol>
-
-<h4>Verify Node.js</h4>
-<pre><code>node --version
-npm --version</code><span class="code-label">check</span></pre>
-<p>You should see version numbers like <code>v20.11.0</code> and <code>10.2.4</code>.</p>
-
-<div class="tip">
-  <strong>&#x1F4A1; What is npm?</strong> npm stands for Node Package Manager.
-  It downloads libraries ("packages") that your project needs. Think of it like
-  an app store for code libraries.
-</div>
-
-<h3>Step 3: Install Visual Studio Code</h3>
+<h3>Step 2: Install Visual Studio Code</h3>
 <p>VS Code is a free code editor. We'll use it to edit project files.</p>
 
 <ol>
@@ -515,7 +495,7 @@ npm --version</code><span class="code-label">check</span></pre>
   <li><strong>Prettier</strong> &mdash; auto-formats code</li>
 </ul>
 
-<h3>Step 4: Get the Project Code</h3>
+<h3>Step 3: Get the Project Code</h3>
 <p>Now let's get the portfolio project onto your computer.</p>
 
 <div class="step-box">
@@ -561,21 +541,21 @@ cd devops-portfolio</code></pre>
 
 <table>
   <tr><th>File</th><th>Purpose</th></tr>
-  <tr><td><code>index.html</code></td><td>A status dashboard page that displays system metrics</td></tr>
+  <tr><td><code>index.html</code></td><td>A static status dashboard page</td></tr>
   <tr><td><code>nginx.conf</code></td><td>Configuration for the Nginx web server that serves the page</td></tr>
 </table>
 
 <p>
-  The app is intentionally simple &mdash; it's a static HTML page with some
-  JavaScript that fetches and displays metrics. The real point of this portfolio
-  is the <em>infrastructure around it</em>, not the app itself.
+  The app is intentionally simple &mdash; it's a static HTML page with a small
+  browser script that checks the Nginx <code>/metrics</code> endpoint. The real
+  point of this portfolio is the <em>infrastructure around it</em>, not the app itself.
 </p>
 
 <h4>What Does the App Do?</h4>
 <ul>
   <li>Displays a "All systems operational" badge</li>
-  <li>Shows uptime, request count, and active pod count</li>
-  <li>Fetches live metrics every 5 seconds</li>
+  <li>Shows simple Health, Metrics, and Local App status tiles</li>
+  <li>Checks the <code>/metrics</code> endpoint every 5 seconds when served by Nginx</li>
   <li>Has a sleek dark UI inspired by modern dashboards</li>
 </ul>
 
@@ -604,7 +584,7 @@ cd app
 # Start a simple HTTP server on port 8000
 python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 
-<p>If you don't have Python, you can also use the <code>npx</code> command that comes with Node.js:</p>
+<p>If you already have Node.js installed, you can optionally use the <code>npx</code> command instead:</p>
 
 <pre><code>npx serve app/</code><span class="code-label">alternative</span></pre>
 
@@ -614,9 +594,11 @@ python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 </p>
 
 <div class="warning">
-  <strong>&#x26A0;&#xFE0F; The metrics won't work yet</strong> &mdash; they rely on
-  a backend server that we haven't set up. The page will show "--" for the values.
-  That's expected! We'll fix it later with the full Docker setup.
+  <strong>&#x26A0;&#xFE0F; The metrics may show "--" here</strong> &mdash; Python's
+  simple static file server only serves files from <code>app/</code>. The real
+  <code>/health</code>, <code>/ready</code>, and <code>/metrics</code> endpoints
+  are configured in <code>app/nginx.conf</code> and work when you run the Nginx
+  container.
 </div>
 
 <p>Press <code>Ctrl+C</code> in the terminal to stop the server when you're done.</p>
@@ -705,100 +687,47 @@ docker run hello-world</code><span class="code-label">terminal</span></pre>
 
 <p>Let's look at the Dockerfile in our project (<code>docker/Dockerfile</code>):</p>
 
-<pre><code>FROM node:20-alpine AS builder
+<pre><code>FROM nginx:1.27-alpine
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+COPY app/index.html /usr/share/nginx/html/index.html
+COPY app/nginx.conf /etc/nginx/conf.d/default.conf
 
-FROM node:20-alpine AS runner
-
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 appuser
-
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-USER appuser
 EXPOSE 8080
-ENV NODE_ENV=production
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-
-CMD ["node", "dist/server.js"]</code></pre>
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/health || exit 1</code></pre>
 
 <h4>Line-by-Line Explanation</h4>
 
 <table>
   <tr><th>Line</th><th>What It Does</th></tr>
   <tr>
-    <td><code>FROM node:20-alpine AS builder</code></td>
-    <td>Start from an official Node.js image (Alpine = lightweight Linux). This begins the "builder" stage.</td>
+    <td><code>FROM nginx:1.27-alpine</code></td>
+    <td>Start from the official Nginx image. Alpine keeps the image small.</td>
   </tr>
   <tr>
-    <td><code>WORKDIR /app</code></td>
-    <td>Set the working directory inside the container. All following commands run here.</td>
+    <td><code>COPY app/index.html ...</code></td>
+    <td>Copy the static HTML page into Nginx's web root.</td>
   </tr>
   <tr>
-    <td><code>COPY package*.json ./</code></td>
-    <td>Copy <code>package.json</code> and <code>package-lock.json</code> into the container.</td>
-  </tr>
-  <tr>
-    <td><code>RUN npm ci</code></td>
-    <td>Install dependencies. <code>ci</code> is like <code>install</code> but faster and stricter.</td>
-  </tr>
-  <tr>
-    <td><code>COPY . .</code></td>
-    <td>Copy ALL files from the project into the container.</td>
-  </tr>
-  <tr>
-    <td><code>RUN npm run build</code></td>
-    <td>Build the application (compiles TypeScript, bundles assets, etc.).</td>
-  </tr>
-  <tr>
-    <td><code>FROM node:20-alpine AS runner</code></td>
-    <td>Second stage starts &mdash; fresh image to keep the final image small.</td>
-  </tr>
-  <tr>
-    <td><code>RUN addgroup ... && adduser ...</code></td>
-    <td>Create a non-root user for security. Running as root inside a container is risky.</td>
-  </tr>
-  <tr>
-    <td><code>COPY --from=builder ...</code></td>
-    <td>Copy only the built files from the builder stage. Discard the rest.</td>
-  </tr>
-  <tr>
-    <td><code>USER appuser</code></td>
-    <td>Switch to the non-root user before running the app.</td>
+    <td><code>COPY app/nginx.conf ...</code></td>
+    <td>Replace the default Nginx site config with this repo's config.</td>
   </tr>
   <tr>
     <td><code>EXPOSE 8080</code></td>
     <td>Document that this container listens on port 8080. Doesn't actually publish the port.</td>
   </tr>
   <tr>
-    <td><code>ENV NODE_ENV=production</code></td>
-    <td>Set an environment variable. Many frameworks behave differently in production vs development.</td>
-  </tr>
-  <tr>
     <td><code>HEALTHCHECK ...</code></td>
-    <td>Docker checks this URL every 30 seconds. If it fails 3 times, the container is marked unhealthy.</td>
-  </tr>
-  <tr>
-    <td><code>CMD ["node", "dist/server.js"]</code></td>
-    <td>The command that runs when the container starts. The JSON array syntax means "no shell".</td>
+    <td>Docker checks the Nginx <code>/health</code> endpoint. If it fails repeatedly, the container is marked unhealthy.</td>
   </tr>
 </table>
 
 <div class="tip">
-  <strong>&#x1F4A1; Multi-stage builds:</strong> This Dockerfile uses TWO stages.
-  The first stage ("builder") installs everything and compiles the code. The second
-  stage ("runner") only copies the compiled output, ignoring all the build tools.
-  This makes the final image much smaller &mdash; maybe 150MB instead of 1.5GB!
+  <strong>&#x1F4A1; Static app pattern:</strong> This project does not need a
+  backend runtime in the image. Nginx serves <code>index.html</code> and also
+  returns simple text responses for <code>/health</code>, <code>/ready</code>,
+  and <code>/metrics</code> from <code>app/nginx.conf</code>.
 </div>
 </section>
 
@@ -1157,30 +1086,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: YAML lint
+        uses: ibiqlik/action-yamllint@v3
+      - name: GitHub Actions lint
+        uses: raven-actions/actionlint@v2
       - name: ShellCheck
         uses: ludeeus/action-shellcheck@master
-        with:
-          severity: warning
+      - name: Install Ansible lint tools
+        run: pipx install --include-deps ansible-lint
+      - name: Ansible syntax check
+        run: ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
+      - name: Ansible lint
+        run: ansible-lint ansible/playbook.yml
 
-  test:
+  validate-html:
     runs-on: ubuntu-latest
     needs: lint
-    strategy:
-      matrix:
-        node-version: [18, 20, 22]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - name: Check HTML files
+        run: xmllint --noout app/index.html
 
-  docker:
+  validate-infrastructure:
     runs-on: ubuntu-latest
-    needs: test
+    needs: validate-html
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: azure/setup-kubectl@v4
+      - uses: helm/kind-action@v1
+      - run: docker compose -f docker/docker-compose.yml config
+      - run: docker build -f docker/Dockerfile -t portfolio/app:ci .
+      - run: terraform fmt -recursive -check infrastructure/terraform
+      - working-directory: infrastructure/terraform
+        run: terraform init -backend=false
+      - working-directory: infrastructure/terraform
+        run: terraform validate
+      - run: |
+          kubectl apply -f infrastructure/kubernetes/namespaces.yaml
+          kubectl apply --dry-run=server -f infrastructure/kubernetes/
+
+  docker-publish:
+    runs-on: ubuntu-latest
+    needs: validate-infrastructure
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -1194,43 +1142,49 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: docker/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}</code><span class="code-label">jobs</span></pre>
 
-<h4>The Three Jobs (explained simply)</h4>
+<h4>The Four Jobs (explained simply)</h4>
 
 <table>
   <tr><th>Job</th><th>Runs</th><th>What It Checks</th></tr>
   <tr>
     <td><strong>lint</strong></td>
     <td>ubuntu-latest</td>
-    <td>Checks code style with ShellCheck (finds bugs like missing quote marks)</td>
+    <td>Runs YAML lint, GitHub Actions lint, ShellCheck, Ansible syntax check, and Ansible lint</td>
   </tr>
   <tr>
-    <td><strong>test</strong></td>
-    <td>ubuntu-latest (x3: Node 18, 20, 22)</td>
-    <td>Installs dependencies and runs tests on <em>three different versions</em> of Node.js to catch compatibility issues</td>
+    <td><strong>validate-html</strong></td>
+    <td>ubuntu-latest</td>
+    <td>Checks the static HTML files under <code>app/</code></td>
   </tr>
   <tr>
-    <td><strong>docker</strong></td>
+    <td><strong>validate-infrastructure</strong></td>
+    <td>ubuntu-latest</td>
+    <td>Checks Docker Compose, builds the Nginx image, validates Terraform, and dry-runs Kubernetes manifests against a Kind cluster</td>
+  </tr>
+  <tr>
+    <td><strong>docker-publish</strong></td>
     <td>ubuntu-latest (only on main branch)</td>
-    <td>If tests pass AND we're on the main branch, build the Docker image and push it to GitHub Container Registry</td>
+    <td>If validation passes and the push is on <code>main</code>, builds and pushes the image to GitHub Container Registry</td>
   </tr>
 </table>
 
 <h4>Key Concepts</h4>
 <ul>
-  <li><strong>Matrix strategy</strong> &mdash; runs the same job multiple times with different settings (here, different Node versions). This catches bugs that only appear on certain versions.</li>
-  <li><strong><code>needs:</code></strong> &mdash; creates dependencies. <code>test</code> waits for <code>lint</code>. <code>docker</code> waits for <code>test</code>. If lint fails, nothing else runs.</li>
-  <li><strong>Actions</strong> &mdash; <code>uses:</code> references pre-built GitHub Actions. <code>actions/checkout@v4</code> fetches your code. <code>actions/setup-node@v4</code> installs Node.js.</li>
+  <li><strong><code>needs:</code></strong> &mdash; creates dependencies. HTML validation waits for linting, infrastructure validation waits for HTML validation, and publishing waits for infrastructure validation.</li>
+  <li><strong>Actions</strong> &mdash; <code>uses:</code> references pre-built GitHub Actions. <code>actions/checkout@v4</code> fetches your code. Terraform, kubectl, and Kind actions prepare validation tools.</li>
   <li><strong>Secrets</strong> &mdash; <code>${{ secrets.GITHUB_TOKEN }}</code> is automatically created by GitHub. You don't need to set it up.</li>
+  <li><strong>Kind</strong> &mdash; CI starts a temporary Kubernetes cluster so <code>kubectl apply --dry-run=server</code> can validate manifests against a real API server.</li>
 </ul>
 
 <div class="tip">
-  <strong>&#x1F4A1; Why Run Tests on 3 Node Versions?</strong> Your team might have
-  different versions of Node installed locally. The CI pipeline ensures compatibility
-  with all supported versions. If a test fails on Node 22 but passes on 18, you know
-  there's a compatibility issue before it reaches production.
+  <strong>&#x1F4A1; Static app CI:</strong> Because this app is static HTML served
+  by Nginx, CI does not install application dependencies or run Node tests. It
+  focuses on validating the files that make up the DevOps portfolio: HTML, YAML,
+  shell scripts, Ansible, Docker, Terraform, and Kubernetes.
 </div>
 </section>
 
@@ -1251,55 +1205,62 @@ on:
 </p>
 
 <pre><code>jobs:
+  build-image:
+    runs-on: ubuntu-latest
+
   deploy-staging:
     runs-on: ubuntu-latest
-    environment: staging</code>
-    <span class="code-label">staging deployment</span></pre>
+    needs: build-image
+    environment: staging
 
-<p>
-  The first job deploys to <strong>staging</strong> &mdash; a test environment that
-  mimics production. It configures AWS credentials and runs <code>kubectl</code>
-  commands to update the Kubernetes deployment.
-</p>
-
-<pre><code>  deploy-production:
+  deploy-production:
     runs-on: ubuntu-latest
-    needs: deploy-staging
+    needs:
+      - build-image
+      - deploy-staging
     environment:
       name: production
-      url: https://app.example.com</code>
-    <span class="code-label">production deployment</span></pre>
+      url: ${{ env.PRODUCTION_URL }}</code><span class="code-label">release flow</span></pre>
 
 <p>
-  Production deployment <strong>waits for staging to succeed</strong>. This is
-  called a "gated" deployment &mdash; if staging fails, production won't update.
+  The first job builds and pushes the release image to GitHub Container Registry.
+  Then staging deploys that exact image. Production waits for staging to succeed.
 </p>
 
-<h4>The Canary Deployment</h4>
-<pre><code>      - name: Canary deployment (10%)
-        run: |
-          kubectl set image deployment/app-canary \
-            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-            -n ${{ env.K8S_NAMESPACE }}
+<h4>Building the Release Image</h4>
+<pre><code>- name: Build and push release image
+  uses: docker/build-push-action@v5
+  with:
+    context: .
+    file: docker/Dockerfile
+    push: true
+    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}</code><span class="code-label">image</span></pre>
 
-      - name: Smoke test
-        run: |
-          sleep 30
-          curl -sf https://canary.app.example.com/health
+<p>
+  The image tag is the git tag that triggered the workflow, such as
+  <code>v1.0.0</code>. That makes releases traceable: the Kubernetes deployment
+  points to the image built from that release tag.
+</p>
 
-      - name: Rollout to all
-        run: |
-          kubectl set image deployment/app \
-            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-            -n ${{ env.K8S_NAMESPACE }}
-          kubectl rollout status deployment/app -n ${{ env.K8S_NAMESPACE }}</code></pre>
+<h4>Rolling Deployment with Rollback</h4>
+<pre><code>- name: Rolling deployment
+  run: |
+    set -euo pipefail
+    trap 'kubectl rollout undo deployment/app -n "${PRODUCTION_NAMESPACE}"' ERR
+    kubectl set image deployment/app \
+      app=${{ needs.build-image.outputs.image }} \
+      -n "${PRODUCTION_NAMESPACE}"
+    kubectl rollout status deployment/app -n "${PRODUCTION_NAMESPACE}" --timeout=180s
+
+- name: Smoke test
+  run: curl -sf "${PRODUCTION_URL}/health"</code><span class="code-label">production</span></pre>
 
 <div class="info-box">
-  <strong>&#x1F4DD; Canary Deployments:</strong> Instead of updating all servers at
-  once (which could break everything), a "canary" update sends the new version to
-  only 10% of servers first. The pipeline runs a smoke test (a quick health check)
-  on the canary. If it passes, the update rolls out to all servers. If it fails,
-  the canary is rolled back and only 10% of users were affected.
+  <strong>&#x1F4DD; Deployment boundary:</strong> The CD workflow is an AWS/EKS
+  deployment example. It expects an existing EKS cluster, GitHub OIDC role, and
+  deployment named <code>app</code> in the target namespaces. The local tutorial
+  path still uses Docker Compose and Minikube; AWS is not required for learning
+  the repo.
 </div>
 </section>
 
@@ -2468,8 +2429,8 @@ rule_files:
 <pre><code>docker compose -f docker/docker-compose.yml config</code><span class="code-label">Compose</span></pre>
 
 <p>
-  Then build the app image. A successful build proves the Dockerfile can install
-  its dependencies and produce a runnable image.
+  Then build the app image. A successful build proves the Dockerfile can package
+  the static HTML page and Nginx configuration into a runnable image.
 </p>
 
 <pre><code>docker build -f docker/Dockerfile -t portfolio/app:validation .</code><span class="code-label">Dockerfile</span></pre>
@@ -2568,7 +2529,6 @@ ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible</span><
   <tr><th>Term</th><th>Definition</th></tr>
   <tr><td><strong>Ansible</strong></td><td>A tool that automates server setup and configuration by running commands over SSH</td></tr>
   <tr><td><strong>Availability Zone</strong></td><td>A physically separate data center within an AWS region. Using multiple AZs protects against data center outages.</td></tr>
-  <tr><td><strong>Canary Deployment</strong></td><td>Rolling out a new version to a small subset of users first to test before full release</td></tr>
   <tr><td><strong>CIDR</strong></td><td>A way to describe a range of IP addresses (e.g., <code>10.0.0.0/16</code> = 65,536 addresses).</td></tr>
   <tr><td><strong>CI/CD</strong></td><td>Continuous Integration / Continuous Deployment — automatically testing and deploying code</td></tr>
   <tr><td><strong>Container</strong></td><td>A lightweight, standalone package that includes everything needed to run a piece of software</td></tr>
@@ -2644,7 +2604,7 @@ ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible</span><
   project in an interview, focus on <strong>why</strong> you made each choice:
   <ul>
     <li>"I used Terraform because we wanted infrastructure version-controlled and reviewable"</li>
-    <li>"I chose a canary deployment to minimize risk when releasing new versions"</li>
+    <li>"I used Kubernetes rolling deployments with rollback checks to reduce release risk"</li>
     <li>"I set up Prometheus alerts to catch issues before users notice them"</li>
   </ul>
   Employers love candidates who understand the reasoning, not just the commands.
