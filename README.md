@@ -22,7 +22,7 @@ Install these tools before starting the local lab.
 
 ### Recommended
 
-- Homebrew on macOS
+- A package manager for your OS, such as Homebrew on macOS, apt on Ubuntu/Debian, or Chocolatey/winget on Windows
 - yamllint
 - actionlint
 - shellcheck
@@ -30,15 +30,15 @@ Install these tools before starting the local lab.
 - ansible-lint
 - helm
 
-### macOS Installation
+### Example: macOS Installation
 
-Install command-line tools with Homebrew:
+This tutorial is not limited to macOS. Use the official installers or package manager for your operating system. On macOS, you can install command-line tools with Homebrew:
 
 ```bash
 brew install git kubectl minikube terraform python yamllint actionlint shellcheck ansible ansible-lint helm
 ```
 
-Install Docker Desktop separately from Docker's website. After installation, start Docker Desktop before running Docker Compose or Minikube.
+Install Docker Desktop separately from Docker's website. On Windows and macOS, Docker Desktop is the usual beginner path. On Linux, you can use Docker Engine or Docker Desktop. After installation, start Docker before running Docker Compose or Minikube.
 
 Verify the tools:
 
@@ -120,7 +120,7 @@ To inspect GitHub Actions:
 3. Read `.github/workflows/ci.yml` for CI checks.
 4. Read `.github/workflows/cd.yml` for deployment flow.
 
-The `.github` folder is not code that runs on your Mac directly. It tells GitHub Actions what to run on GitHub-hosted runners after you push commits to GitHub.
+The `.github` folder is not code that runs on your local computer directly. It tells GitHub Actions what to run on GitHub-hosted runners after you push commits to GitHub.
 
 ## What Is Demo Or Scaffold
 

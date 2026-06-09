@@ -633,10 +633,6 @@ cd app
 # Start a simple HTTP server on port 8000
 python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 
-<p>If you already use Node tooling locally, you can optionally serve the static files with <code>npx</code> instead:</p>
-
-<pre><code>npx serve app/</code><span class="code-label">alternative</span></pre>
-
 <p>
   Open your browser to <strong>http://localhost:8000</strong> (or whatever port the
   command says). You should see the portfolio dashboard page!
@@ -1405,6 +1401,22 @@ on:
   <code>develop</code> branches, OR when a pull request targets <code>main</code>."
 </p>
 
+<p>
+  The tables below explain the most important lines. If you want every detail,
+  open <code>.github/workflows/ci.yml</code> in VS Code and compare it with the
+  official GitHub Actions documentation:
+  <a href="https://docs.github.com/actions" style="color:var(--accent)">docs.github.com/actions</a>.
+</p>
+
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>name: CI Pipeline</code></td><td>The display name shown in the GitHub Actions tab</td></tr>
+  <tr><td><code>on:</code></td><td>The events that trigger this workflow</td></tr>
+  <tr><td><code>push</code></td><td>Run when commits are pushed to matching branches</td></tr>
+  <tr><td><code>branches: [main, develop]</code></td><td>Only run push-triggered CI for these branch names</td></tr>
+  <tr><td><code>pull_request</code></td><td>Run when a pull request targets a matching branch</td></tr>
+</table>
+
 <div class="info-box">
   <strong>Before expecting CI to run:</strong> Create the GitHub repository and
   push this project first. GitHub Actions only runs workflows that exist in a
@@ -1456,6 +1468,13 @@ on:
   <code>IMAGE_NAME</code> uses the repository name automatically.
 </p>
 
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>env:</code></td><td>Defines variables that later jobs and steps can reuse</td></tr>
+  <tr><td><code>REGISTRY: ghcr.io</code></td><td>Stores the registry hostname for GitHub Container Registry</td></tr>
+  <tr><td><code>IMAGE_NAME: ${{ github.repository }}</code></td><td>Uses GitHub's built-in repository value, such as <code>username/repo</code></td></tr>
+</table>
+
 <p>
   <strong>GitHub Container Registry (GHCR)</strong> is GitHub's container image
   storage service. GitHub Actions can build a Docker image and publish it to
@@ -1489,6 +1508,26 @@ on:
   time building images or validating infrastructure.
 </p>
 
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>lint:</code></td><td>The job ID. Other jobs can refer to this name with <code>needs: lint</code></td></tr>
+  <tr><td><code>runs-on: ubuntu-latest</code></td><td>Run this job on a temporary Ubuntu runner</td></tr>
+  <tr><td><code>steps:</code></td><td>The ordered commands/actions inside the job</td></tr>
+  <tr><td><code>uses:</code></td><td>Run a prebuilt GitHub Action</td></tr>
+  <tr><td><code>run:</code></td><td>Run a shell command on the runner</td></tr>
+</table>
+
+<p>
+  <strong>Prebuilt GitHub Actions</strong> are reusable CI/CD steps, referenced
+  with <code>uses:</code>, that perform common tasks like checking out code,
+  installing tools, building Docker images, or logging in to registries. For
+  example, <code>actions/checkout@v4</code> downloads your repository code,
+  <code>hashicorp/setup-terraform@v3</code> installs Terraform, and
+  <code>docker/build-push-action@v5</code> builds and pushes a Docker image.
+  Use <code>uses:</code> for an existing packaged action; use <code>run:</code>
+  when you want to execute your own shell command.
+</p>
+
 <h4>Job 2: validate-html</h4>
 
 <pre><code>validate-html:
@@ -1504,6 +1543,13 @@ on:
   This job checks the static HTML app before the workflow moves on to Docker,
   Terraform, and Kubernetes validation.
 </p>
+
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>needs: lint</code></td><td>Do not start this job until the <code>lint</code> job succeeds</td></tr>
+  <tr><td><code>actions/checkout@v4</code></td><td>Download the repository code onto the runner</td></tr>
+  <tr><td><code>xmllint --noout app/index.html</code></td><td>Parse the HTML file and report errors without printing the file contents</td></tr>
+</table>
 
 <h4>Job 3: validate-infrastructure</h4>
 
@@ -1533,6 +1579,34 @@ on:
   a real API server.
 </p>
 
+<p>
+  <strong>Kind</strong> means "Kubernetes in Docker." It creates a temporary
+  Kubernetes cluster using Docker containers, so CI can validate Kubernetes
+  manifests against a real Kubernetes API server without using AWS, EKS, GKE, or
+  a long-running cluster. The intention of
+  <code>kubectl apply --dry-run=server</code> is to ask that API server, "Would
+  Kubernetes accept these manifests?" without actually creating or changing
+  resources. That is stronger than a client-side dry run because the validation
+  uses a real Kubernetes API server.
+</p>
+
+<p>
+  <strong>AWS</strong> is Amazon's cloud platform, <strong>EKS</strong> is
+  Amazon's managed Kubernetes service, and <strong>GKE</strong> is Google's
+  managed Kubernetes service. A <strong>long-running cluster</strong> is a
+  Kubernetes cluster that stays online instead of being created only for one CI
+  job.
+</p>
+
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>hashicorp/setup-terraform@v3</code></td><td>Installs Terraform on the runner</td></tr>
+  <tr><td><code>azure/setup-kubectl@v4</code></td><td>Installs <code>kubectl</code>; it does not mean this project uses Azure</td></tr>
+  <tr><td><code>helm/kind-action@v1</code></td><td>Starts a temporary local Kubernetes cluster inside CI</td></tr>
+  <tr><td><code>terraform init -backend=false</code></td><td>Initializes Terraform without connecting to remote state</td></tr>
+  <tr><td><code>kubectl apply --dry-run=server</code></td><td>Ask the Kubernetes API server to validate manifests without applying them</td></tr>
+</table>
+
 <h4>Job 4: docker-publish</h4>
 
 <pre><code>docker-publish:
@@ -1559,6 +1633,15 @@ on:
   automatic <code>GITHUB_TOKEN</code>, builds the image, and publishes it with the
   commit SHA as the image tag.
 </p>
+
+<table>
+  <tr><th>Line</th><th>Meaning</th></tr>
+  <tr><td><code>if: github.ref == 'refs/heads/main'</code></td><td>Only run this job for pushes to the <code>main</code> branch</td></tr>
+  <tr><td><code>docker/login-action@v3</code></td><td>Logs in to GHCR so the workflow can publish an image</td></tr>
+  <tr><td><code>secrets.GITHUB_TOKEN</code></td><td>A temporary token GitHub automatically provides to the workflow</td></tr>
+  <tr><td><code>docker/build-push-action@v5</code></td><td>Builds the Docker image and pushes it to the registry</td></tr>
+  <tr><td><code>github.sha</code></td><td>The exact commit hash, used here as the image tag</td></tr>
+</table>
 
 <h4>The Four Jobs (explained simply)</h4>
 
@@ -1596,10 +1679,18 @@ on:
 
 <div class="tip">
   <strong>&#x1F4A1; Static app CI:</strong> Because this app is static HTML served
-  by Nginx, CI does not install application dependencies or run Node tests. It
-  focuses on validating the files that make up the DevOps portfolio: HTML, YAML,
-  shell scripts, Ansible, Docker, Terraform, and Kubernetes.
+  by Nginx, CI does not install application dependencies or run Node.js
+  application tests. Instead, it focuses on validating the files that make up the
+  DevOps portfolio: HTML, YAML, shell scripts, Ansible, Docker, Terraform, and
+  Kubernetes.
 </div>
+
+<p>
+  <strong>Node.js</strong> is a JavaScript runtime used to run JavaScript on a
+  server or command line instead of only inside a web browser. Many web apps use
+  Node.js for backend code, build tools, or package management. This project does
+  not currently have a Node.js application; it serves static HTML with Nginx.
+</p>
 
 <h4>How to Run ci.yml</h4>
 
@@ -1621,6 +1712,14 @@ git push origin main</code><span class="code-label">trigger CI</span></pre>
   branch, push it, and open a pull request into <code>main</code>; the same CI
   workflow will run before merging.
 </p>
+
+<figure class="tutorial-figure">
+  <img src="screenshots/github-actions-workflows-redacted.png" alt="GitHub Actions tab showing workflow list and recent CI run">
+  <figcaption>
+    The GitHub Actions tab shows workflow runs and lets you choose the CI or CD
+    pipeline from the workflow list.
+  </figcaption>
+</figure>
 </section>
 
 <section id="cicd-cd">

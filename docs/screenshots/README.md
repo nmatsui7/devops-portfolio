@@ -6,6 +6,7 @@ These captures show the portfolio demo running locally and the GitHub Actions pi
 
 | Evidence | File |
 | --- | --- |
+| GitHub Actions workflow list, redacted for tutorial use | [github-actions-workflows-redacted.png](github-actions-workflows-redacted.png) |
 | GitHub Actions CI pipeline pass | [github-actions-ci-pass.png](github-actions-ci-pass.png) |
 | Local Nginx app served by Docker Compose | [local-app.png](local-app.png) |
 | Prometheus scraping the local app metrics endpoint | [prometheus-targets.png](prometheus-targets.png) |
