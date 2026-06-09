@@ -947,6 +947,20 @@ docker ps -a
 
 # Remove unused images to free disk space
 docker image prune</code><span class="code-label">cheatsheet</span></pre>
+
+<p>
+  Use <code>docker image prune -a</code> when you want to remove all images that
+  are not used by at least one container. This is stronger than
+  <code>docker image prune</code>, so check <code>docker ps -a</code> first if
+  you are unsure what is still connected to a container.
+</p>
+
+<div class="warning">
+  <strong>Be careful with volumes:</strong> Docker volumes can contain database
+  data, Grafana data, or other state. Only delete volumes when you intentionally
+  want to remove that data:
+  <pre><code>docker system prune -a --volumes</code><span class="code-label">destructive cleanup</span></pre>
+</div>
 </section>
 
 <section id="docker-hub">
@@ -1022,6 +1036,13 @@ docker push yourusername/portfolio-app:latest</code><span class="code-label">ter
   push it to a registry, and then your production servers pull it from there.
   This way, every server runs exactly the same image.
 </div>
+
+<p>
+  To delete an image you pushed, sign in to
+  <a href="https://hub.docker.com" style="color:var(--accent)">Docker Hub</a>,
+  go to <strong>My Hub &rarr; Repositories</strong>, open the repository, then go
+  to <strong>Settings</strong> and delete the repository or a specific tag.
+</p>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
