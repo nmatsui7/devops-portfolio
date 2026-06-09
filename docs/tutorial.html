@@ -1256,6 +1256,13 @@ docker compose -f docker/docker-compose.yml logs -f app
 
 # Follow logs for all services (like tail -f)
 docker compose -f docker/docker-compose.yml logs -f</code><span class="code-label">terminal</span></pre>
+
+<p>
+  Commands with <code>-f</code> keep following new log lines, so the terminal
+  looks like it is still busy. Press <code>Control-C</code> when you are done
+  watching logs. This stops the log view and returns you to the prompt; it does
+  not stop the running containers.
+</p>
 </section>
 
 <section id="compose-down">
