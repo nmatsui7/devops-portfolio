@@ -1408,6 +1408,47 @@ on:
   <a href="https://docs.github.com/actions" style="color:var(--accent)">docs.github.com/actions</a>.
 </p>
 
+<p>
+  This tutorial explains the CI/CD files at a beginner level. For deeper details,
+  start with the official documentation for GitHub Actions workflow syntax,
+  contexts, expressions, secrets, and runner behavior. For Docker image
+  publishing, read Docker's GitHub Actions guide, the
+  <code>docker/build-push-action</code> README, and GitHub's Container Registry
+  docs.
+</p>
+
+<table>
+  <tr><th>Topic</th><th>Best Source</th></tr>
+  <tr>
+    <td><code>on</code>, <code>jobs</code>, <code>steps</code>, <code>uses</code>, <code>run</code>, <code>needs</code></td>
+    <td><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax" style="color:var(--accent)">GitHub Actions workflow syntax docs</a></td>
+  </tr>
+  <tr>
+    <td><code>${{ github.repository }}</code>, contexts, expressions, and <code>${{ secrets.GITHUB_TOKEN }}</code></td>
+    <td>
+      <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/contexts" style="color:var(--accent)">contexts</a>,
+      <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/expressions" style="color:var(--accent)">expressions</a>,
+      and <a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets" style="color:var(--accent)">secrets</a>
+    </td>
+  </tr>
+  <tr>
+    <td><code>runs-on</code> and GitHub-hosted runner behavior</td>
+    <td><a href="https://docs.github.com/en/actions/concepts/runners/github-hosted-runners" style="color:var(--accent)">GitHub-hosted runners docs</a></td>
+  </tr>
+  <tr>
+    <td>Docker build/push workflow steps</td>
+    <td><a href="https://docs.docker.com/build/ci/github-actions/" style="color:var(--accent)">Docker's GitHub Actions docs</a></td>
+  </tr>
+  <tr>
+    <td><code>docker/build-push-action@v5</code> options</td>
+    <td><a href="https://github.com/docker/build-push-action" style="color:var(--accent)">docker/build-push-action README</a></td>
+  </tr>
+  <tr>
+    <td>GHCR image publishing</td>
+    <td><a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry" style="color:var(--accent)">GitHub Container Registry docs</a></td>
+  </tr>
+</table>
+
 <table>
   <tr><th>Line</th><th>Meaning</th></tr>
   <tr><td><code>name: CI Pipeline</code></td><td>The display name shown in the GitHub Actions tab</td></tr>
