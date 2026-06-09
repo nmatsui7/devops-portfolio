@@ -949,10 +949,11 @@ docker ps -a
 docker image prune</code><span class="code-label">cheatsheet</span></pre>
 
 <p>
-  Use <code>docker image prune -a</code> when you want to remove all images that
-  are not used by at least one container. This is stronger than
-  <code>docker image prune</code>, so check <code>docker ps -a</code> first if
-  you are unsure what is still connected to a container.
+  Before starting section 6, you can optionally run
+  <code>docker image prune -a</code> to remove all images that are not used by at
+  least one container. This is stronger than <code>docker image prune</code>, so
+  check <code>docker ps -a</code> first if you are unsure what is still connected
+  to a container. Docker Compose can pull or rebuild the images it needs again.
 </p>
 
 <div class="warning">
