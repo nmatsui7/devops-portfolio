@@ -1,6 +1,10 @@
-# DevOps Portfolio
+# Beginner DevOps Operations Tutorial
 
-Small DevOps portfolio project for a containerized static web app. The repo is intentionally split between working local demo assets and cloud infrastructure scaffolding so recruiters can see both the runnable path and the infrastructure design direction without confusing this for a production system.
+This repository is a beginner-friendly web tutorial and hands-on lab for learning DevOps operations. It uses a small containerized static web app to practice Docker, Docker Compose, GitHub Actions, Kubernetes, Terraform validation, monitoring with Prometheus/Grafana, and optional Ansible host-operations checks.
+
+The repo is also structured as a DevOps portfolio project. It is intentionally split between working local demo assets and cloud infrastructure scaffolding so learners and recruiters can see both the runnable path and the infrastructure design direction without confusing this for a production system.
+
+Start with the full tutorial at [docs/tutorial.html](docs/tutorial.html), then use this README as the quick reference for commands, architecture, validation, and scope.
 
 ## Prerequisites
 
