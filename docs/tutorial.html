@@ -436,7 +436,7 @@
 
 <h4>Recommended Tools</h4>
 <ul>
-  <li><strong>Homebrew on macOS</strong> &mdash; easiest way to install command-line tools</li>
+  <li><strong>A package manager for your OS</strong> &mdash; Homebrew on macOS, apt on Ubuntu/Debian, or Chocolatey/winget on Windows</li>
   <li><strong>yamllint</strong> &mdash; checks YAML formatting</li>
   <li><strong>actionlint</strong> &mdash; checks GitHub Actions workflows</li>
   <li><strong>shellcheck</strong> &mdash; checks shell scripts</li>
@@ -445,15 +445,20 @@
   <li><strong>Visual Studio Code</strong> &mdash; code editor, though any editor works</li>
 </ul>
 
-<h4>macOS Installation with Homebrew</h4>
-<p>Install the command-line tools:</p>
+<h4>Example: macOS Installation with Homebrew</h4>
+<p>
+  This tutorial is not designed only for macOS. Use the official installers or
+  package manager for your operating system. On macOS, you can install the
+  command-line tools with Homebrew:
+</p>
 <pre><code>brew install git kubectl minikube terraform python yamllint actionlint shellcheck ansible ansible-lint helm</code><span class="code-label">macOS</span></pre>
 
 <p>
-  Install Docker Desktop separately from
+  Install Docker separately from
   <a href="https://docs.docker.com/get-docker/" style="color:var(--accent)">Docker's website</a>.
-  After installation, open Docker Desktop and wait for it to finish starting
-  before running Docker Compose or Minikube.
+  On Windows and macOS, Docker Desktop is the usual beginner path. On Linux, you
+  can use Docker Engine or Docker Desktop. After installation, start Docker and
+  wait for it to finish starting before running Docker Compose or Minikube.
 </p>
 
 <h4>Verify Installation</h4>
@@ -1432,74 +1437,128 @@ on:
   workflow file can break CI/CD or deployment.
 </p>
 
+<p>
+  A <strong>GitHub-hosted Ubuntu runner</strong> is a temporary Linux machine
+  provided by GitHub Actions that runs your workflow commands and is discarded
+  after the job finishes. In the workflow file, this is the meaning of
+  <code>runs-on: ubuntu-latest</code>.
+</p>
+
+<h4>Top-Level Settings</h4>
+
 <pre><code>env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}</code><span class="code-label">env</span></pre>
 
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: YAML lint
-        uses: ibiqlik/action-yamllint@v3
-      - name: GitHub Actions lint
-        uses: raven-actions/actionlint@v2
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
-      - name: Install Ansible lint tools
-        run: pipx install --include-deps ansible-lint
-      - name: Ansible syntax check
-        run: ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
-      - name: Ansible lint
-        run: ansible-lint ansible/playbook.yml
+<p>
+  The <code>env</code> block defines reusable values for the workflow. Here,
+  <code>REGISTRY</code> points to GitHub Container Registry, and
+  <code>IMAGE_NAME</code> uses the repository name automatically.
+</p>
 
-  validate-html:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check HTML files
-        run: xmllint --noout app/index.html
+<p>
+  <strong>GitHub Container Registry (GHCR)</strong> is GitHub's container image
+  storage service. GitHub Actions can build a Docker image and publish it to
+  GHCR, then servers or Kubernetes clusters can pull that same image later.
+  A typical image name looks like
+  <code>ghcr.io/username/repository-name:image-tag</code>.
+</p>
 
-  validate-infrastructure:
-    runs-on: ubuntu-latest
-    needs: validate-html
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - uses: azure/setup-kubectl@v4
-      - uses: helm/kind-action@v1
-      - run: docker compose -f docker/docker-compose.yml config
-      - run: docker build -f docker/Dockerfile -t portfolio/app:ci .
-      - run: terraform fmt -recursive -check infrastructure/terraform
-      - working-directory: infrastructure/terraform
-        run: terraform init -backend=false
-      - working-directory: infrastructure/terraform
-        run: terraform validate
-      - run: |
-          kubectl apply -f infrastructure/kubernetes/namespaces.yaml
-          kubectl apply --dry-run=server -f infrastructure/kubernetes/
+<h4>Job 1: lint</h4>
 
-  docker-publish:
-    runs-on: ubuntu-latest
-    needs: validate-infrastructure
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Log in to registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/Dockerfile
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}</code><span class="code-label">jobs</span></pre>
+<pre><code>lint:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - name: YAML lint
+      uses: ibiqlik/action-yamllint@v3
+    - name: GitHub Actions lint
+      uses: raven-actions/actionlint@v2
+    - name: ShellCheck
+      uses: ludeeus/action-shellcheck@master
+    - name: Install Ansible lint tools
+      run: pipx install --include-deps ansible-lint
+    - name: Ansible syntax check
+      run: ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check
+    - name: Ansible lint
+      run: ansible-lint ansible/playbook.yml</code><span class="code-label">lint job</span></pre>
+
+<p>
+  The <code>lint</code> job is the first quality gate. It checks YAML files,
+  GitHub Actions files, shell scripts, and Ansible files before later jobs spend
+  time building images or validating infrastructure.
+</p>
+
+<h4>Job 2: validate-html</h4>
+
+<pre><code>validate-html:
+  runs-on: ubuntu-latest
+  needs: lint
+  steps:
+    - uses: actions/checkout@v4
+    - name: Check HTML files
+      run: xmllint --noout app/index.html</code><span class="code-label">HTML job</span></pre>
+
+<p>
+  The <code>needs: lint</code> line means this job waits for linting to pass.
+  This job checks the static HTML app before the workflow moves on to Docker,
+  Terraform, and Kubernetes validation.
+</p>
+
+<h4>Job 3: validate-infrastructure</h4>
+
+<pre><code>validate-infrastructure:
+  runs-on: ubuntu-latest
+  needs: validate-html
+  steps:
+    - uses: actions/checkout@v4
+    - uses: hashicorp/setup-terraform@v3
+    - uses: azure/setup-kubectl@v4
+    - uses: helm/kind-action@v1
+    - run: docker compose -f docker/docker-compose.yml config
+    - run: docker build -f docker/Dockerfile -t portfolio/app:ci .
+    - run: terraform fmt -recursive -check infrastructure/terraform
+    - working-directory: infrastructure/terraform
+      run: terraform init -backend=false
+    - working-directory: infrastructure/terraform
+      run: terraform validate
+    - run: |
+        kubectl apply -f infrastructure/kubernetes/namespaces.yaml
+        kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">infra job</span></pre>
+
+<p>
+  This job validates the DevOps pieces together. It checks the Compose file,
+  builds the Docker image, validates Terraform without using remote state, and
+  starts a temporary Kind cluster so Kubernetes manifests can be dry-run against
+  a real API server.
+</p>
+
+<h4>Job 4: docker-publish</h4>
+
+<pre><code>docker-publish:
+  runs-on: ubuntu-latest
+  needs: validate-infrastructure
+  if: github.ref == 'refs/heads/main'
+  steps:
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: docker/Dockerfile
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}</code><span class="code-label">publish job</span></pre>
+
+<p>
+  This job only runs after infrastructure validation passes, and only when the
+  push is on <code>main</code>. It logs in to GitHub Container Registry with the
+  automatic <code>GITHUB_TOKEN</code>, builds the image, and publishes it with the
+  commit SHA as the image tag.
+</p>
 
 <h4>The Four Jobs (explained simply)</h4>
 
@@ -1541,6 +1600,27 @@ jobs:
   focuses on validating the files that make up the DevOps portfolio: HTML, YAML,
   shell scripts, Ansible, Docker, Terraform, and Kubernetes.
 </div>
+
+<h4>How to Run ci.yml</h4>
+
+<p>
+  You do not run <code>ci.yml</code> directly on your local computer. GitHub
+  Actions runs it on GitHub-hosted Ubuntu runners after the workflow file has
+  been pushed to your GitHub repository.
+</p>
+
+<pre><code>git status
+git add .
+git commit -m "Update tutorial"
+git push origin main</code><span class="code-label">trigger CI</span></pre>
+
+<p>
+  After pushing, open your repository on GitHub and click the
+  <strong>Actions</strong> tab. Select <strong>CI Pipeline</strong> to watch each
+  job run and read logs if something fails. For pull request practice, create a
+  branch, push it, and open a pull request into <code>main</code>; the same CI
+  workflow will run before merging.
+</p>
 </section>
 
 <section id="cicd-cd">
@@ -1557,6 +1637,29 @@ on:
   This pipeline triggers when you push a <strong>tag</strong> that matches the pattern
   <code>v1.0.0</code>, <code>v2.3.1</code>, etc. Tags are like bookmarks &mdash; they
   mark a specific version in your git history.
+</p>
+
+<div class="warning">
+  <strong>Do not run CD until the GitHub and AWS side is ready.</strong> In this
+  repo, <code>cd.yml</code> is a deployment scaffold for EKS. It expects GitHub
+  environments, GitHub variables, an AWS OIDC role, an EKS cluster, Kubernetes
+  namespaces, and a real production URL. Without those pieces, the deployment jobs
+  are expected to fail.
+</div>
+
+<p>
+  When those pieces are configured, you trigger the CD workflow by creating and
+  pushing a version tag:
+</p>
+
+<pre><code>git tag v0.1.0
+git push origin v0.1.0</code><span class="code-label">trigger CD</span></pre>
+
+<p>
+  Then open the GitHub <strong>Actions</strong> tab and select
+  <strong>CD Pipeline</strong>. For this beginner tutorial, read <code>cd.yml</code>
+  to understand the deployment flow, but use CI, Docker Compose, and Minikube as
+  the safe hands-on path.
 </p>
 
 <pre><code>jobs:
@@ -2604,8 +2707,9 @@ scrape_configs:
 <div class="warning">
   <strong>Common beginner mistake:</strong> Inside the Prometheus container,
   <code>localhost</code> means the Prometheus container itself. It does not mean
-  your Mac and it does not mean the app container. Use the Docker Compose service
-  name, such as <code>app:8080</code>, when one container needs to reach another.
+  your host computer and it does not mean the app container. Use the Docker
+  Compose service name, such as <code>app:8080</code>, when one container needs
+  to reach another.
 </div>
 
 <p>
