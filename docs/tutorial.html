@@ -1263,6 +1263,29 @@ docker compose -f docker/docker-compose.yml logs -f</code><span class="code-labe
   watching logs. This stops the log view and returns you to the prompt; it does
   not stop the running containers.
 </p>
+
+<h4>Save Logs to a Text File</h4>
+
+<p>
+  Logs are useful when you ask a teammate or an AI assistant for troubleshooting
+  help. Instead of copying from the terminal, save the output to a text file:
+</p>
+
+<pre><code># Save a one-time snapshot of all Compose logs
+docker compose -f docker/docker-compose.yml logs > docs/screenshots/docker-compose-logs.txt
+
+# Save logs for one service
+docker compose -f docker/docker-compose.yml logs app > docs/screenshots/app-logs.txt
+
+# Watch logs live and save them at the same time
+docker compose -f docker/docker-compose.yml logs -f | tee docs/screenshots/docker-compose-logs.txt</code><span class="code-label">logs</span></pre>
+
+<p>
+  Press <code>Control-C</code> to stop the live log view when using
+  <code>logs -f</code>. The text captured so far remains in the file. This repo
+  uses <code>.txt</code> for saved log evidence because <code>*.log</code> files
+  are ignored by Git.
+</p>
 </section>
 
 <section id="compose-down">
@@ -1375,6 +1398,38 @@ on:
 <p>
   This says: "Run this workflow whenever code is pushed to <code>main</code> or
   <code>develop</code> branches, OR when a pull request targets <code>main</code>."
+</p>
+
+<div class="info-box">
+  <strong>Before expecting CI to run:</strong> Create the GitHub repository and
+  push this project first. GitHub Actions only runs workflows that exist in a
+  repository on GitHub. You normally only need the default <code>main</code>
+  branch to start. The <code>develop</code> branch is optional and can be created
+  later if you want to practice a branching workflow.
+</div>
+
+<div class="info-box">
+  <strong>Setting up the main branch:</strong> GitHub repositories usually use
+  <code>main</code> as the default branch. If your local branch has a different
+  name, rename it with <code>git branch -M main</code>, add your GitHub remote,
+  then push with <code>git push -u origin main</code>. After that, GitHub can see
+  your <code>.github/workflows/ci.yml</code> file and run CI when you push.
+</div>
+
+<div class="info-box">
+  <strong>Do you need both branches first?</strong> No. Most GitHub repositories
+  already have a <code>main</code> branch after the first commit. You do not need
+  to create <code>develop</code> before using this tutorial. The workflow is
+  simply ready to run on <code>develop</code> later if you choose to create that
+  branch for practice.
+</div>
+
+<p>
+  <strong>Linting</strong> means automatically checking files for syntax mistakes,
+  formatting problems, and common errors before you run or deploy them. It is like
+  spell-check and grammar-check for configuration and automation code. In DevOps,
+  linting is especially useful because a small typo in YAML, a shell script, or a
+  workflow file can break CI/CD or deployment.
 </p>
 
 <pre><code>env:
