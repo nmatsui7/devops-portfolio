@@ -985,6 +985,16 @@ docker image prune</code><span class="code-label">cheatsheet</span></pre>
   <code>docker pull</code> to download an image:
 </p>
 
+<div class="info-box">
+  <strong>Why pull public images?</strong> Public images let you use common
+  software without building it from scratch. Instead of manually installing
+  Nginx, PostgreSQL, Node.js, Python, Prometheus, or Grafana, you can pull a
+  ready-made image and run it immediately. Public images are also useful as base
+  images in your own Dockerfiles. For security and reliability, prefer official
+  or well-maintained images and pin specific versions when possible, such as
+  <code>postgres:16-alpine</code> instead of only <code>postgres</code>.
+</div>
+
 <pre><code>docker search postgres
 docker search nginx
 

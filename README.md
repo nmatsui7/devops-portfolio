@@ -99,6 +99,25 @@ Use this repo as a small DevOps lab in this order:
 
 The full tutorial lives at [docs/tutorial.html](docs/tutorial.html).
 
+## Opening Dot Folders In VS Code
+
+Open the whole project folder in Visual Studio Code, not just one file:
+
+```bash
+code .
+```
+
+In the VS Code Explorer sidebar you can see normal folders like `app/`, `docker/`, and `docs/`. You can also see dot folders such as `.github/`. Dot folders are sometimes hidden by Finder or other file browsers, but VS Code shows them when the project folder is opened.
+
+To inspect GitHub Actions:
+
+1. Open `.github/`.
+2. Open `workflows/`.
+3. Read `.github/workflows/ci.yml` for CI checks.
+4. Read `.github/workflows/cd.yml` for deployment flow.
+
+The `.github` folder is not code that runs on your Mac directly. It tells GitHub Actions what to run on GitHub-hosted runners after you push commits to GitHub.
+
 ## What Is Demo Or Scaffold
 
 - Terraform models AWS VPC, subnets, optional NAT, EKS, RDS, and ECR, but it is a scaffold that needs account-specific review before apply.

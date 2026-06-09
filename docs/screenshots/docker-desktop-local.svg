@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560" role="img" aria-labelledby="title desc">
+  <title id="title">Docker Desktop Local tab illustration</title>
+  <desc id="desc">A screenshot-style illustration showing the Docker Desktop Images view with the Local tab selected.</desc>
+  <rect width="960" height="560" fill="#0f172a"/>
+  <rect x="32" y="32" width="896" height="496" rx="18" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <rect x="32" y="32" width="896" height="56" rx="18" fill="#172033"/>
+  <circle cx="64" cy="60" r="7" fill="#ef4444"/>
+  <circle cx="88" cy="60" r="7" fill="#f59e0b"/>
+  <circle cx="112" cy="60" r="7" fill="#22c55e"/>
+  <text x="152" y="66" fill="#e2e8f0" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="18" font-weight="700">Docker Desktop</text>
+
+  <rect x="56" y="112" width="168" height="392" rx="12" fill="#0b1220" stroke="#1f2937"/>
+  <text x="80" y="150" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15">Containers</text>
+  <rect x="72" y="170" width="128" height="36" rx="8" fill="#123452"/>
+  <text x="88" y="194" fill="#38bdf8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15" font-weight="700">Images</text>
+  <text x="80" y="242" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15">Volumes</text>
+  <text x="80" y="282" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15">Builds</text>
+  <text x="80" y="322" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15">Extensions</text>
+
+  <text x="256" y="136" fill="#e2e8f0" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="28" font-weight="800">Images</text>
+  <rect x="256" y="164" width="96" height="38" rx="8" fill="#0ea5e9"/>
+  <text x="286" y="189" fill="#06111f" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15" font-weight="800">Local</text>
+  <rect x="364" y="164" width="220" height="38" rx="8" fill="#1f2937" stroke="#334155"/>
+  <text x="386" y="189" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="15">My Hub / Hub repositories</text>
+
+  <rect x="256" y="224" width="640" height="242" rx="12" fill="#0b1220" stroke="#334155"/>
+  <rect x="256" y="224" width="640" height="44" rx="12" fill="#172033"/>
+  <text x="280" y="252" fill="#38bdf8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">IMAGE</text>
+  <text x="528" y="252" fill="#38bdf8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">ID</text>
+  <text x="676" y="252" fill="#38bdf8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">SIZE</text>
+  <text x="784" y="252" fill="#38bdf8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">STATUS</text>
+
+  <text x="280" y="304" fill="#e2e8f0" font-family="JetBrains Mono, Consolas, monospace" font-size="15">portfolio-app:latest</text>
+  <text x="528" y="304" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">6474cd63c173</text>
+  <text x="676" y="304" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">75.9MB</text>
+  <rect x="784" y="284" width="72" height="26" rx="13" fill="#064e3b"/>
+  <text x="805" y="303" fill="#22c55e" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="13" font-weight="700">In Use</text>
+
+  <line x1="272" y1="326" x2="880" y2="326" stroke="#1f2937"/>
+  <text x="280" y="360" fill="#e2e8f0" font-family="JetBrains Mono, Consolas, monospace" font-size="15">postgres:16-alpine</text>
+  <text x="528" y="360" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">16bc17c64a57</text>
+  <text x="676" y="360" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">389MB</text>
+  <text x="784" y="360" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14">Local</text>
+
+  <line x1="272" y1="382" x2="880" y2="382" stroke="#1f2937"/>
+  <text x="280" y="416" fill="#e2e8f0" font-family="JetBrains Mono, Consolas, monospace" font-size="15">hello-world:latest</text>
+  <text x="528" y="416" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">0e760fdfbc48</text>
+  <text x="676" y="416" fill="#94a3b8" font-family="JetBrains Mono, Consolas, monospace" font-size="15">22.6kB</text>
+  <text x="784" y="416" fill="#94a3b8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14">Local</text>
+
+  <rect x="246" y="154" width="116" height="58" rx="12" fill="none" stroke="#f59e0b" stroke-width="4"/>
+  <path d="M306 212 L306 498" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 8"/>
+  <rect x="248" y="478" width="410" height="40" rx="10" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="268" y="503" fill="#fbbf24" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" font-weight="700">Local = images saved on this computer</text>
+</svg>
