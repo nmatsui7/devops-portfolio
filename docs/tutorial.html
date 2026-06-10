@@ -2736,6 +2736,20 @@ provider "aws" {
 </ul>
 
 <p>
+  A subnet is a smaller network inside a VPC. It gives a group of resources, such
+  as servers or Kubernetes nodes, their own range of private IP addresses. Using
+  the apartment analogy, the VPC is the whole building, a subnet is one floor or
+  section, and a server or Kubernetes node is one apartment inside that section.
+</p>
+
+<p>
+  In AWS, public subnets are usually for resources that can receive internet
+  traffic through something like a load balancer or bastion host. Private subnets
+  are for internal resources that should not be directly reachable from the
+  internet, such as databases or Kubernetes worker nodes.
+</p>
+
+<p>
   The <code>count = 2</code> tells Terraform to create two copies. Each goes to a
   different <strong>availability zone</strong> (different physical data center),
   so if one data center has an outage, the other still works.
