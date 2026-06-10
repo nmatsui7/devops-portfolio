@@ -3222,6 +3222,39 @@ scrape_configs:
   Prometheus annotations. That is useful for Kubernetes learning, but the local
   Docker Compose proof path is the simple static target: <code>app:8080</code>.
 </p>
+
+<h4>Local Prometheus Exercise: Verify Metrics Collection</h4>
+
+<p>
+  Run the local Compose stack, confirm the app exposes metrics, then check that
+  Prometheus is collecting them.
+</p>
+
+<pre><code># Start the local stack
+docker compose -f docker/docker-compose.yml up -d
+
+# Verify the app metrics endpoint
+curl http://localhost:8080/metrics</code><span class="code-label">local metrics</span></pre>
+
+<ol>
+  <li>Open Prometheus at <a href="http://localhost:9090" style="color:var(--accent)">http://localhost:9090</a>.</li>
+  <li>Go to <strong>Status &rarr; Targets</strong>.</li>
+  <li>Confirm the app target is <strong>UP</strong>.</li>
+  <li>Go back to the query page and run the queries below.</li>
+</ol>
+
+<pre><code>up
+up{job="portfolio-app-local"}
+portfolio_app_ready
+portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre>
+
+<table>
+  <tr><th>Query</th><th>What the result means</th></tr>
+  <tr><td><code>up</code></td><td>Shows whether Prometheus can scrape each configured target; <code>1</code> means up, <code>0</code> means down</td></tr>
+  <tr><td><code>up{job="portfolio-app-local"}</code></td><td>Filters the scrape health result to only the portfolio app target</td></tr>
+  <tr><td><code>portfolio_app_ready</code></td><td>Shows whether the demo app reports that it is ready</td></tr>
+  <tr><td><code>portfolio_app_info</code></td><td>Shows a simple info metric proving the demo app metrics endpoint is being scraped</td></tr>
+</table>
 </section>
 
 <section id="mon-alerts">
@@ -3297,6 +3330,27 @@ scrape_configs:
   <li>Upload the JSON file or paste its contents</li>
   <li>Select your Prometheus data source and click <strong>Import</strong></li>
 </ol>
+
+<h4>Local Grafana Exercise: Import and View the Dashboard</h4>
+
+<ol>
+  <li>Open Grafana at <a href="http://localhost:3000" style="color:var(--accent)">http://localhost:3000</a>.</li>
+  <li>Log in with <code>admin / admin</code>.</li>
+  <li>Add Prometheus as a data source if needed. Use <code>http://prometheus:9090</code> as the URL.</li>
+  <li>Import <code>monitoring/grafana-dashboard.json</code>.</li>
+  <li>Confirm the dashboard panels show data: <strong>Scrape Health</strong>, <strong>Readiness</strong>, and <strong>App Info</strong>.</li>
+</ol>
+
+<div class="warning">
+  <strong>Grafana connection tip:</strong> If Grafana cannot reach Prometheus,
+  use <code>http://prometheus:9090</code> inside Docker Compose, not
+  <code>http://localhost:9090</code>. Inside the Grafana container,
+  <code>localhost</code> means Grafana itself.
+</div>
+
+<p>When you are done with the monitoring exercise, stop the local stack:</p>
+
+<pre><code>docker compose -f docker/docker-compose.yml down</code><span class="code-label">cleanup</span></pre>
 
 <div class="info-box">
   <strong>&#x1F4DD; The Three Pillars of Observability:</strong>
