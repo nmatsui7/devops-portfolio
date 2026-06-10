@@ -8,4 +8,3 @@ terraform.tfvars
 *.log
 .DS_Store
 Thumbs.db
-docker/Dockerfile

@@ -306,7 +306,7 @@
     <a href="#cicd-what">What Is CI/CD?</a>
     <a href="#cicd-ci">The CI Pipeline</a>
     <a href="#cicd-cd">The CD Pipeline</a>
-    <a href="#cicd-github">Setting Up on GitHub</a>
+    <a href="#cicd-github">Optional CD Settings</a>
 
     <a href="#k8s" class="section-label">Kubernetes</a>
     <a href="#k8s-what">What Is Kubernetes?</a>
@@ -1744,7 +1744,28 @@ on:
 <p>
   You do not run <code>ci.yml</code> directly on your local computer. GitHub
   Actions runs it on GitHub-hosted Ubuntu runners after the workflow file has
-  been pushed to your GitHub repository.
+  been pushed to your GitHub repository. CI is safe and expected to run
+  automatically after you push because it validates the repo without deploying to
+  AWS.
+</p>
+
+<p>
+  The first time you use CI, create a GitHub repository and push this project to
+  the <code>main</code> branch:
+</p>
+
+<pre><code># Initialize git if this folder is not already a repo
+git init
+git add .
+git commit -m "Initial commit"
+
+# Connect to GitHub (replace YOUR_USER with your GitHub username)
+git remote add origin https://github.com/YOUR_USER/devops-portfolio.git
+git branch -M main
+git push -u origin main</code><span class="code-label">first CI push</span></pre>
+
+<p>
+  After the first push, normal updates are shorter:
 </p>
 
 <pre><code>git status
@@ -1775,14 +1796,13 @@ git push origin main</code><span class="code-label">trigger CI</span></pre>
 <pre><code>name: CD Pipeline
 
 on:
-  push:
-    tags:
-      - "v*.*.*"</code><span class="code-label">trigger</span></pre>
+  workflow_dispatch:</code><span class="code-label">manual trigger</span></pre>
 
 <p>
-  This pipeline triggers when you push a <strong>tag</strong> that matches the pattern
-  <code>v1.0.0</code>, <code>v2.3.1</code>, etc. Tags are like bookmarks &mdash; they
-  mark a specific version in your git history.
+  This pipeline is manual-only. It appears in the GitHub
+  <strong>Actions</strong> tab, but it does not run automatically after a normal
+  push. Do not click <strong>Run workflow</strong> unless you are intentionally
+  testing deployment and your GitHub deployment settings are configured.
 </p>
 
 <div class="warning">
@@ -1794,18 +1814,10 @@ on:
 </div>
 
 <p>
-  When those pieces are configured, you trigger the CD workflow by creating and
-  pushing a version tag:
-</p>
-
-<pre><code>git tag v0.1.0
-git push origin v0.1.0</code><span class="code-label">trigger CD</span></pre>
-
-<p>
-  Then open the GitHub <strong>Actions</strong> tab and select
-  <strong>CD Pipeline</strong>. For this beginner tutorial, read <code>cd.yml</code>
-  to understand the deployment flow, but use CI, Docker Compose, and Minikube as
-  the safe hands-on path.
+  For this beginner tutorial, open <code>cd.yml</code> in VS Code and read it to
+  understand the deployment flow, but use CI, Docker Compose, and Minikube as the
+  safe hands-on path. Only use the GitHub <strong>Actions</strong> tab's
+  <strong>Run workflow</strong> button when you are intentionally testing CD.
 </p>
 
 <pre><code>jobs:
@@ -1841,9 +1853,9 @@ git push origin v0.1.0</code><span class="code-label">trigger CD</span></pre>
     tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}</code><span class="code-label">image</span></pre>
 
 <p>
-  The image tag is the git tag that triggered the workflow, such as
-  <code>v1.0.0</code>. That makes releases traceable: the Kubernetes deployment
-  points to the image built from that release tag.
+  The image tag comes from the Git ref used when the manual workflow runs. In a
+  real deployment workflow, teams often choose a release tag, branch name, or
+  commit SHA so the Kubernetes deployment points to a traceable image.
 </p>
 
 <h4>Rolling Deployment with Rollback</h4>
@@ -1860,44 +1872,49 @@ git push origin v0.1.0</code><span class="code-label">trigger CD</span></pre>
   run: curl -sf "${PRODUCTION_URL}/health"</code><span class="code-label">production</span></pre>
 
 <div class="info-box">
-  <strong>&#x1F4DD; Deployment boundary:</strong> The CD workflow is an AWS/EKS
-  deployment example. It expects an existing EKS cluster, GitHub OIDC role, and
-  deployment named <code>app</code> in the target namespaces. The local tutorial
-  path still uses Docker Compose and Minikube; AWS is not required for learning
-  the repo.
+  <strong>&#x1F4DD; Deployment boundary:</strong> AWS is not required for this
+  beginner tutorial. Use Docker Compose, GitHub Actions CI, and Minikube for the
+  hands-on path. The CD workflow is mainly a deployment scaffold, so read it for
+  learning but do not run it unless your GitHub deployment settings are
+  configured. If you are experimenting with AWS/EKS deployment, then the AWS side
+  also needs to be ready first.
 </div>
+
+<p>
+  You can push <code>cd.yml</code> to GitHub and view it in the
+  <strong>Actions</strong> tab. Do not click <strong>Run workflow</strong> unless
+  you are intentionally testing the CD pipeline. If the GitHub deployment
+  settings or AWS/EKS resources are missing, the workflow will fail; that is
+  expected and does not mean the CI tutorial is broken. For a GitHub-only
+  deployment option, use GitHub Pages: it can host the static tutorial page or
+  static <code>app/index.html</code>, but it cannot run Docker Compose,
+  PostgreSQL, Kubernetes, Prometheus, Grafana, or a live Nginx container. Those
+  runtime pieces must run locally or on a cloud/runtime platform.
+</p>
 </section>
 
 <section id="cicd-github">
-<h3>7.4 Setting This Up on GitHub</h3>
+<h3>7.4 Optional CD Deployment Settings</h3>
 
-<p>To use GitHub Actions with this project, follow these steps:</p>
-
-<div class="step-box">
-  <span class="step-num">1</span>
-  <p>Create a GitHub repository and push your code:</p>
-  <pre><code># Initialize git
-git init
-git add .
-git commit -m "Initial commit"
-
-# Connect to GitHub (replace YOUR_USER with your GitHub username)
-git remote add origin https://github.com/YOUR_USER/devops-portfolio.git
-git branch -M main
-git push -u origin main</code><span class="code-label">terminal</span></div>
+<p>
+  This section is only for users who intentionally want to test the optional CD
+  deployment scaffold. If you are only following the beginner local/CI path, skip
+  this section. If you are deploying to AWS/EKS, the GitHub deployment settings
+  and AWS side must be ready first.
+</p>
 
 <div class="step-box">
-  <span class="step-num">2</span>
-  <p>Go to your repository on GitHub.com. Click the <strong>Actions</strong> tab. You'll see your CI pipeline ready to run!</p>
-</div>
-
-<div class="step-box">
-  <span class="step-num">3</span>
-  <p>For the CD pipeline, you'd need to add these <strong>secrets</strong> (Settings > Secrets and variables > Actions):</p>
+  <span class="step-num">Optional</span>
+  <p>Optional: For the CD pipeline, add secrets and variables only if you plan to test or run deployment. Go to <strong>Settings &rarr; Secrets and variables &rarr; Actions</strong>, then add the required values for your deployment target. If you are only following the beginner local/CI path, you can skip this section.</p>
+  <p>For AWS/EKS specifically, these secrets and variables must match your AWS account, IAM/OIDC setup, EKS cluster, and deployment environment. Do not add placeholder values just to make the section look complete.</p>
   <table>
-    <tr><th>Secret</th><th>Value</th></tr>
-    <tr><td><code>AWS_ACCESS_KEY_ID</code></td><td>Your AWS access key</td></tr>
-    <tr><td><code>AWS_SECRET_ACCESS_KEY</code></td><td>Your AWS secret key</td></tr>
+    <tr><th>Name</th><th>Type</th><th>Purpose</th></tr>
+    <tr><td><code>AWS_ROLE_TO_ASSUME</code></td><td>Secret</td><td>IAM role used by GitHub OIDC for AWS access</td></tr>
+    <tr><td><code>AWS_REGION</code></td><td>Variable</td><td>AWS region for the EKS cluster</td></tr>
+    <tr><td><code>EKS_CLUSTER_NAME</code></td><td>Variable</td><td>Name of the target EKS cluster</td></tr>
+    <tr><td><code>STAGING_NAMESPACE</code></td><td>Variable</td><td>Kubernetes namespace for staging</td></tr>
+    <tr><td><code>PRODUCTION_NAMESPACE</code></td><td>Variable</td><td>Kubernetes namespace for production</td></tr>
+    <tr><td><code>PRODUCTION_URL</code></td><td>Variable</td><td>URL used by the production smoke test</td></tr>
   </table>
 </div>
 
