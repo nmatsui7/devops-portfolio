@@ -1,0 +1,35 @@
+---
+- name: Local Ansible practice
+  hosts: local
+  gather_facts: true
+
+  tasks:
+    - name: Show the current operating system
+      ansible.builtin.debug:
+        msg: "Running on {{ ansible_distribution | default(ansible_system) }}"
+
+    - name: Create a local generated folder
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/generated"
+        state: directory
+        mode: "0755"
+
+    - name: Write a local practice file
+      ansible.builtin.copy:
+        dest: "{{ playbook_dir }}/generated/ansible-practice.txt"
+        content: |
+          Hello from Ansible.
+
+          This file was created by a localhost playbook.
+          Ansible ran on your own machine, not a remote server.
+        mode: "0644"
+
+    - name: Read the practice file
+      ansible.builtin.command:
+        cmd: cat "{{ playbook_dir }}/generated/ansible-practice.txt"
+      changed_when: false
+      register: practice_file
+
+    - name: Print the file contents
+      ansible.builtin.debug:
+        var: practice_file.stdout

@@ -5,6 +5,8 @@ dist/
 *.tfstate.backup
 .terraform/
 terraform.tfvars
+infrastructure/terraform-local/generated/
+ansible/local/generated/
 *.log
 .DS_Store
 Thumbs.db

@@ -321,12 +321,14 @@
     <a href="#terraform" class="section-label">Terraform</a>
     <a href="#tf-what">What Is Terraform?</a>
     <a href="#tf-files">The Terraform Files</a>
-    <a href="#tf-plan">Planning &amp; Applying</a>
+    <a href="#tf-local">Local Terraform Exercise</a>
+    <a href="#tf-plan">Optional AWS Terraform Exercise</a>
 
     <a href="#ansible" class="section-label">Ansible</a>
     <a href="#ansible-what">What Is Ansible?</a>
-    <a href="#ansible-playbook">The Playbook</a>
-    <a href="#ansible-run">Running It</a>
+    <a href="#ansible-local">Local Ansible Exercise</a>
+    <a href="#ansible-playbook">Optional Remote Playbook</a>
+    <a href="#ansible-run">Optional Remote Ansible Exercise</a>
 
     <a href="#monitoring" class="section-label">Monitoring</a>
     <a href="#mon-what">Why Monitor?</a>
@@ -1849,6 +1851,14 @@ on:
   Then staging deploys that exact image. Production waits for staging to succeed.
 </p>
 
+<p>
+  <strong>Staging</strong> means a test-like deployment area used before
+  production. It is where you would deploy the release first to check that the
+  image works, the Kubernetes rollout succeeds, and smoke tests pass.
+  <strong>Production</strong> means the real live deployment area. In this
+  workflow, production waits until staging succeeds.
+</p>
+
 <h4>Building the Release Image</h4>
 <pre><code>- name: Build and push release image
   uses: docker/build-push-action@v5
@@ -2555,8 +2565,18 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 
 <pre><code>docker ps
 minikube status
+
+# Show only the active context
 kubectl config current-context
+
+# Show all Kubernetes contexts this terminal knows about
 kubectl config get-contexts</code><span class="code-label">debug info</span></pre>
+
+<p>
+  <code>kubectl config get-contexts</code> shows the Kubernetes environments your
+  terminal knows about. The row with <code>*</code> is where future
+  <code>kubectl</code> commands will go.
+</p>
 
 <p>
   When asking an AI assistant or teammate for help, include the command you ran,
@@ -2810,13 +2830,63 @@ provider "aws" {
 </p>
 </section>
 
+<section id="tf-local">
+<h3>9.3 Local Terraform Exercise: Create a File</h3>
+
+<p>
+  This exercise uses Terraform locally so you can practice <code>init</code>,
+  <code>plan</code>, <code>apply</code>, <code>output</code>, and
+  <code>destroy</code> without AWS. It does not create cloud resources or cost
+  money.
+</p>
+
+<pre><code>cd infrastructure/terraform-local
+
+terraform init
+terraform fmt -check
+terraform validate
+
+terraform plan -var="student_name=Nobuki"
+terraform apply -var="student_name=Nobuki"
+
+cat generated/devops-practice.txt
+terraform output
+
+terraform destroy -var="student_name=Nobuki"</code><span class="code-label">local Terraform</span></pre>
+
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>terraform init</code></td><td>Downloads the local provider Terraform needs for this exercise</td></tr>
+  <tr><td><code>terraform fmt -check</code></td><td>Checks whether the Terraform file is formatted in the standard style</td></tr>
+  <tr><td><code>terraform validate</code></td><td>Checks configuration syntax and provider usage</td></tr>
+  <tr><td><code>terraform plan</code></td><td>Previews the file Terraform will create</td></tr>
+  <tr><td><code>terraform apply</code></td><td>Creates the local practice file</td></tr>
+  <tr><td><code>terraform output</code></td><td>Prints the output value from the Terraform configuration</td></tr>
+  <tr><td><code>terraform destroy</code></td><td>Removes the file Terraform created</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Local and safe:</strong> This local exercise is safe because it only
+  writes a file inside the project folder. The AWS Terraform section can create
+  real cloud resources and may cost money if applied.
+</div>
+</section>
+
 <section id="tf-plan">
-<h3>9.3 Planning and Applying Terraform</h3>
+<h3>9.4 Optional AWS Terraform Exercise</h3>
+
+<p>
+  The workflow below is optional advanced/cloud practice. It uses the AWS
+  Terraform files in <code>infrastructure/terraform/</code> and can create real
+  cloud infrastructure.
+</p>
 
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Running Terraform costs real money!</strong> Creating
   an EKS cluster, RDS database, and other AWS resources will incur charges on your
-  AWS account. Only run these commands if you understand the costs.
+  AWS account. Do not run <code>terraform apply</code> in the AWS folder unless
+  you understand the resources, have AWS credentials configured, and are prepared
+  for possible charges.
 </div>
 
 <pre><code># 0. Install Terraform
@@ -2889,8 +2959,48 @@ terraform destroy -var="environment=staging"</code><span class="code-label">terr
 </div>
 </section>
 
+<section id="ansible-local">
+<h3>10.2 Local Ansible Exercise: Run a Playbook on Your Own Machine</h3>
+
+<p>
+  This exercise runs Ansible against <code>localhost</code>, which means your own
+  computer. It does not use AWS, EC2, SSH, or remote servers.
+</p>
+
+<pre><code>cd ansible/local
+
+ansible-inventory -i inventory.ini --list
+ansible all -i inventory.ini -m ping
+
+ansible-playbook -i inventory.ini local-practice.yml --syntax-check
+ansible-playbook -i inventory.ini local-practice.yml
+
+cat generated/ansible-practice.txt</code><span class="code-label">local Ansible</span></pre>
+
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>ansible-inventory --list</code></td><td>Shows the hosts Ansible sees in the inventory</td></tr>
+  <tr><td><code>ansible all -m ping</code></td><td>Tests Ansible connectivity to the localhost target</td></tr>
+  <tr><td><code>--syntax-check</code></td><td>Validates the playbook without running tasks</td></tr>
+  <tr><td><code>ansible-playbook</code></td><td>Runs the tasks in the playbook</td></tr>
+  <tr><td><code>cat generated/ansible-practice.txt</code></td><td>Confirms the local file was created</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Local and safe:</strong> This playbook writes only inside
+  <code>ansible/local/generated/</code>. Avoid beginner exercises that install
+  packages, change system settings, or require <code>sudo</code>.
+</div>
+</section>
+
 <section id="ansible-playbook">
-<h3>10.2 The Playbook Explained</h3>
+<h3>10.3 Optional Remote Playbook Explained</h3>
+
+<p>
+  The remote-server playbook is optional advanced practice. It requires reachable
+  Linux hosts, SSH access, and the correct inventory. AWS is only needed if those
+  hosts are EC2 instances.
+</p>
 
 <p>Our playbook at <code>ansible/playbook.yml</code> has two parts:</p>
 
@@ -2953,12 +3063,14 @@ terraform destroy -var="environment=staging"</code><span class="code-label">terr
 </section>
 
 <section id="ansible-run">
-<h3>10.3 Running Ansible</h3>
+<h3>10.4 Optional Remote Ansible Exercise</h3>
 
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Ansible requires target servers.</strong> You need
-  actual Linux servers (or VMs) to run Ansible against. The commands below are
-  for reference when you have infrastructure to manage.
+  actual Linux servers (or VMs), SSH access, and the correct inventory to run
+  this remote-server playbook. AWS is only needed if those hosts are EC2
+  instances. The commands below are for reference when you have infrastructure to
+  manage.
 </div>
 
 <pre><code># 1. Create an inventory file (defines your servers)
@@ -3282,6 +3394,18 @@ scrape_configs:
 <section id="val-terraform">
 <h3>12.4 Terraform Validation</h3>
 
+<h4>Local Terraform validation</h4>
+
+<p><strong>What it checks:</strong> The local-only Terraform exercise that writes a file inside the project folder.</p>
+
+<p><strong>Why it matters in DevOps:</strong> This gives you a safe way to practice Terraform validation without AWS credentials or cloud resources.</p>
+
+<p><strong>Commands used in this repo:</strong></p>
+
+<pre><code>terraform -chdir=infrastructure/terraform-local init
+terraform -chdir=infrastructure/terraform-local fmt -check
+terraform -chdir=infrastructure/terraform-local validate</code><span class="code-label">local Terraform</span></pre>
+
 <h4>terraform fmt -check</h4>
 
 <p><strong>What it checks:</strong> Whether Terraform files use the standard Terraform formatter.</p>
@@ -3298,7 +3422,7 @@ scrape_configs:
 
 <p><strong>What it checks:</strong> Terraform syntax, variable references, provider/resource structure, and whether the configuration is internally valid.</p>
 
-<p><strong>Why it matters in DevOps:</strong> Terraform creates real infrastructure. Validation catches many mistakes before a plan or apply reaches AWS.</p>
+<p><strong>Why it matters in DevOps:</strong> Terraform can create real infrastructure. Validation catches many mistakes before a plan or apply reaches AWS.</p>
 
 <p>
   Run <code>terraform init -backend=false</code> first so Terraform can prepare
@@ -3379,7 +3503,15 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 
 <p><strong>Command used in this repo:</strong></p>
 
-<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check</code><span class="code-label">Ansible syntax</span></pre>
+<pre><code>ansible-inventory -i ansible/local/inventory.ini --list
+ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml --syntax-check</code><span class="code-label">local Ansible syntax</span></pre>
+
+<p>
+  The remote-server playbook can also be syntax-checked when you are ready for
+  optional advanced practice:
+</p>
+
+<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check</code><span class="code-label">remote Ansible syntax</span></pre>
 
 <p><strong>Common error it catches:</strong> A malformed task, missing role reference, or invalid YAML structure in a playbook.</p>
 
@@ -3391,7 +3523,13 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 
 <p><strong>Command used in this repo:</strong></p>
 
-<pre><code>ansible-lint ansible/playbook.yml</code><span class="code-label">Ansible lint</span></pre>
+<pre><code>ansible-lint ansible/local/local-practice.yml</code><span class="code-label">local Ansible lint</span></pre>
+
+<p>
+  You can lint the optional remote playbook separately:
+</p>
+
+<pre><code>ansible-lint ansible/playbook.yml</code><span class="code-label">remote Ansible lint</span></pre>
 
 <p><strong>Common error it catches:</strong> Tasks that use command-style modules without clear change detection, or tasks that ignore idempotency.</p>
 
