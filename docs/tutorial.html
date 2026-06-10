@@ -1638,6 +1638,12 @@ on:
 </p>
 
 <p>
+  In this tutorial, Kind is used automatically inside GitHub Actions CI for
+  server-side validation. Minikube is used manually for the local Kubernetes lab.
+  You do not need to start Kind yourself.
+</p>
+
+<p>
   <strong>AWS</strong> is Amazon's cloud platform, <strong>EKS</strong> is
   Amazon's managed Kubernetes service, and <strong>GKE</strong> is Google's
   managed Kubernetes service. A <strong>long-running cluster</strong> is a
@@ -2006,12 +2012,67 @@ on:
   human-readable data format. Indentation matters &mdash; use spaces, not tabs!
   Two spaces per level is the standard.
 </div>
+
+<h4>Understanding Pods</h4>
+
+<p>
+  A <strong>Pod</strong> is Kubernetes' smallest runnable unit. It is usually one
+  application container plus the settings that container needs, such as ports,
+  environment variables, health checks, and resource limits. In real projects,
+  you usually do not create Pods directly. Instead, you create a
+  <strong>Deployment</strong>, and the Deployment creates and replaces Pods for
+  you.
+</p>
+
+<p>
+  In this project, each app Pod wraps one Nginx container. Deployments create and
+  replace Pods, while Services give those changing Pods a stable network address.
+</p>
+
+<p>
+  A useful way to think about the chain is:
+</p>
+
+<pre><code>Docker image -> container -> pod -> deployment -> service</code><span class="code-label">mental model</span></pre>
+
+<p>
+  The Docker image is the packaged app. A container is a running copy of that
+  image. A Pod is Kubernetes' wrapper around one or more containers. A Deployment
+  manages multiple copies of the Pod and recreates them if they fail. A Service
+  gives the Pods a stable network address, because Pods can be deleted and
+  replaced at any time.
+</p>
+
+<p>
+  For this project, the app Pod runs the Nginx container built from
+  <code>portfolio-app:local</code>. If Kubernetes needs two copies of the app,
+  it creates two separate Pods, each running its own Nginx container. If one Pod
+  crashes, Kubernetes replaces it with a new Pod.
+</p>
 </section>
 
 <section id="k8s-deployment">
 <h3>8.3 Deployment Explained</h3>
 
-<p>Let's break down <code>infrastructure/kubernetes/deployment.yaml</code>. We'll go piece by piece:</p>
+<p>
+  Let's break down <code>infrastructure/kubernetes/deployment.yaml</code>. This
+  file defines the Kubernetes Deployment for the app.
+</p>
+
+<p>
+  Do not try to memorize this file. Kubernetes YAML is usually read in layers.
+  First, notice that this Deployment tells Kubernetes: "run two copies of my app
+  container, keep them healthy, and replace them if they fail." Then inspect the
+  file section by section: identity, replicas, Pod template, container image,
+  ports, health checks, and resource limits.
+</p>
+
+<p>
+  This file may look intimidating at first. That is normal. Most engineers do not
+  write Kubernetes manifests from memory; they start from templates, examples,
+  Helm charts, or previous projects, then adjust the image, ports, replicas,
+  probes, resources, labels, and environment settings.
+</p>
 
 <pre><code>apiVersion: apps/v1
 kind: Deployment
@@ -2047,7 +2108,8 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/portfolio/app:latest
+          image: portfolio-app:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
@@ -2084,6 +2146,12 @@ spec:
   <tr><td><code>256m CPU</code></td><td>256 milli-CPU = one quarter of a CPU core</td></tr>
   <tr><td><code>512Mi memory</code></td><td>512 Mebibytes of RAM (about 537 MB)</td></tr>
 </table>
+
+<p>
+  <strong>Probes</strong> are Kubernetes health checks. A liveness probe tells
+  Kubernetes when to restart a broken container, while a readiness probe tells
+  Kubernetes when a Pod is ready to receive traffic.
+</p>
 
 <pre><code>          livenessProbe:
             httpGet:
@@ -2168,9 +2236,21 @@ spec:
 </table>
 
 <p>
+  An <strong>internal IP</strong> is an address that only works inside the
+  Kubernetes cluster's private network. Other Pods and Services can use it, but a
+  browser on the public internet cannot reach it directly.
+</p>
+
+<p>
   Think of a Service as a <strong>load balancer</strong>. When another service in
   the cluster connects to <code>http://app:80</code>, the Service forwards the
   request to one of the 3 healthy pods.
+</p>
+
+<p>
+  A <strong>load balancer</strong> is a traffic distributor. Instead of sending
+  every request to one container, it spreads requests across healthy copies of
+  the app so no single Pod has to handle everything.
 </p>
 
 <h4>Comparison: Service Types</h4>
@@ -2244,21 +2324,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - app.example.com
-        - api.example.com
+        - app.your-domain.example
       secretName: app-tls
   rules:
-    - host: app.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: app
-                port:
-                  number: 80
-    - host: api.example.com
+    - host: app.your-domain.example
       http:
         paths:
           - path: /
@@ -2273,17 +2342,64 @@ spec:
   An <strong>Ingress</strong> is the front door to your cluster. It handles:
 </p>
 <ul>
-  <li><strong>DNS routing</strong> &mdash; <code>app.example.com</code> goes to one set of services, <code>api.example.com</code> to another</li>
-  <li><strong>TLS/SSL termination</strong> &mdash; automatically gets HTTPS certificates from Let's Encrypt (free)</li>
-  <li><strong>SSL redirect</strong> &mdash; forces all HTTP traffic to HTTPS</li>
+  <li><strong>Host routing</strong> &mdash; requests for <code>app.your-domain.example</code> are sent to the app Service</li>
+  <li><strong>TLS/SSL termination</strong> &mdash; HTTPS traffic is decrypted at the Ingress layer before being forwarded inside the cluster</li>
+  <li><strong>SSL redirect</strong> &mdash; plain HTTP traffic is redirected to HTTPS</li>
 </ul>
+
+<p>
+  <code>app.your-domain.example</code> is a placeholder host name. In a real
+  deployment, replace it with a domain you control, such as
+  <code>app.example.com</code> or <code>portfolio.yourname.com</code>.
+</p>
+
+<h4>DNS Routing</h4>
+<p>
+  <strong>DNS</strong> is the system that turns a human-friendly name like
+  <code>app.your-domain.example</code> into an IP address. Kubernetes Ingress
+  does not buy a domain name or create public DNS records by itself. In a real
+  deployment, you would point your DNS record to the external address of the
+  Ingress controller or cloud load balancer.
+</p>
+
+<p>
+  After DNS sends the browser to the cluster's public entry point, the Ingress
+  rule checks the requested host name. In this file, requests for
+  <code>app.your-domain.example</code> and path <code>/</code> are forwarded to
+  the Kubernetes Service named <code>app</code> on port <code>80</code>.
+</p>
+
+<h4>TLS, SSL, and HTTPS</h4>
+<p>
+  <strong>TLS</strong> is the modern encryption protocol behind
+  <code>https://</code>. People still often say <strong>SSL</strong>, but in
+  modern systems they usually mean TLS. TLS protects traffic between the user's
+  browser and your site so passwords, cookies, and page content are not sent as
+  plain text.
+</p>
+
+<p>
+  The <code>tls</code> block says which host names should use HTTPS and where
+  Kubernetes should store the certificate data. Here, the certificate is stored
+  in a Kubernetes Secret named <code>app-tls</code>.
+</p>
+
+<h4>Certificates</h4>
+<p>
+  A <strong>certificate</strong> proves that the server is allowed to serve a
+  domain name and provides the public key used for encrypted HTTPS traffic.
+  Browsers trust certificates issued by known certificate authorities. Without a
+  trusted certificate, users usually see a browser warning.
+</p>
 
 <h4>How cert-manager Works</h4>
 <p>
   The annotation <code>cert-manager.io/cluster-issuer: letsencrypt-prod</code>
   tells a tool called <strong>cert-manager</strong> to automatically request and
-  renew SSL certificates from Let's Encrypt. It does this without manual intervention
-  &mdash; the certificates are stored in a Kubernetes Secret called <code>app-tls</code>.
+  renew certificates from Let's Encrypt. It does this without manual intervention
+  after cert-manager and the referenced <code>ClusterIssuer</code> are installed
+  in the cluster. The certificate data is stored in the Kubernetes Secret called
+  <code>app-tls</code>.
 </p>
 
 <p>There are also two <strong>Namespace</strong> definitions and a <strong>PodDisruptionBudget</strong> (PDB) at the bottom:</p>
@@ -2316,12 +2432,78 @@ spec:
 </div>
 
 <p>
-  Run this from the repository root. The dry-run command asks Kubernetes to
-  validate the manifests without saving anything.
+  This project mentions both <strong>Kind</strong> and <strong>Minikube</strong>.
+  Kind is started automatically inside GitHub Actions CI for server-side
+  validation. Minikube is what you start manually for the local Kubernetes lab.
+  You do not need to start Kind manually.
 </p>
 
-<pre><code># Check that kubectl can see your cluster
+<p>
+  A <strong>Kubernetes manifest</strong> is a YAML file that tells Kubernetes
+  what resources it should create or update, such as Deployments, Services,
+  namespaces, HPAs, or Ingress rules.
+</p>
+
+<p>Examples in this project include:</p>
+
+<ul>
+  <li><code>deployment.yaml</code> &mdash; tells Kubernetes how to run and replace app Pods</li>
+  <li><code>service.yaml</code> &mdash; gives the app Pods a stable network address</li>
+  <li><code>hpa.yaml</code> &mdash; defines autoscaling rules for the app</li>
+  <li><code>ingress.yaml</code> &mdash; defines external HTTP/HTTPS routing rules</li>
+  <li><code>namespaces.yaml</code> &mdash; creates logical environments such as staging and production</li>
+</ul>
+
+<p>
+  Start Minikube and make sure <code>kubectl</code> is pointed at the Minikube
+  context before running Kubernetes commands. The Docker image built earlier in
+  the Docker section was created in your normal local Docker environment.
+  Minikube uses its own Docker environment, so Kubernetes cannot automatically
+  see that earlier image. For the local Minikube lab, build the image inside
+  Minikube before applying the manifests:
+</p>
+
+<pre><code># Start Minikube
+minikube start --driver=docker
+
+# Make sure kubectl is using Minikube
+kubectl config use-context minikube
 kubectl get nodes
+
+# Enable the local ingress controller
+minikube addons enable ingress
+
+# Point Docker commands at Minikube's Docker environment
+eval $(minikube docker-env)
+
+# Build the image inside Minikube
+docker build -t portfolio-app:local -f docker/Dockerfile .</code><span class="code-label">prepare Minikube</span></pre>
+
+<p>
+  If <code>kubectl get nodes</code> fails or points to an old Kind cluster, check
+  your current contexts:
+</p>
+
+<pre><code>kubectl config current-context
+kubectl config get-contexts</code><span class="code-label">contexts</span></pre>
+
+<p>
+  Then switch back to Minikube and check again:
+</p>
+
+<pre><code>kubectl config use-context minikube
+kubectl get nodes</code><span class="code-label">switch context</span></pre>
+
+<p>
+  Run this from the repository root. Apply the namespaces first because the
+  other manifests reference the <code>production</code> namespace. Server-side
+  dry-run validates manifests but does not persist namespaces, so the namespace
+  manifest must be applied first. Then the dry-run command asks Kubernetes to
+  validate the manifests without saving anything else.
+</p>
+
+<pre><code># Create the namespaces first
+kubectl apply -f infrastructure/kubernetes/namespaces.yaml
 
 # Validate the manifests without applying them
 kubectl apply --dry-run=server -f infrastructure/kubernetes/
@@ -2329,10 +2511,11 @@ kubectl apply --dry-run=server -f infrastructure/kubernetes/
 # Apply all manifests in the Kubernetes folder
 kubectl apply -f infrastructure/kubernetes/
 
-# See what's running
+# Check whether the app Pods, network Service, and autoscaling rule exist in the production namespace
 kubectl get pods,svc,hpa -n production
 
-# Check on a specific deployment
+# A rollout is Kubernetes' process of creating or updating Deployment Pods
+# Check whether the Deployment rollout finished successfully
 kubectl rollout status deployment/app -n production
 
 # View pod logs
@@ -2341,33 +2524,89 @@ kubectl logs -n production -l app=portfolio-app
 # Delete everything
 kubectl delete -f infrastructure/kubernetes/</code><span class="code-label">kubectl commands</span></pre>
 
-<h4 id="k8s-local">Setting Up a Local Cluster with Minikube</h4>
 <p>
-  After installing Docker Desktop, kubectl, and Minikube, start the local cluster
-  and deploy the app image into it.
+  Server-side dry run validates resources against the Kubernetes API server but
+  does not save them. That is why the namespaces are created first with a normal
+  <code>kubectl apply</code> before validating the rest of the folder.
 </p>
 
-<pre><code># Start local Kubernetes
-minikube start
+<h4 id="k8s-local">Deploying to Local Minikube</h4>
+<p>
+  For the local lab, start Minikube, point <code>kubectl</code> at it, build the
+  image inside Minikube's Docker environment, and then apply the manifests.
+</p>
+
+<p>
+  Run these commands from the project root in your terminal. First,
+  <code>minikube start --driver=docker</code> creates a small Kubernetes cluster
+  on your computer using Docker Desktop. Next,
+  <code>kubectl config use-context minikube</code> tells <code>kubectl</code> to
+  send commands to Minikube. Then <code>kubectl get nodes</code> checks that the
+  cluster is running before you apply the YAML files.
+</p>
+
+<p>
+  After that, create the namespaces, validate the manifests with server-side
+  dry-run, apply the manifests, and check the app Pods, network Service, and
+  autoscaling rule in the <code>production</code> namespace.
+</p>
+
+<p>
+  <code>eval $(minikube docker-env)</code> points your terminal's Docker commands
+  at Minikube's Docker environment. The image built after that command is
+  available to Minikube. The earlier Docker build in the Docker section created
+  an image for your normal local Docker environment, which is why Kubernetes
+  could not automatically use it.
+</p>
+
+<pre><code># Start Minikube
+minikube start --driver=docker
+
+# Make sure kubectl is using Minikube
+kubectl config use-context minikube
 kubectl get nodes
 
-# Enable the ingress controller
+# Enable the local ingress controller
 minikube addons enable ingress
 
-# Build the app image and load it into Minikube
-docker build -f docker/Dockerfile -t portfolio/app:local .
-minikube image load portfolio/app:local
+# Point Docker commands at Minikube's Docker environment
+eval $(minikube docker-env)
 
-# Validate and apply the repo manifests
+# Build the image inside Minikube
+docker build -t portfolio-app:local -f docker/Dockerfile .
+
+# Create namespaces, then validate and apply the repo manifests
+kubectl apply -f infrastructure/kubernetes/namespaces.yaml
 kubectl apply --dry-run=server -f infrastructure/kubernetes/
 kubectl apply -f infrastructure/kubernetes/
 
-# Use the locally built image for this lab
-kubectl set image deployment/app app=portfolio/app:local -n production
+# Check whether the app Pods, network Service, and autoscaling rule exist in the production namespace
+kubectl get pods,svc,hpa -n production
+
+# A rollout is Kubernetes' process of creating or updating Deployment Pods
+# Check whether the Deployment rollout finished successfully
 kubectl rollout status deployment/app -n production
 
-# Check the workload, service, and autoscaler
-kubectl get pods,svc,hpa -n production</code><span class="code-label">minikube setup</span></pre>
+# View pod logs
+kubectl logs -n production -l app=portfolio-app
+
+# Delete everything
+kubectl delete -f infrastructure/kubernetes/</code><span class="code-label">local Minikube flow</span></pre>
+
+<p>
+  A healthy result should show the app Pods as <code>Running</code> and
+  <code>READY 1/1</code>.
+</p>
+
+<div class="tip">
+  <strong>Optional registry note:</strong> In real deployments, Kubernetes
+  usually pulls images from a registry such as GitHub Container Registry. A real
+  image might look like <code>ghcr.io/YOUR_USER/YOUR_REPO:TAG</code>. If a
+  manifest uses a placeholder image such as
+  <code>ghcr.io/portfolio/app:latest</code>, Kubernetes may fail with
+  <code>ErrImagePull</code> or <code>ImagePullBackOff</code> unless that image
+  actually exists and the cluster has permission to pull it.
+</div>
 
 <p>To test the app endpoint, keep this command running in one terminal:</p>
 
@@ -2378,6 +2617,45 @@ kubectl get pods,svc,hpa -n production</code><span class="code-label">minikube s
 <pre><code>curl -sf http://127.0.0.1:18080/health
 curl -sf http://127.0.0.1:18080/ready
 curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 2</span></pre>
+
+<h4>Troubleshooting Minikube with AI</h4>
+<p>
+  If <code>minikube start</code> fails, first confirm Docker Desktop is running,
+  because this tutorial uses Minikube with the Docker driver. These commands give
+  you useful status information:
+</p>
+
+<pre><code>docker ps
+minikube status
+kubectl config current-context
+kubectl config get-contexts</code><span class="code-label">debug info</span></pre>
+
+<p>
+  When asking an AI assistant or teammate for help, include the command you ran,
+  the full error output, your operating system, and whether Docker Desktop is
+  running. For example:
+</p>
+
+<pre><code>I am on macOS using Docker Desktop.
+I ran: minikube start --driver=docker
+Then I ran: kubectl get nodes
+Docker Desktop is running, but kubectl get nodes returns this error:
+[paste full error]
+
+Here is the output of docker ps, minikube status, and
+kubectl config current-context:
+[paste outputs]
+
+What should I check next?</code><span class="code-label">help request</span></pre>
+
+<p>
+  Common causes include Docker Desktop not running, <code>kubectl</code> pointing
+  to an old Kind or Minikube context, Minikube only partially starting, or a local
+  cluster that needs to be recreated.
+</p>
+
+<pre><code>minikube delete
+minikube start --driver=docker</code><span class="code-label">recreate cluster</span></pre>
 
 <h4>Stopping or Deleting Minikube</h4>
 <pre><code># Stop the local cluster but keep it available for later
@@ -3133,16 +3411,19 @@ terraform validate</code><span class="code-label">Terraform validate</span></pre
   CI also uses a stronger server-side dry run against a temporary Kind cluster:
 </p>
 
-<pre><code>kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">server dry-run</span></pre>
+<pre><code>kubectl apply -f infrastructure/kubernetes/namespaces.yaml
+kubectl apply --dry-run=server -f infrastructure/kubernetes/</code><span class="code-label">server dry-run</span></pre>
 
 <p>
   For a full local Kubernetes smoke test, start Minikube, apply the manifests,
   and inspect the resources in the <code>production</code> namespace.
 </p>
 
-<pre><code>minikube start
+<pre><code>minikube start --driver=docker
+kubectl config use-context minikube
 kubectl get nodes
 
+kubectl apply -f infrastructure/kubernetes/namespaces.yaml
 kubectl apply -f infrastructure/kubernetes/
 kubectl rollout status deployment/app -n production
 kubectl get pods,svc,hpa -n production</code><span class="code-label">Minikube</span></pre>
