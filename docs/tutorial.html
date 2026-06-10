@@ -2454,82 +2454,6 @@ spec:
   <li><code>namespaces.yaml</code> &mdash; creates logical environments such as staging and production</li>
 </ul>
 
-<p>
-  Start Minikube and make sure <code>kubectl</code> is pointed at the Minikube
-  context before running Kubernetes commands. The Docker image built earlier in
-  the Docker section was created in your normal local Docker environment.
-  Minikube uses its own Docker environment, so Kubernetes cannot automatically
-  see that earlier image. For the local Minikube lab, build the image inside
-  Minikube before applying the manifests:
-</p>
-
-<pre><code># Start Minikube
-minikube start --driver=docker
-
-# Make sure kubectl is using Minikube
-kubectl config use-context minikube
-kubectl get nodes
-
-# Enable the local ingress controller
-minikube addons enable ingress
-
-# Point Docker commands at Minikube's Docker environment
-eval $(minikube docker-env)
-
-# Build the image inside Minikube
-docker build -t portfolio-app:local -f docker/Dockerfile .</code><span class="code-label">prepare Minikube</span></pre>
-
-<p>
-  If <code>kubectl get nodes</code> fails or points to an old Kind cluster, check
-  your current contexts:
-</p>
-
-<pre><code>kubectl config current-context
-kubectl config get-contexts</code><span class="code-label">contexts</span></pre>
-
-<p>
-  Then switch back to Minikube and check again:
-</p>
-
-<pre><code>kubectl config use-context minikube
-kubectl get nodes</code><span class="code-label">switch context</span></pre>
-
-<p>
-  Run this from the repository root. Apply the namespaces first because the
-  other manifests reference the <code>production</code> namespace. Server-side
-  dry-run validates manifests but does not persist namespaces, so the namespace
-  manifest must be applied first. Then the dry-run command asks Kubernetes to
-  validate the manifests without saving anything else.
-</p>
-
-<pre><code># Create the namespaces first
-kubectl apply -f infrastructure/kubernetes/namespaces.yaml
-
-# Validate the manifests without applying them
-kubectl apply --dry-run=server -f infrastructure/kubernetes/
-
-# Apply all manifests in the Kubernetes folder
-kubectl apply -f infrastructure/kubernetes/
-
-# Check whether the app Pods, network Service, and autoscaling rule exist in the production namespace
-kubectl get pods,svc,hpa -n production
-
-# A rollout is Kubernetes' process of creating or updating Deployment Pods
-# Check whether the Deployment rollout finished successfully
-kubectl rollout status deployment/app -n production
-
-# View pod logs
-kubectl logs -n production -l app=portfolio-app
-
-# Delete everything
-kubectl delete -f infrastructure/kubernetes/</code><span class="code-label">kubectl commands</span></pre>
-
-<p>
-  Server-side dry run validates resources against the Kubernetes API server but
-  does not save them. That is why the namespaces are created first with a normal
-  <code>kubectl apply</code> before validating the rest of the folder.
-</p>
-
 <h4 id="k8s-local">Deploying to Local Minikube</h4>
 <p>
   For the local lab, start Minikube, point <code>kubectl</code> at it, build the
@@ -2575,9 +2499,13 @@ eval $(minikube docker-env)
 # Build the image inside Minikube
 docker build -t portfolio-app:local -f docker/Dockerfile .
 
-# Create namespaces, then validate and apply the repo manifests
+# Create the namespaces first
 kubectl apply -f infrastructure/kubernetes/namespaces.yaml
+
+# Validate the manifests without applying them
 kubectl apply --dry-run=server -f infrastructure/kubernetes/
+
+# Apply all manifests in the Kubernetes folder
 kubectl apply -f infrastructure/kubernetes/
 
 # Check whether the app Pods, network Service, and autoscaling rule exist in the production namespace
