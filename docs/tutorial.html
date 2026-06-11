@@ -320,9 +320,10 @@
 
     <a href="#terraform" class="section-label">Terraform</a>
     <a href="#tf-what">What Is Terraform?</a>
-    <a href="#tf-files">The Terraform Files</a>
-    <a href="#tf-local">Local Terraform Exercise</a>
-    <a href="#tf-plan">Optional AWS Terraform Exercise</a>
+    <a href="#tf-files">Optional AWS Terraform Files</a>
+    <a href="#tf-local">Terraform Local Lab &mdash; No AWS Required</a>
+    <a href="#tf-aws-syntax">Optional AWS Syntax Check &mdash; No AWS Required</a>
+    <a href="#tf-plan">Optional Real AWS/EKS Deployment &mdash; Requires AWS</a>
 
     <a href="#ansible" class="section-label">Ansible</a>
     <a href="#ansible-what">What Is Ansible?</a>
@@ -423,6 +424,14 @@
   cluster with Minikube. AWS/EKS is optional infrastructure scaffolding later in
   the project; you do not need AWS to run the local tutorial.
 </p>
+
+<div class="info-box">
+  <strong>&#x1F4DD; No AWS required:</strong> The default local lab does not
+  require an AWS account. AWS, EKS, S3, ECR, and remote Terraform state appear
+  later as optional advanced sections. If Terraform asks for an S3 bucket, you
+  are in the AWS Terraform folder, not the local Terraform lab. Stop with
+  <code>Control-C</code> and switch to <code>infrastructure/terraform-local</code>.
+</div>
 
 <h4>Required Tools</h4>
 <table>
@@ -2664,15 +2673,34 @@ minikube delete</code><span class="code-label">cleanup</span></pre>
 </section>
 
 <section id="tf-files">
-<h3>9.2 The Terraform Files</h3>
+<h3>9.2 Optional AWS Terraform Files</h3>
 
-<p>We have three files in <code>infrastructure/terraform/</code>:</p>
+<div class="warning">
+  <strong>Requires AWS:</strong>
+  This section is optional and is not part of the no-AWS beginner path. It may
+  require an AWS account, AWS credentials, an S3 bucket for remote state, and may
+  create billable resources. Skip this section if you are doing the local tutorial.
+</div>
+
+<p>
+  The optional AWS example has three files in
+  <code>infrastructure/terraform/</code>:
+</p>
 
 <table>
   <tr><th>File</th><th>Purpose</th></tr>
   <tr><td><code>main.tf</code></td><td>The main file with all the resources (VPC, EKS, RDS, ECR)</td></tr>
   <tr><td><code>variables.tf</code></td><td>Input variables &mdash; lets you customize settings without editing the main file</td></tr>
   <tr><td><code>outputs.tf</code></td><td>Output values &mdash; shows useful information after creation (like the database URL)</td></tr>
+</table>
+
+<h4>Common AWS Acronyms</h4>
+<table>
+  <tr><th>Acronym</th><th>Meaning</th><th>Beginner explanation</th></tr>
+  <tr><td><strong>VPC</strong></td><td>Virtual Private Cloud</td><td>Your private network area inside AWS</td></tr>
+  <tr><td><strong>EKS</strong></td><td>Elastic Kubernetes Service</td><td>AWS-managed Kubernetes, so AWS runs much of the cluster control plane for you</td></tr>
+  <tr><td><strong>RDS</strong></td><td>Relational Database Service</td><td>AWS-managed databases such as PostgreSQL or MySQL</td></tr>
+  <tr><td><strong>ECR</strong></td><td>Elastic Container Registry</td><td>AWS storage for Docker/container images</td></tr>
 </table>
 
 <h4>main.tf Breakdown</h4>
@@ -2700,7 +2728,7 @@ provider "aws" {
 }</code></pre>
 
 <table>
-  <tr><td><code>backend "s3"</code></td><td>Store Terraform state in an S3 bucket so your whole team shares the same state</td></tr>
+  <tr><td><code>backend "s3"</code></td><td>Store Terraform state in an <a href="https://aws.amazon.com/s3/" style="color:var(--accent)">Amazon S3</a> bucket so your whole team shares the same state</td></tr>
   <tr><td><code>dynamodb_table</code></td><td>Prevents two people from running Terraform at the same time (state locking)</td></tr>
   <tr><td><code>hashicorp/aws</code></td><td>The AWS provider &mdash; lets Terraform create AWS resources</td></tr>
 </table>
@@ -2789,7 +2817,14 @@ provider "aws" {
   reach the internet through a NAT gateway (not shown) for updates.
 </p>
 
-<p><strong>RDS Database:</strong></p>
+<p>
+  <strong>NAT</strong> means Network Address Translation. A NAT gateway lets
+  resources in private subnets make outbound requests to the internet, such as
+  downloading package updates or pulling container images, without allowing the
+  internet to start direct inbound connections to those private resources.
+</p>
+
+<p><strong><a href="https://aws.amazon.com/rds/" style="color:var(--accent)">RDS Database</a>:</strong></p>
 <pre><code>module "rds" {
   source  = "terraform-aws-modules/rds/aws"
   version = "~> 6.0"
@@ -2845,7 +2880,7 @@ provider "aws" {
 </section>
 
 <section id="tf-local">
-<h3>9.3 Local Terraform Exercise: Create a File</h3>
+<h3>9.3 Terraform Local Lab &mdash; No AWS Required</h3>
 
 <p>
   This exercise uses Terraform locally so you can practice <code>init</code>,
@@ -2854,81 +2889,130 @@ provider "aws" {
   money.
 </p>
 
-<pre><code>cd infrastructure/terraform-local
+<p>
+  Run these commands from the project root. The <code>-chdir</code> flag tells
+  Terraform exactly which folder to use, so you do not accidentally run the AWS
+  Terraform files in <code>infrastructure/terraform</code>.
+</p>
 
-terraform init
-terraform fmt -check
-terraform validate
+<pre><code>terraform -chdir=infrastructure/terraform-local init
+terraform -chdir=infrastructure/terraform-local fmt -check
+terraform -chdir=infrastructure/terraform-local validate
 
-terraform plan -var="student_name=Nobuki"
-terraform apply -var="student_name=Nobuki"
+terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLearner"
+terraform -chdir=infrastructure/terraform-local apply -var="student_name=DevOpsLearner"
 
-cat generated/devops-practice.txt
-terraform output
+terraform -chdir=infrastructure/terraform-local output
+cat infrastructure/terraform-local/generated/devops-practice.txt
 
-terraform destroy -var="student_name=Nobuki"</code><span class="code-label">local Terraform</span></pre>
+terraform -chdir=infrastructure/terraform-local destroy -var="student_name=DevOpsLearner"</code><span class="code-label">local Terraform</span></pre>
+
+<div class="warning">
+  <strong>If Terraform asks for an S3 bucket, stop.</strong> Press
+  <code>Control-C</code>. That prompt means Terraform is using the AWS folder,
+  not the local lab. The local lab folder is
+  <code>infrastructure/terraform-local</code> and does not contain an S3 backend.
+</div>
 
 <table>
   <tr><th>Command</th><th>What it does</th></tr>
-  <tr><td><code>terraform init</code></td><td>Downloads the local provider Terraform needs for this exercise</td></tr>
-  <tr><td><code>terraform fmt -check</code></td><td>Checks whether the Terraform file is formatted in the standard style</td></tr>
-  <tr><td><code>terraform validate</code></td><td>Checks configuration syntax and provider usage</td></tr>
-  <tr><td><code>terraform plan</code></td><td>Previews the file Terraform will create</td></tr>
-  <tr><td><code>terraform apply</code></td><td>Creates the local practice file</td></tr>
-  <tr><td><code>terraform output</code></td><td>Prints the output value from the Terraform configuration</td></tr>
-  <tr><td><code>terraform destroy</code></td><td>Removes the file Terraform created</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local init</code></td><td>Runs Terraform in the local lab folder and downloads the local provider needed for this exercise</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local fmt -check</code></td><td>Checks whether the local Terraform file is formatted in the standard Terraform style</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local validate</code></td><td>Checks the local configuration syntax and provider usage without creating anything</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLearner"</code></td><td>Previews the local file Terraform will create and passes a custom variable value</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local apply -var="student_name=DevOpsLearner"</code></td><td>Creates the local practice file and records it in local Terraform state</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local output</code></td><td>Prints the output value, including the path of the generated file</td></tr>
+  <tr><td><code>cat infrastructure/terraform-local/generated/devops-practice.txt</code></td><td>Shows the contents of the file Terraform created</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local destroy -var="student_name=DevOpsLearner"</code></td><td>Removes the local practice file that Terraform created</td></tr>
 </table>
+
+<p>
+  The <code>student_name</code> value is a Terraform variable. Changing it lets
+  you customize the generated file without editing <code>main.tf</code>.
+</p>
 
 <div class="tip">
   <strong>Local and safe:</strong> This local exercise is safe because it only
   writes a file inside the project folder. The AWS Terraform section can create
   real cloud resources and may cost money if applied.
 </div>
+
+<h4>Terraform State</h4>
+
+<p>
+  Terraform <strong>state</strong> is the record Terraform keeps so it knows what
+  it created. In this local lab, state is stored on your computer in a file named
+  <code>terraform.tfstate</code>. That is enough for this beginner tutorial.
+</p>
+
+<p>
+  <strong>Remote state</strong> means storing that state in a shared backend such
+  as Amazon S3. Remote state is useful for teams because everyone sees the same
+  infrastructure record, but it requires AWS setup. If Terraform asks for an S3
+  bucket while you are learning, stop with <code>Control-C</code> and make sure
+  you are in <code>infrastructure/terraform-local</code>.
+</p>
+</section>
+
+<section id="tf-aws-syntax">
+<h3>9.4 Optional AWS Terraform Syntax Check &mdash; No AWS Account Required</h3>
+
+<p>
+  This optional check validates whether the AWS Terraform files are syntactically
+  valid. It does not create AWS resources, does not need AWS credentials, and
+  does not configure the S3 backend.
+</p>
+
+<pre><code>cd infrastructure/terraform
+terraform init -backend=false
+terraform fmt -recursive -check
+terraform validate</code><span class="code-label">AWS syntax check</span></pre>
+
+<div class="info-box">
+  <strong>Why this does not require AWS:</strong>
+  <code>terraform init -backend=false</code> downloads providers and prepares the
+  folder for validation, but skips backend configuration. That means Terraform
+  will not ask for the S3 bucket and will not connect to the remote state backend.
+</div>
+
+<div class="warning">
+  <strong>Stop here if you do not have AWS:</strong>
+  Do not run <code>terraform plan</code>, <code>terraform apply</code>, or
+  <code>terraform destroy</code> in <code>infrastructure/terraform</code> unless
+  you have an AWS account, AWS credentials, backend setup, and understand possible costs.
+</div>
 </section>
 
 <section id="tf-plan">
-<h3>9.4 Optional AWS Terraform Exercise</h3>
-
-<p>
-  The workflow below is optional advanced/cloud practice. It uses the AWS
-  Terraform files in <code>infrastructure/terraform/</code> and can create real
-  cloud infrastructure.
-</p>
+<h3>9.5 Optional Real AWS/EKS Deployment &mdash; Requires AWS Account</h3>
 
 <div class="warning">
-  <strong>&#x26A0;&#xFE0F; Running Terraform costs real money!</strong> Creating
-  an EKS cluster, RDS database, and other AWS resources will incur charges on your
-  AWS account. Do not run <code>terraform apply</code> in the AWS folder unless
-  you understand the resources, have AWS credentials configured, and are prepared
-  for possible charges.
+  <strong>Requires AWS:</strong>
+  This advanced section requires an AWS account, AWS credentials, backend setup,
+  and cost awareness. It is not part of the no-AWS beginner tutorial.
 </div>
 
-<pre><code># 0. Install Terraform
-# https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+<pre><code># Requires AWS account, AWS credentials, backend setup, and cost awareness.
+# Do not run these commands during the no-AWS tutorial.
 
-# 1. Initialize (downloads providers and sets up state)
-cd infrastructure/terraform
-terraform init
+# cd infrastructure/terraform
 
-# 2. See what Terraform WOULD create
-terraform plan -var="environment=staging" \
-  -var="db_username=admin" \
-  -var="db_password=changeme123"
+# terraform init
+# terraform plan -var="environment=staging" \
+#   -var="db_username=admin" \
+#   -var="db_password=changeme123"
 
-# 3. Actually create everything (prompts for confirmation)
-terraform apply -var="environment=staging" \
-  -var="db_username=admin" \
-  -var="db_password=changeme123"
+# terraform apply -var="environment=staging" \
+#   -var="db_username=admin" \
+#   -var="db_password=changeme123"
 
-# 4. See the outputs (database URL, cluster endpoint, etc.)
-terraform output
+# terraform output
 
-# 5. When you're done, destroy everything to avoid charges
-terraform destroy -var="environment=staging"</code><span class="code-label">terraform workflow</span></pre>
+# terraform destroy -var="environment=staging"</code><span class="code-label">real AWS workflow</span></pre>
 
 <h4>The Terraform Workflow Explained</h4>
 <ol>
-  <li><strong>init</strong> &mdash; downloads the AWS provider plugin and sets up the state backend</li>
+  <li><strong>init</strong> &mdash; initializes providers and the configured backend, such as S3 remote state</li>
   <li><strong>plan</strong> &mdash; compares your code with the current state and shows what will be added/changed/deleted (always review this carefully!)</li>
   <li><strong>apply</strong> &mdash; executes the plan (creates/modifies resources)</li>
   <li><strong>destroy</strong> &mdash; tears everything down (always do this when experimenting to avoid costs)</li>
@@ -3462,7 +3546,7 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 <section id="val-terraform">
 <h3>12.4 Terraform Validation</h3>
 
-<h4>Local Terraform validation</h4>
+<h4>Local Terraform &mdash; No AWS</h4>
 
 <p><strong>What it checks:</strong> The local-only Terraform exercise that writes a file inside the project folder.</p>
 
@@ -3472,44 +3556,35 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 
 <pre><code>terraform -chdir=infrastructure/terraform-local init
 terraform -chdir=infrastructure/terraform-local fmt -check
-terraform -chdir=infrastructure/terraform-local validate</code><span class="code-label">local Terraform</span></pre>
+terraform -chdir=infrastructure/terraform-local validate
+terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLearner"</code><span class="code-label">local Terraform</span></pre>
 
-<h4>terraform fmt -check</h4>
+<h4>AWS Terraform Syntax Check &mdash; No AWS Required</h4>
 
-<p><strong>What it checks:</strong> Whether Terraform files use the standard Terraform formatter.</p>
+<p><strong>What it checks:</strong> Formatting and syntax for the optional AWS Terraform scaffold without configuring the S3 backend.</p>
 
-<p><strong>Why it matters in DevOps:</strong> Infrastructure-as-code should be easy to review. Formatting consistency keeps diffs focused on real infrastructure changes.</p>
-
-<p><strong>Command used in this repo:</strong></p>
-
-<pre><code>terraform fmt -recursive -check infrastructure/terraform</code><span class="code-label">Terraform fmt</span></pre>
-
-<p><strong>Common error it catches:</strong> Terraform blocks or arguments that work syntactically but are not formatted in the standard style.</p>
-
-<h4>terraform validate</h4>
-
-<p><strong>What it checks:</strong> Terraform syntax, variable references, provider/resource structure, and whether the configuration is internally valid.</p>
-
-<p><strong>Why it matters in DevOps:</strong> Terraform can create real infrastructure. Validation catches many mistakes before a plan or apply reaches AWS.</p>
-
-<p>
-  Run <code>terraform init -backend=false</code> first so Terraform can prepare
-  providers without connecting to the remote S3 backend or DynamoDB lock table.
-</p>
-
-<p><strong>Command used in this repo:</strong></p>
+<p><strong>Why it matters in DevOps:</strong> You can inspect the AWS Terraform code safely, but planning or applying it requires AWS.</p>
 
 <pre><code>cd infrastructure/terraform
 terraform init -backend=false
-terraform validate</code><span class="code-label">Terraform validate</span></pre>
+terraform fmt -recursive -check
+terraform validate</code><span class="code-label">AWS Terraform syntax</span></pre>
 
 <p><strong>Common error it catches:</strong> A resource that references an undefined variable, local value, or output.</p>
 
-<div class="warning">
-  <strong>&#x26A0;&#xFE0F; Do not run apply casually.</strong> <code>terraform validate</code>
-  checks the configuration. <code>terraform apply</code> can create real AWS
-  resources that cost money.
-</div>
+<p>
+  Do not run <code>terraform plan</code>, <code>terraform apply</code>, or
+  <code>terraform destroy</code> in the AWS folder unless you have an AWS account,
+  AWS credentials, backend setup, and cost awareness.
+</p>
+
+<h4>Real AWS Plan/Apply &mdash; Requires AWS</h4>
+
+<p>
+  Real AWS <code>terraform plan</code>, <code>terraform apply</code>, and
+  <code>terraform destroy</code> are not part of beginner validation. They require
+  an AWS account, AWS credentials, backend setup, and cost awareness.
+</p>
 </section>
 
 <section id="val-k8s">
@@ -3635,6 +3710,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>IaC</strong></td><td>Infrastructure as Code — managing servers and networks through code files</td></tr>
   <tr><td><strong>Ingress</strong></td><td>A Kubernetes resource that manages external access (DNS, SSL, routing) to services</td></tr>
   <tr><td><strong>Kubernetes (K8s)</strong></td><td>A system for automatically deploying, scaling, and managing containerized applications</td></tr>
+  <tr><td><strong>Local state</strong></td><td>Terraform state stored on your own computer, usually in <code>terraform.tfstate</code>. This is enough for the beginner local lab.</td></tr>
   <tr><td><strong>Namespace</strong></td><td>A way to divide a Kubernetes cluster into virtual sub-clusters (e.g., "production" vs "staging")</td></tr>
   <tr><td><strong>Node</strong></td><td>A worker machine in Kubernetes (physical or virtual computer that runs pods)</td></tr>
   <tr><td><strong>PDB</strong></td><td>PodDisruptionBudget — guarantees a minimum number of pods stay running during maintenance</td></tr>
@@ -3645,12 +3721,16 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>PromQL</strong></td><td>Prometheus Query Language — used to ask questions about your metrics</td></tr>
   <tr><td><strong>RDS</strong></td><td>Relational Database Service — AWS's managed database service (PostgreSQL, MySQL, etc.)</td></tr>
   <tr><td><strong>Replica</strong></td><td>One copy of a pod. Three replicas = three copies running simultaneously for reliability.</td></tr>
+  <tr><td><strong>Remote state</strong></td><td>Terraform state stored in a shared backend such as S3, useful for teams but requiring cloud setup.</td></tr>
   <tr><td><strong>Rolling Update</strong></td><td>Updating pods one at a time so the service never goes down</td></tr>
+  <tr><td><strong>S3 bucket</strong></td><td>A storage container in Amazon S3. In Terraform, teams often use an S3 bucket to store shared remote state.</td></tr>
   <tr><td><strong>Secret</strong></td><td>A Kubernetes resource that stores sensitive data (passwords, API keys) securely</td></tr>
   <tr><td><strong>Service</strong></td><td>A Kubernetes resource that provides a stable network endpoint for a set of pods</td></tr>
   <tr><td><strong>State</strong></td><td>Terraform's record of what infrastructure exists (stored in a state file)</td></tr>
   <tr><td><strong>Tag</strong></td><td>A named version in git (e.g., <code>v1.2.3</code>), used to mark releases</td></tr>
   <tr><td><strong>Terraform</strong></td><td>An IaC tool that creates, modifies, and deletes cloud resources based on code</td></tr>
+  <tr><td><strong>Terraform backend</strong></td><td>Where Terraform stores its state. A local backend stores state on your computer; an S3 backend stores state in AWS.</td></tr>
+  <tr><td><strong><code>terraform init -backend=false</code></strong></td><td>Initializes Terraform without configuring the remote backend, useful for syntax validation of AWS Terraform code without an S3 bucket.</td></tr>
   <tr><td><strong>TLS/SSL</strong></td><td>Encryption protocols that secure web traffic (the "https" in your browser bar)</td></tr>
   <tr><td><strong>VPC</strong></td><td>Virtual Private Cloud — a private network within AWS where your resources live</td></tr>
   <tr><td><strong>YAML</strong></td><td>A human-readable data format (like JSON but cleaner). Used by Kubernetes, Ansible, GitHub Actions, Docker Compose, and Terraform.</td></tr>
