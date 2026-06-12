@@ -1,0 +1,22 @@
+---
+- name: Practice Ansible over SSH to a Docker Linux target
+  hosts: local_docker
+  gather_facts: true
+
+  tasks:
+    - name: Show remote hostname
+      ansible.builtin.command: hostname
+      changed_when: false
+      register: hostname_result
+
+    - name: Print hostname
+      ansible.builtin.debug:
+        var: hostname_result.stdout
+
+    - name: Create a practice file
+      ansible.builtin.copy:
+        dest: /config/ansible-practice.txt
+        content: |
+          Hello from Ansible.
+          This file was created over SSH.
+        mode: "0644"

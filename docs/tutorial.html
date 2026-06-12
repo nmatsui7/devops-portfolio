@@ -328,8 +328,8 @@
     <a href="#ansible" class="section-label">Ansible</a>
     <a href="#ansible-what">What Is Ansible?</a>
     <a href="#ansible-local">Local Ansible Exercise</a>
-    <a href="#ansible-playbook">Optional Remote Playbook</a>
-    <a href="#ansible-run">Optional Remote Ansible Exercise</a>
+    <a href="#ansible-ssh-lab">Optional Docker SSH Lab</a>
+    <a href="#ansible-next">What Comes Next: Remote Ansible with SSH</a>
 
     <a href="#monitoring" class="section-label">Monitoring</a>
     <a href="#mon-what">Why Monitor?</a>
@@ -1012,6 +1012,15 @@ docker image prune</code><span class="code-label">cheatsheet</span></pre>
   shows images from Docker Hub and repositories available to your signed-in
   Docker account.
 </p>
+
+<figure class="tutorial-figure">
+  <img src="screenshots/docker-hub-repositories.png" alt="Docker Hub My Hub page showing public image repositories">
+  <figcaption>
+    Docker Hub shows repositories available to your signed-in account. In this
+    example, the account has public image repositories such as
+    <code>portfolio-app</code>.
+  </figcaption>
+</figure>
 
 <p>
   From the terminal, use <code>docker search</code> to search Docker Hub and
@@ -2902,10 +2911,18 @@ terraform -chdir=infrastructure/terraform-local validate
 terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLearner"
 terraform -chdir=infrastructure/terraform-local apply -var="student_name=DevOpsLearner"
 
-terraform -chdir=infrastructure/terraform-local output
+# Validate that Terraform created the file
 cat infrastructure/terraform-local/generated/devops-practice.txt
 
+terraform -chdir=infrastructure/terraform-local output
+
 terraform -chdir=infrastructure/terraform-local destroy -var="student_name=DevOpsLearner"</code><span class="code-label">local Terraform</span></pre>
+
+<p>
+  When <code>terraform apply</code> asks for confirmation, type
+  <code>yes</code> and press Enter. In this local lab, that approves creating
+  only the generated practice file inside <code>infrastructure/terraform-local</code>.
+</p>
 
 <div class="warning">
   <strong>If Terraform asks for an S3 bucket, stop.</strong> Press
@@ -2920,7 +2937,7 @@ terraform -chdir=infrastructure/terraform-local destroy -var="student_name=DevOp
   <tr><td><code>terraform -chdir=infrastructure/terraform-local fmt -check</code></td><td>Checks whether the local Terraform file is formatted in the standard Terraform style</td></tr>
   <tr><td><code>terraform -chdir=infrastructure/terraform-local validate</code></td><td>Checks the local configuration syntax and provider usage without creating anything</td></tr>
   <tr><td><code>terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLearner"</code></td><td>Previews the local file Terraform will create and passes a custom variable value</td></tr>
-  <tr><td><code>terraform -chdir=infrastructure/terraform-local apply -var="student_name=DevOpsLearner"</code></td><td>Creates the local practice file and records it in local Terraform state</td></tr>
+  <tr><td><code>terraform -chdir=infrastructure/terraform-local apply -var="student_name=DevOpsLearner"</code></td><td>Shows the plan, asks for <code>yes</code>, then creates the local practice file and records it in local Terraform state</td></tr>
   <tr><td><code>terraform -chdir=infrastructure/terraform-local output</code></td><td>Prints the output value, including the path of the generated file</td></tr>
   <tr><td><code>cat infrastructure/terraform-local/generated/devops-practice.txt</code></td><td>Shows the contents of the file Terraform created</td></tr>
   <tr><td><code>terraform -chdir=infrastructure/terraform-local destroy -var="student_name=DevOpsLearner"</code></td><td>Removes the local practice file that Terraform created</td></tr>
@@ -3055,6 +3072,12 @@ terraform validate</code><span class="code-label">AWS syntax check</span></pre>
   "agentless" &mdash; nothing needs to be installed on the target servers besides
   Python (which comes pre-installed on most Linux systems).
 </div>
+
+<table>
+  <tr><th>Term</th><th>Meaning</th></tr>
+  <tr><td><strong>SSH</strong></td><td>Secure Shell, a secure way to log in to another computer and run commands over the network</td></tr>
+  <tr><td><strong>EC2</strong></td><td>Elastic Compute Cloud, AWS's service for renting virtual Linux or Windows servers</td></tr>
+</table>
 </section>
 
 <section id="ansible-local">
@@ -3089,123 +3112,112 @@ cat generated/ansible-practice.txt</code><span class="code-label">local Ansible<
   <code>ansible/local/generated/</code>. Avoid beginner exercises that install
   packages, change system settings, or require <code>sudo</code>.
 </div>
-</section>
-
-<section id="ansible-playbook">
-<h3>10.3 Optional Remote Playbook Explained</h3>
 
 <p>
-  The remote-server playbook is optional advanced practice. It requires reachable
-  Linux hosts, SSH access, and the correct inventory. AWS is only needed if those
-  hosts are EC2 instances.
+  <strong>sudo</strong> means "run this command with administrator privileges."
+  It is powerful because it can change system files and settings, so beginner
+  exercises avoid it unless there is a clear reason.
 </p>
-
-<p>Our playbook at <code>ansible/playbook.yml</code> has two parts:</p>
-
-<h4>Part 1: Bootstrap Kubernetes Workers</h4>
-<pre><code>- name: Bootstrap Kubernetes workers
-  hosts: workers
-  become: yes
-  vars:
-    k8s_version: "1.29"
-    containerd_version: "1.7.16"</code></pre>
-
-<p>
-  <code>hosts: workers</code> means this runs on servers in the "workers" group
-  (defined in an inventory file). <code>become: yes</code> means "run as root"
-  (needed for installing software).
-</p>
-
-<p>The tasks in order:</p>
-
-<table>
-  <tr><th>Task</th><th>Why</th></tr>
-  <tr><td>Update apt cache</td><td>Refreshes the package list on Ubuntu/Debian servers</td></tr>
-  <tr><td>Install system dependencies</td><td>Installs tools like <code>curl</code> and <code>ca-certificates</code> needed by Kubernetes</td></tr>
-  <tr><td>Disable swap</td><td>Kubernetes requires swap to be disabled (swap interferes with pod memory limits)</td></tr>
-  <tr><td>Load kernel modules</td><td>Enables <code>overlay</code> and <code>br_netfilter</code> &mdash; Linux kernel features Docker needs</td></tr>
-  <tr><td>Configure sysctl</td><td>Sets network settings like IP forwarding (lets containers talk to each other)</td></tr>
-  <tr><td>Install containerd</td><td>Installs the container runtime (the software that actually runs containers)</td></tr>
-  <tr><td>Configure containerd</td><td>Sets up systemd cgroup driver (required by Kubernetes)</td></tr>
-  <tr><td>Add Kubernetes repo</td><td>Adds the official Kubernetes package repository to the server's package manager</td></tr>
-  <tr><td>Install kubelet, kubeadm, kubectl</td><td>The three Kubernetes command-line tools (kubelet runs on every node, kubeadm bootstraps the cluster, kubectl controls it)</td></tr>
-  <tr><td>Hold Kubernetes packages</td><td>Prevents accidental updates &mdash; Kubernetes upgrades should be planned, not accidental</td></tr>
-  <tr><td>Enable kubelet</td><td>Makes kubelet start automatically when the server boots</td></tr>
-</table>
-
-<h4>Part 2: Install Monitoring Stack</h4>
-<pre><code>- name: Install monitoring stack
-  hosts: monitoring
-  become: yes
-  vars:
-    prometheus_version: "2.53.0"
-    node_exporter_version: "1.7.0"</code></pre>
-
-<p>This installs Prometheus and Node Exporter on the monitoring server:</p>
-
-<table>
-  <tr><th>Task</th><th>Why</th></tr>
-  <tr><td>Create monitoring user</td><td>Runs Prometheus as a dedicated user (security best practice)</td></tr>
-  <tr><td>Download Prometheus</td><td>Downloads the Prometheus binary from GitHub releases</td></tr>
-  <tr><td>Create config/data dirs</td><td>Creates folders for Prometheus's configuration and time-series data</td></tr>
-  <tr><td>Install Node Exporter</td><td>Downloads the Node Exporter binary (collects system metrics like CPU, memory, disk)</td></tr>
-  <tr><td>Start Node Exporter</td><td>Enables and starts the Node Exporter as a systemd service (runs on boot)</td></tr>
-</table>
-
-<div class="tip">
-  <strong>&#x1F4A1; Idempotence:</strong> Ansible is <strong>idempotent</strong>.
-  That means running the playbook once is the same as running it 10 times &mdash;
-  if a package is already installed, it won't reinstall it. If sysctl is already
-  configured, it won't change it. This makes Ansible safe to run on a schedule.
-</div>
 </section>
 
-<section id="ansible-run">
-<h3>10.4 Optional Remote Ansible Exercise</h3>
+<section id="ansible-ssh-lab">
+<h3>10.3 Optional Docker SSH Lab: Practice Remote-Style Ansible Locally</h3>
+
+<p>
+  The localhost exercise is the safest first Ansible step. This optional lab goes
+  one step further: it starts a small SSH-enabled Linux container and treats it
+  like a remote server. You still do not need AWS, EC2, or a real remote machine.
+</p>
 
 <div class="warning">
-  <strong>&#x26A0;&#xFE0F; Ansible requires target servers.</strong> You need
-  actual Linux servers (or VMs), SSH access, and the correct inventory to run
-  this remote-server playbook. AWS is only needed if those hosts are EC2
-  instances. The commands below are for reference when you have infrastructure to
-  manage.
+  <strong>Local learning only:</strong> This lab uses a simple password and maps
+  SSH to <code>localhost:2222</code>. Do not expose this container to the
+  internet, and do not reuse the password anywhere else.
 </div>
 
-<pre><code># 1. Create an inventory file (defines your servers)
-# Save as: inventory.ini
-[workers]
-worker-1 ansible_host=10.0.1.10 ansible_user=ubuntu
-worker-2 ansible_host=10.0.1.11 ansible_user=ubuntu
+<pre><code>cd ansible/ssh-lab
+docker compose up -d</code><span class="code-label">start SSH target</span></pre>
 
-[monitoring]
-monitor-1 ansible_host=10.0.1.20 ansible_user=ubuntu
+<p>Test SSH manually first:</p>
 
-[all:vars]
-ansible_ssh_private_key_file=~/.ssh/production.pem
+<pre><code>ssh ansible@localhost -p 2222</code><span class="code-label">ssh test</span></pre>
 
-# 2. Check Ansible can reach all servers
-ansible all -i inventory.ini -m ping
+<p>
+  Use password <code>ansible123</code>. After the login succeeds, your terminal is
+  inside the Linux container. Leave the SSH session before running the Ansible
+  commands:
+</p>
 
-# 3. Run the playbook
-ansible-playbook -i inventory.ini ansible/playbook.yml
+<pre><code>exit</code><span class="code-label">leave SSH session</span></pre>
 
-# 4. Run only certain tasks (tag-based)
-ansible-playbook -i inventory.ini ansible/playbook.yml --tags containerd</code><span class="code-label">ansible commands</span></pre>
+<p>
+  This container image may not include Python by default. Ansible needs Python on
+  the target machine for most modules, so install Python inside the container
+  before running the Ansible ping test:
+</p>
 
-<h4>Testing Ansible Locally</h4>
-<p>You can test Ansible without real servers using Docker:</p>
+<pre><code>ssh ansible@localhost -p 2222
+sudo apk add --no-cache python3
+exit</code><span class="code-label">install Python on target</span></pre>
 
-<pre><code># Create a test container
-docker run -d --name ansible-test -p 2222:22 \
-  -e ROOT_PASSWORD=test \
-  rastasheep/ubuntu-sshd:18.04
+<p>
+  Then test Ansible against the container. The
+  <code>ANSIBLE_HOST_KEY_CHECKING=False</code> prefix avoids a first-time host key
+  prompt for this disposable local container.
+</p>
 
-# Use this inventory:
-# [workers]
-# test-node ansible_host=localhost ansible_port=2222 ansible_user=root ansible_password=test
+<pre><code>ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini local_docker -m ping
+ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini local_docker -m command -a "whoami"
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml</code><span class="code-label">Ansible over SSH</span></pre>
 
-# Run the playbook
-ansible-playbook -i inventory.ini ansible/playbook.yml</code><span class="code-label">local testing</span></pre>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>docker compose up -d</code></td><td>Starts the SSH target container in the background</td></tr>
+  <tr><td><code>ssh ansible@localhost -p 2222</code></td><td>Confirms you can log in to the container over SSH</td></tr>
+  <tr><td><code>ansible ... -m ping</code></td><td>Checks whether Ansible can connect to the SSH target</td></tr>
+  <tr><td><code>ansible ... -m command -a "whoami"</code></td><td>Runs a simple command on the target; the expected user is <code>ansible</code></td></tr>
+  <tr><td><code>ansible-playbook ... playbook.yml</code></td><td>Runs the practice playbook over SSH and writes <code>/config/ansible-practice.txt</code> inside the container</td></tr>
+</table>
+
+<p>Clean up the SSH lab when you are done:</p>
+
+<pre><code>docker compose down</code><span class="code-label">cleanup</span></pre>
+
+<div class="tip">
+  <strong>Troubleshooting:</strong> Password-based Ansible SSH may require
+  <code>sshpass</code> on your machine. If Ansible says
+  <code>sshpass</code> is missing, install it with your package manager or keep
+  using the localhost Ansible lab until you are ready to practice SSH setup.
+</div>
+</section>
+
+<section id="ansible-next">
+<h3>10.4 What Comes Next: Remote Ansible with SSH</h3>
+
+<p>
+  Volume 1 keeps Ansible practice small: first <code>localhost</code>, then the
+  optional Docker SSH lab. That is enough to learn inventories, playbooks,
+  idempotent tasks, and Ansible's command flow without needing cloud servers.
+</p>
+
+<p>
+  In real operations, Ansible often manages remote Linux servers over SSH. That
+  adds a few more moving parts: an SSH target, inventory host variables, a remote
+  user, SSH host key handling, <code>sudo</code> or <code>become</code> for
+  administrator-level tasks, and Python on the target machine for normal Ansible
+  modules.
+</p>
+
+<div class="info-box">
+  <strong>Volume 2 preview:</strong> SSH-based Ansible practice belongs in the
+  next volume. There, you can use a dedicated Docker Linux target with Python
+  installed, then later adapt the same ideas to real VMs or EC2 instances.
+</div>
+
+<p>
+  The main idea to remember is simple: Volume 1 teaches how Ansible thinks.
+  Remote Ansible adds networking, login identity, and privilege management.
+</p>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
@@ -3327,6 +3339,24 @@ curl http://localhost:8080/metrics</code><span class="code-label">local metrics<
   <li>Go back to the query page and run the queries below.</li>
 </ol>
 
+<figure class="tutorial-figure">
+  <img src="screenshots/prometheus-targets-up.png" alt="Prometheus Targets page showing the portfolio app target in the UP state">
+  <figcaption>
+    In Prometheus, <strong>UP</strong> means the scrape target responded
+    successfully. Here, Prometheus is scraping
+    <code>http://app:8080/metrics</code> inside the Docker Compose network.
+  </figcaption>
+</figure>
+
+<figure class="tutorial-figure">
+  <img src="screenshots/prometheus-query-page.jpg" alt="Prometheus query page with expression input and Execute button">
+  <figcaption>
+    The Prometheus query page is where you type PromQL expressions such as
+    <code>up</code> or <code>portfolio_app_ready</code>, then click
+    <strong>Execute</strong> to view the result.
+  </figcaption>
+</figure>
+
 <pre><code>up
 up{job="portfolio-app-local"}
 portfolio_app_ready
@@ -3419,11 +3449,63 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 
 <ol>
   <li>Open Grafana at <a href="http://localhost:3000" style="color:var(--accent)">http://localhost:3000</a>.</li>
-  <li>Log in with <code>admin / admin</code>.</li>
-  <li>Add Prometheus as a data source if needed. Use <code>http://prometheus:9090</code> as the URL.</li>
-  <li>Import <code>monitoring/grafana-dashboard.json</code>.</li>
-  <li>Confirm the dashboard panels show data: <strong>Scrape Health</strong>, <strong>Readiness</strong>, and <strong>App Info</strong>.</li>
+  <li>Log in with username <code>admin</code> and password <code>admin</code>. If Grafana asks you to change the password, you can skip that for this local lab.</li>
+  <li>Open the left menu. If the menu is collapsed, click the hamburger icon in the upper-left first.</li>
+  <li>Go to <strong>Connections</strong> &rarr; <strong>Add new connection</strong>.</li>
+  <li>Scroll down the connection list, find the orange <strong>Prometheus</strong> icon/card, and click it.</li>
+  <li>On the Prometheus plugin page, click <strong>Add new data source</strong>. If Grafana shows an existing Prometheus data source instead, open it and verify the URL in the next step.</li>
+  <li>In the Prometheus data source settings, find the <strong>Connection</strong> section and the field labeled <strong>Prometheus server URL *</strong>.</li>
+  <li>Set <strong>Prometheus server URL *</strong> to <code>http://prometheus:9090</code>. This uses the Docker Compose service name, so Grafana can reach Prometheus from inside the Compose network.</li>
+  <li>Scroll to the bottom of the page and click <strong>Save &amp; test</strong>. A successful result means Grafana can reach Prometheus.</li>
+  <li>Open the left menu again, then go to <strong>Dashboards</strong> &rarr; <strong>New</strong> &rarr; <strong>Import</strong>. You can also go directly to <code>http://localhost:3000/dashboard/import</code>.</li>
+  <li>On the Import dashboard page, use the large dashed box near the top labeled <strong>Upload dashboard JSON file</strong>.</li>
+  <li>Click inside that dashed upload box, or drag the file into it, and select <code>monitoring/grafana-dashboard.json</code> from this project.</li>
+  <li>Do not type anything into the <strong>Grafana.com dashboard URL or ID</strong> field. That field is only for dashboards hosted on Grafana.com, not for this project's local JSON file.</li>
+  <li>Do not use the <strong>Import via dashboard JSON model</strong> text box unless you are manually pasting the full JSON contents.</li>
+  <li>After selecting the JSON file, Grafana opens an <strong>Options</strong> screen. If the <strong>Name</strong> field is empty, type <code>Portfolio App Local Overview</code>.</li>
+  <li>Leave <strong>Folder</strong> set to <strong>Dashboards</strong>. You can leave the <strong>Unique identifier (UID)</strong> field as-is; it is optional for this local lab.</li>
+  <li>If Grafana asks for a Prometheus data source on this screen, click the <strong>Select a data source</strong> field under <strong>Prometheus</strong>. Do not type the placeholder text. Choose the option named <strong>prometheus</strong>.</li>
+  <li>Click <strong>Import</strong>. If the button says <strong>Import (Overwrite)</strong>, that is also okay for this lab; it means Grafana thinks a dashboard with the same identity may already exist.</li>
+  <li>Confirm the dashboard page opens with the title <strong>Portfolio App Local Overview</strong> and three panels: <strong>Scrape Health</strong>, <strong>Readiness</strong>, and <strong>App Info</strong>. The panels should show values such as <code>1</code>, not errors or <code>No data</code>.</li>
 </ol>
+
+<div class="warning">
+  <strong>Import troubleshooting:</strong> If you see
+  <code>A Grafana dashboard URL or ID is required</code>, you clicked
+  <strong>Load</strong> beside the Grafana.com URL/ID field. Ignore that field
+  and use the dashed <strong>Upload dashboard JSON file</strong> box above it
+  instead.
+</div>
+
+<div class="warning">
+  <strong>Options screen troubleshooting:</strong> If Grafana says
+  <code>Name is required</code>, type <code>Portfolio App Local Overview</code>
+  into the <strong>Name</strong> field before clicking <strong>Import</strong>.
+</div>
+
+<div class="warning">
+  <strong>Data source selection troubleshooting:</strong> If Grafana says
+  <code>A data source is required</code>, the Prometheus field is still empty.
+  Click the field under <strong>Prometheus</strong> and choose
+  <strong>prometheus</strong> from the dropdown. The placeholder text is only a
+  hint; it is not the selected data source.
+</div>
+
+<div class="warning">
+  <strong>Empty dashboard troubleshooting:</strong> If the dashboard page says
+  <code>Start your new dashboard by adding a visualization</code>, the dashboard
+  imported without panels. Reset Grafana with the optional reset commands below,
+  then import <code>monitoring/grafana-dashboard.json</code> again.
+</div>
+
+<figure class="tutorial-figure">
+  <img src="screenshots/grafana-home.png" alt="Grafana home page after logging in">
+  <figcaption>
+    After logging in, Grafana opens on its home page. From here you can add a
+    Prometheus data source, import the dashboard JSON, and view panels built
+    from Prometheus metrics.
+  </figcaption>
+</figure>
 
 <div class="warning">
   <strong>Grafana connection tip:</strong> If Grafana cannot reach Prometheus,
@@ -3432,9 +3514,35 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
   <code>localhost</code> means Grafana itself.
 </div>
 
+<div class="warning">
+  <strong>Data source troubleshooting:</strong> If <strong>Save &amp; test</strong>
+  says the URL is missing or invalid, make sure you filled the
+  <strong>Prometheus server URL *</strong> field with
+  <code>http://prometheus:9090</code>, then try <strong>Save &amp; test</strong>
+  again.
+</div>
+
 <p>When you are done with the monitoring exercise, stop the local stack:</p>
 
 <pre><code>docker compose -f docker/docker-compose.yml down</code><span class="code-label">cleanup</span></pre>
+
+<div class="tip">
+  <strong>Optional: reset Grafana only.</strong> If you want to repeat the Grafana
+  setup from a clean state, stop Compose, remove only the Grafana data volume, and
+  start the stack again:
+</div>
+
+<pre><code># Stop and remove the Compose stack
+docker compose -f docker/docker-compose.yml down
+
+# Find the Grafana data volume name
+docker volume ls | grep grafana
+
+# Remove only the Grafana data volume
+docker volume rm docker_grafana-data
+
+# Start the stack again
+docker compose -f docker/docker-compose.yml up -d</code><span class="code-label">reset Grafana</span></pre>
 
 <div class="info-box">
   <strong>&#x1F4DD; The Three Pillars of Observability:</strong>
@@ -3650,11 +3758,11 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml --syntax-check</code><span class="code-label">local Ansible syntax</span></pre>
 
 <p>
-  The remote-server playbook can also be syntax-checked when you are ready for
-  optional advanced practice:
+  The optional Docker SSH lab can also be syntax-checked when you practice
+  section 10.3:
 </p>
 
-<pre><code>ansible-playbook -i ansible/inventory.example.ini ansible/playbook.yml --syntax-check</code><span class="code-label">remote Ansible syntax</span></pre>
+<pre><code>ansible-playbook -i ansible/ssh-lab/inventory.ini ansible/ssh-lab/playbook.yml --syntax-check</code><span class="code-label">optional Ansible syntax</span></pre>
 
 <p><strong>Common error it catches:</strong> A malformed task, missing role reference, or invalid YAML structure in a playbook.</p>
 
@@ -3669,10 +3777,10 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
 <pre><code>ansible-lint ansible/local/local-practice.yml</code><span class="code-label">local Ansible lint</span></pre>
 
 <p>
-  You can lint the optional remote playbook separately:
+  You can lint the optional Docker SSH lab separately:
 </p>
 
-<pre><code>ansible-lint ansible/playbook.yml</code><span class="code-label">remote Ansible lint</span></pre>
+<pre><code>ansible-lint ansible/ssh-lab/playbook.yml</code><span class="code-label">optional Ansible lint</span></pre>
 
 <p><strong>Common error it catches:</strong> Tasks that use command-style modules without clear change detection, or tasks that ignore idempotency.</p>
 
@@ -3703,6 +3811,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>Container</strong></td><td>A lightweight, standalone package that includes everything needed to run a piece of software</td></tr>
   <tr><td><strong>Docker</strong></td><td>The most popular tool for creating and running containers</td></tr>
   <tr><td><strong>Docker Compose</strong></td><td>A tool for defining and running multiple Docker containers together</td></tr>
+  <tr><td><strong>EC2</strong></td><td>Elastic Compute Cloud — AWS's service for renting virtual servers</td></tr>
   <tr><td><strong>ECR</strong></td><td>Elastic Container Registry — AWS's service for storing Docker images</td></tr>
   <tr><td><strong>EKS</strong></td><td>Elastic Kubernetes Service — AWS's managed Kubernetes service</td></tr>
   <tr><td><strong>Grafana</strong></td><td>A visualization tool that turns metrics into graphs and dashboards</td></tr>
@@ -3726,7 +3835,9 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>S3 bucket</strong></td><td>A storage container in Amazon S3. In Terraform, teams often use an S3 bucket to store shared remote state.</td></tr>
   <tr><td><strong>Secret</strong></td><td>A Kubernetes resource that stores sensitive data (passwords, API keys) securely</td></tr>
   <tr><td><strong>Service</strong></td><td>A Kubernetes resource that provides a stable network endpoint for a set of pods</td></tr>
+  <tr><td><strong>SSH</strong></td><td>Secure Shell — a secure way to log in to another computer and run commands over the network</td></tr>
   <tr><td><strong>State</strong></td><td>Terraform's record of what infrastructure exists (stored in a state file)</td></tr>
+  <tr><td><strong>sudo</strong></td><td>A command that runs another command with administrator privileges. Use it carefully because it can change system files and settings.</td></tr>
   <tr><td><strong>Tag</strong></td><td>A named version in git (e.g., <code>v1.2.3</code>), used to mark releases</td></tr>
   <tr><td><strong>Terraform</strong></td><td>An IaC tool that creates, modifies, and deletes cloud resources based on code</td></tr>
   <tr><td><strong>Terraform backend</strong></td><td>Where Terraform stores its state. A local backend stores state on your computer; an S3 backend stores state in AWS.</td></tr>
