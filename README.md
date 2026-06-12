@@ -1,6 +1,6 @@
-# Beginner DevOps Operations Tutorial
+# Beginner-to-Junior DevOps Operations Tutorial
 
-This repository is a beginner-friendly web tutorial and hands-on lab for learning DevOps operations. It uses a small containerized static web app to practice Docker, Docker Compose, GitHub Actions, Kubernetes, Terraform validation, monitoring with Prometheus/Grafana, and optional Ansible host-operations checks.
+This repository is an intensive beginner-to-junior DevOps web tutorial and hands-on lab for learning DevOps operations. It uses a small containerized static web app to practice Docker, Docker Compose, GitHub Actions, Kubernetes, Terraform validation, monitoring with Prometheus/Grafana, and optional Ansible host-operations checks.
 
 The repo is also structured as a DevOps portfolio project. It is intentionally split between working local demo assets and cloud infrastructure scaffolding so learners and recruiters can see both the runnable path and the infrastructure design direction without confusing this for a production system.
 
@@ -50,7 +50,32 @@ This tutorial is not limited to macOS. Use the official installers or package ma
 brew install git kubectl minikube terraform python yamllint actionlint shellcheck ansible ansible-lint helm
 ```
 
-Install Docker Desktop separately from Docker's website. On Windows and macOS, Docker Desktop is the usual beginner path. On Linux, you can use Docker Engine or Docker Desktop. After installation, start Docker before running Docker Compose or Minikube.
+### Example: Windows Installation
+
+Using winget:
+
+```powershell
+winget install --id Git.Git -e
+winget install --id Microsoft.VisualStudioCode -e
+winget install --id Docker.DockerDesktop -e
+winget install --id Kubernetes.kubectl -e
+winget install --id Kubernetes.minikube -e
+winget install --id Hashicorp.Terraform -e
+winget install --id Python.Python.3.12 -e
+winget install --id Helm.Helm -e
+```
+
+Alternative with Chocolatey:
+
+```powershell
+choco install git vscode docker-desktop kubernetes-cli minikube terraform python helm -y
+```
+
+Use one Windows package manager, not both.
+
+If you did not install Docker Desktop with Homebrew, winget, or Chocolatey, install it separately from Docker's website. On Windows and macOS, Docker Desktop is the usual beginner path. On Linux, you can use Docker Engine or Docker Desktop. After installation, start Docker before running Docker Compose or Minikube.
+
+On Windows, Ansible and `ansible-lint` are usually easier to run from WSL2 than directly from PowerShell. If those commands are not available in PowerShell, continue with the Docker, Kubernetes, and Terraform parts first, then return to Ansible validation after setting up WSL2.
 
 Verify the tools:
 
@@ -194,9 +219,13 @@ terraform validate
 terraform plan -var="environment=staging"
 
 # Inspect Kubernetes manifests
+minikube start
+kubectl get nodes
 kubectl apply -f infrastructure/kubernetes/namespaces.yaml
 kubectl apply --dry-run=server -f infrastructure/kubernetes/
 ```
+
+Kubernetes dry-run commands require a running cluster. Start Minikube first and confirm `kubectl get nodes` works.
 
 ## Local Kubernetes Smoke Test
 
