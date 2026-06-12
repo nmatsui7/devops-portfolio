@@ -6,13 +6,25 @@ The repo is also structured as a DevOps portfolio project. It is intentionally s
 
 Start with the full tutorial at [docs/tutorial.html](docs/tutorial.html), then use this README as the quick reference for commands, architecture, validation, and scope.
 
+## Get the Project
+
+Install Git, clone the repository, enter the project folder, and open it in Visual Studio Code:
+
+```bash
+git clone https://github.com/nmatsui7/devops-portfolio.git
+cd devops-portfolio
+code .
+```
+
+If the `code` command is not available yet, open VS Code manually, choose **File > Open Folder**, and select the `devops-portfolio` folder.
+
 ## Prerequisites
 
 Install these tools before starting the local lab.
 
 ### Required
 
-- Git
+- Git ([Windows installer](https://git-scm.com/install/windows))
 - Docker Desktop
 - Docker Compose
 - kubectl
