@@ -330,8 +330,8 @@
     <a href="#ansible" class="section-label">Ansible</a>
     <a href="#ansible-what">What Is Ansible?</a>
     <a href="#ansible-local">Local Ansible Exercise</a>
-    <a href="#ansible-ssh-lab">Optional Docker SSH Lab</a>
-    <a href="#ansible-next">What Comes Next: Remote Ansible with SSH</a>
+    <a href="#ansible-ssh-lab">Ansible SSH Lab</a>
+    <a href="#ansible-next">What You Learned</a>
 
     <a href="#monitoring" class="section-label">Monitoring</a>
     <a href="#mon-what">Why Monitor?</a>
@@ -3342,102 +3342,124 @@ cat generated/ansible-practice.txt</code><span class="code-label">local Ansible<
 </section>
 
 <section id="ansible-ssh-lab">
-<h3>10.3 Optional Docker SSH Lab: Practice Remote-Style Ansible Locally</h3>
-
+<h3>10.3 Ansible over SSH with Docker Linux Targets</h3>
 <p>
-  The localhost exercise is the safest first Ansible step. This optional lab goes
-  one step further: it starts a small SSH-enabled Linux container and treats it
-  like a remote server. You still do not need AWS, EC2, or a real remote machine.
+  In real operations work, you often manage several similar servers. You do not
+  want to SSH into each one manually and repeat the same commands. Ansible lets
+  you describe the desired configuration once, then apply it to every host in an
+  inventory group.
 </p>
-
+<p>
+  This local lab uses three Docker containers to simulate three Ubuntu Linux
+  servers. Ansible connects to each container over SSH, reads the inventory to
+  know where each target lives, gathers facts, installs nginx, and deploys one
+  templated web page to all three workers.
+</p>
 <div class="warning">
-  <strong>Local learning only:</strong> This lab uses a simple password and maps
-  SSH to <code>localhost:2222</code>. Do not expose this container to the
-  internet, and do not reuse the password anywhere else.
+  <strong>Local-only safety note:</strong> These containers use a demo password
+  and expose SSH only for practice on your machine. Do not expose them to the
+  internet, and do not reuse the demo password anywhere real.
 </div>
-
-<pre><code>cd ansible/ssh-lab
-docker compose up -d</code><span class="code-label">start SSH target</span></pre>
-
-<p>Test SSH manually first:</p>
-
-<pre><code>ssh ansible@localhost -p 2222</code><span class="code-label">ssh test</span></pre>
-
+<p>The lab files live in <code>ansible/ssh-lab/</code>:</p>
+<pre><code>ssh-lab/
+  Dockerfile
+  docker-compose.yml
+  inventory.ini
+  docker-ssh-playbook.yml
+  templates/
+    index.html.j2</code><span class="code-label">lab structure</span></pre>
 <p>
-  Use password <code>ansible123</code>. After the login succeeds, your terminal is
-  inside the Linux container. Leave the SSH session before running the Ansible
-  commands:
+  The three Docker containers simulate three similar Linux servers. The
+  inventory tells Ansible how to reach each target over SSH, and the playbook is
+  written once against the <code>workers</code> group.
 </p>
-
-<pre><code>exit</code><span class="code-label">leave SSH session</span></pre>
-
-<p>
-  This container image may not include Python by default. Ansible needs Python on
-  the target machine for most modules, so install Python inside the container
-  before running the Ansible ping test:
-</p>
-
-<pre><code>ssh ansible@localhost -p 2222
-sudo apk add --no-cache python3
-exit</code><span class="code-label">install Python on target</span></pre>
-
-<p>
-  Then test Ansible against the container. The
-  <code>ANSIBLE_HOST_KEY_CHECKING=False</code> prefix avoids a first-time host key
-  prompt for this disposable local container.
-</p>
-
-<pre><code>ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini local_docker -m ping
-ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini local_docker -m command -a "whoami"
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml</code><span class="code-label">Ansible over SSH</span></pre>
-
 <table>
-  <tr><th>Command</th><th>What it does</th></tr>
-  <tr><td><code>docker compose up -d</code></td><td>Starts the SSH target container in the background</td></tr>
-  <tr><td><code>ssh ansible@localhost -p 2222</code></td><td>Confirms you can log in to the container over SSH</td></tr>
-  <tr><td><code>ansible ... -m ping</code></td><td>Checks whether Ansible can connect to the SSH target</td></tr>
-  <tr><td><code>ansible ... -m command -a "whoami"</code></td><td>Runs a simple command on the target; the expected user is <code>ansible</code></td></tr>
-  <tr><td><code>ansible-playbook ... playbook.yml</code></td><td>Runs the practice playbook over SSH and writes <code>/config/ansible-practice.txt</code> inside the container</td></tr>
+  <thead><tr><th>Worker</th><th>SSH port</th><th>Web port</th><th>Container</th></tr></thead>
+  <tbody>
+    <tr><td><code>worker1</code></td><td><code>2222</code></td><td><code>8081</code></td><td><code>ansible-worker1</code></td></tr>
+    <tr><td><code>worker2</code></td><td><code>2223</code></td><td><code>8082</code></td><td><code>ansible-worker2</code></td></tr>
+    <tr><td><code>worker3</code></td><td><code>2224</code></td><td><code>8083</code></td><td><code>ansible-worker3</code></td></tr>
+  </tbody>
 </table>
+<p>
+  The playbook describes the actions Ansible should perform. The template
+  describes what the generated file should look like. Ansible fills in the
+  Jinja2 variables separately for each worker, so the same template produces a
+  slightly different page on <code>worker1</code>, <code>worker2</code>, and
+  <code>worker3</code>.
+</p>
+<p>
+  This is more realistic than putting a full HTML page directly inside the
+  playbook. Real teams use <code>ansible.builtin.template</code> for generated
+  files such as nginx config, app config files, environment files, systemd unit
+  files, and status pages.
+</p>
+<pre><code>cd ansible/ssh-lab
 
-<p>Clean up the SSH lab when you are done:</p>
+docker compose up -d --build
+docker compose ps
 
+ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini workers -m ping
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini docker-ssh-playbook.yml</code><span class="code-label">run the SSH lab</span></pre>
+<p>
+  The ping command is a pre-flight check that confirms Ansible can log in to all
+  three workers. The playbook then applies the same nginx configuration flow to
+  every host in the <code>workers</code> group.
+</p>
+<p>After the playbook finishes, verify the three nginx servers from your host:</p>
+<pre><code>docker compose ps
+
+for port in 8081 8082 8083; do
+  echo "Checking http://localhost:$port"
+  curl -s http://localhost:$port | grep "managed by Ansible"
+done</code><span class="code-label">verify the web pages</span></pre>
+<p>
+  First, <code>docker compose ps</code> confirms that the three worker containers
+  are running. Then the loop checks each nginx server through its mapped
+  localhost port.
+</p>
+<p>Expected output should include all three workers:</p>
+<pre><code>NAME              STATUS
+ansible-worker1   Up
+ansible-worker2   Up
+ansible-worker3   Up
+
+Checking http://localhost:8081
+            &lt;h1&gt;worker1 is managed by Ansible&lt;/h1&gt;
+Checking http://localhost:8082
+            &lt;h1&gt;worker2 is managed by Ansible&lt;/h1&gt;
+Checking http://localhost:8083
+            &lt;h1&gt;worker3 is managed by Ansible&lt;/h1&gt;</code><span class="code-label">expected result</span></pre>
+<p>When you are done, stop the lab:</p>
 <pre><code>docker compose down</code><span class="code-label">cleanup</span></pre>
-
 <div class="tip">
-  <strong>Troubleshooting:</strong> Password-based Ansible SSH may require
-  <code>sshpass</code> on your machine. If Ansible says
-  <code>sshpass</code> is missing, install it with your package manager or keep
-  using the localhost Ansible lab until you are ready to practice SSH setup.
+  <strong>Why this matters:</strong> This is the core reason Ansible is useful in
+  operations work. You define the desired state once, place hosts into inventory
+  groups, and apply the same repeatable change to many Linux systems.
 </div>
 </section>
-
 <section id="ansible-next">
-<h3>10.4 What Comes Next: Remote Ansible with SSH</h3>
+<h3>10.4 What You Learned</h3>
 
 <p>
-  Volume 1 keeps Ansible practice small: first <code>localhost</code>, then the
-  optional Docker SSH lab. That is enough to learn inventories, playbooks,
-  idempotent tasks, and Ansible's command flow without needing cloud servers.
+  You started with a localhost Ansible playbook, then used Ansible over SSH to
+  configure three Docker-based Linux targets as nginx web servers. This is the
+  core Ansible workflow: define hosts in an inventory, write a playbook, apply
+  the same desired state to multiple systems, and verify the result.
 </p>
 
 <p>
-  In real operations, Ansible often manages remote Linux servers over SSH. That
-  adds a few more moving parts: an SSH target, inventory host variables, a remote
-  user, SSH host key handling, <code>sudo</code> or <code>become</code> for
-  administrator-level tasks, and Python on the target machine for normal Ansible
-  modules.
+  You also practiced using a Jinja2 template. The playbook describes the actions
+  Ansible should perform, while the template describes what the generated file
+  should look like. Ansible fills in variables separately for each worker, so
+  one template can generate host-specific pages for <code>worker1</code>,
+  <code>worker2</code>, and <code>worker3</code>.
 </p>
 
-<div class="info-box">
-  <strong>Volume 2 preview:</strong> SSH-based Ansible practice belongs in the
-  next volume. There, you can use a dedicated Docker Linux target with Python
-  installed, then later adapt the same ideas to real VMs or EC2 instances.
-</div>
-
 <p>
-  The main idea to remember is simple: Volume 1 teaches how Ansible thinks.
-  Remote Ansible adds networking, login identity, and privilege management.
+  Volume 2 assumes you understand inventory files, SSH targets, facts,
+  templates, privilege escalation with <code>become</code>, and basic playbook
+  execution.
 </p>
 </section>
 
@@ -4112,11 +4134,11 @@ curl -sf http://127.0.0.1:18080/metrics</code><span class="code-label">terminal 
 ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml --syntax-check</code><span class="code-label">local Ansible syntax</span></pre>
 
 <p>
-  The optional Docker SSH lab can also be syntax-checked when you practice
+  The Docker SSH lab can also be syntax-checked when you practice
   section 10.3:
 </p>
 
-<pre><code>ansible-playbook -i ansible/ssh-lab/inventory.ini ansible/ssh-lab/playbook.yml --syntax-check</code><span class="code-label">optional Ansible syntax</span></pre>
+<pre><code>ansible-playbook -i ansible/ssh-lab/inventory.ini ansible/ssh-lab/docker-ssh-playbook.yml --syntax-check</code><span class="code-label">Docker SSH syntax</span></pre>
 
 <p><strong>Common error it catches:</strong> A malformed task, missing role reference, or invalid YAML structure in a playbook.</p>
 
@@ -4131,10 +4153,10 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
 <pre><code>ansible-lint ansible/local/local-practice.yml</code><span class="code-label">local Ansible lint</span></pre>
 
 <p>
-  You can lint the optional Docker SSH lab separately:
+  You can lint the Docker SSH lab separately:
 </p>
 
-<pre><code>ansible-lint ansible/ssh-lab/playbook.yml</code><span class="code-label">optional Ansible lint</span></pre>
+<pre><code>ansible-lint ansible/ssh-lab/docker-ssh-playbook.yml</code><span class="code-label">Docker SSH lint</span></pre>
 
 <p><strong>Common error it catches:</strong> Tasks that use command-style modules without clear change detection, or tasks that ignore idempotency.</p>
 

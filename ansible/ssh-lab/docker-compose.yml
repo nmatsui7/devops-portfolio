@@ -1,17 +1,22 @@
 ---
 services:
-  ssh-target:
-    image: lscr.io/linuxserver/openssh-server:latest
-    container_name: ansible-ssh-target
-    hostname: ansible-ssh-target
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Toronto
-      - PASSWORD_ACCESS=true
-      - USER_NAME=ansible
-      - USER_PASSWORD=ansible123
-      - SUDO_ACCESS=true
+  worker1:
+    build: .
+    container_name: ansible-worker1
     ports:
-      - "2222:2222"
-    restart: unless-stopped
+      - "2222:22"
+      - "8081:80"
+
+  worker2:
+    build: .
+    container_name: ansible-worker2
+    ports:
+      - "2223:22"
+      - "8082:80"
+
+  worker3:
+    build: .
+    container_name: ansible-worker3
+    ports:
+      - "2224:22"
+      - "8083:80"

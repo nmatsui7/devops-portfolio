@@ -300,6 +300,37 @@ The CD workflow also expects:
 - Namespaces and deployment already present in the target cluster.
 - `PRODUCTION_URL` set to a real domain before production use.
 
+## Ansible over SSH with Docker Linux Targets
+
+Volume 1 includes a local SSH lab in `ansible/ssh-lab/` where one Ansible
+playbook configures three Docker-based Ubuntu targets as nginx web servers. The
+lab shows how an inventory group lets you apply one repeatable change to
+`worker1`, `worker2`, and `worker3`.
+
+Run it with:
+
+```bash
+cd ansible/ssh-lab
+docker compose up -d --build
+docker compose ps
+ANSIBLE_HOST_KEY_CHECKING=False ansible -i inventory.ini workers -m ping
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini docker-ssh-playbook.yml
+```
+
+Verify it with:
+
+```bash
+docker compose ps
+
+for port in 8081 8082 8083; do
+  echo "Checking http://localhost:$port"
+  curl -s http://localhost:$port | grep "managed by Ansible"
+done
+```
+
+This lab is local only. Do not expose the SSH containers to the internet, and do
+not reuse the demo password anywhere real.
+
 ## Ansible Scope
 
 Ansible is limited to optional host-level operations for a bastion/admin node:
