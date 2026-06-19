@@ -1,6 +1,6 @@
 # Ansible Role
 
-Ansible has a deliberately narrow role in this portfolio:
+Ansible has a deliberately narrow role in this tutorial:
 
 ```text
 Terraform   -> provisions cloud infrastructure

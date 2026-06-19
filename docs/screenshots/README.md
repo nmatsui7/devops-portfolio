@@ -1,6 +1,6 @@
 # Screenshots And Run Evidence
 
-These captures show the portfolio demo running locally and the GitHub Actions pipeline passing. They are proof-of-work artifacts for reviewers; they are not evidence of a live AWS production deployment.
+These captures show the tutorial demo running locally and the GitHub Actions pipeline passing. They are proof-of-work artifacts for learners; they are not evidence of a live AWS production deployment.
 
 ## Captured Evidence
 

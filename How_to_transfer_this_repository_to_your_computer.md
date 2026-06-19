@@ -32,7 +32,7 @@ In plain English, you will:
 
 1. Open a terminal.
 2. Move to the Documents folder.
-3. Create a folder called `devops_portfolio`.
+3. Create a folder called `devops_tutorial`.
 4. Move into that folder.
 5. Copy or place the repository files there.
 6. Confirm the expected folders and files are visible.
@@ -106,21 +106,21 @@ If that command fails, try one of these:
 Run this command:
 
 ```sh
-mkdir devops_portfolio
+mkdir devops_tutorial
 ```
 
 `mkdir` means "make directory," which means "create a folder." This creates a
-folder named `devops_portfolio` inside your Documents folder.
+folder named `devops_tutorial` inside your Documents folder.
 
 ## Step 4: Move into the project folder
 
 Run this command:
 
 ```sh
-cd devops_portfolio
+cd devops_tutorial
 ```
 
-Your terminal is now inside the `devops_portfolio` folder. The files you copy or
+Your terminal is now inside the `devops_tutorial` folder. The files you copy or
 download next should go into this folder.
 
 ## Step 5: Put the repository files into this folder
@@ -139,7 +139,7 @@ To download the repository ZIP file from GitHub in your browser:
 6. Double-click the ZIP file to unzip it.
 7. Open the unzipped folder.
 8. Select all files and folders inside it.
-9. Copy them into the `devops_portfolio` folder you created.
+9. Copy them into the `devops_tutorial` folder you created.
 
 ![GitHub Code menu showing Download ZIP](docs/screenshots/github-code-download-zip.png)
 
@@ -154,16 +154,16 @@ then open the extracted folder.
 Do not accidentally create a nested folder like this:
 
 ```text
-Documents/devops_portfolio/devops-portfolio-main/app
+Documents/devops_tutorial/devops-tutorial-main/app
 ```
 
 The goal is for the main project folders to be directly inside
-`devops_portfolio`, like this:
+`devops_tutorial`, like this:
 
 ```text
-Documents/devops_portfolio/app
-Documents/devops_portfolio/docker
-Documents/devops_portfolio/docs
+Documents/devops_tutorial/app
+Documents/devops_tutorial/docker
+Documents/devops_tutorial/docs
 ```
 
 ### Option B: If you are using Git
@@ -220,7 +220,7 @@ docs/tutorial.html
 
 Exact folder names may vary depending on the repository version. The important
 thing is that folders like `app`, `docker`, and `docs` are directly inside
-`devops_portfolio`.
+`devops_tutorial`.
 
 ## Step 7: Optional: Install or check Git
 
@@ -286,7 +286,7 @@ If double-clicking does not work:
 
 1. Open your web browser.
 2. Press `Command + O` on macOS or `Ctrl + O` on Windows.
-3. Choose `Documents/devops_portfolio/docs/tutorial.html`.
+3. Choose `Documents/devops_tutorial/docs/tutorial.html`.
 
 The main tutorial includes the VS Code installation steps. After you install VS
 Code there, you can open the whole project folder in VS Code.
@@ -306,7 +306,7 @@ code .
 Use this checklist:
 
 - [ ] I can open Terminal or PowerShell.
-- [ ] I created the `devops_portfolio` folder.
+- [ ] I created the `devops_tutorial` folder.
 - [ ] I placed the repository files inside that folder.
 - [ ] I can see folders like `app`, `docker`, and `docs`.
 - [ ] Optional: I installed Git or confirmed `git --version` works.
@@ -318,7 +318,7 @@ Use this checklist:
 - Creating the project folder in the wrong location.
 - Copying the outer ZIP folder instead of the files inside it.
 - Ending up with a nested folder like
-  `Documents/devops_portfolio/devops-portfolio-main/app`.
+  `Documents/devops_tutorial/devops-tutorial-main/app`.
 - Running commands from the wrong folder.
 - Copying the terminal prompt symbol, such as `$`, `%`, or
   `PS C:\Users\...>`.
@@ -331,7 +331,7 @@ Your final setup should look like this:
 
 ```text
 Documents/
-  devops_portfolio/
+  devops_tutorial/
     app/
     docker/
     docs/
@@ -340,5 +340,5 @@ Documents/
     README.md
 ```
 
-When you open `devops_portfolio` in VS Code, you are ready to start the main
+When you open `devops_tutorial` in VS Code, you are ready to start the main
 tutorial.

@@ -2,7 +2,7 @@
 
 Last checked: 2026-06-07 21:24:31 EDT
 
-This file records local validation evidence for the portfolio scaffold. It is not a production certification; it is a concise proof trail that the committed local demo and infrastructure examples parse, build, and run in the tested environment.
+This file records local validation evidence for the tutorial scaffold. It is not a production certification; it is a concise proof trail that the committed local demo and infrastructure examples parse, build, and run in the tested environment.
 
 ## GitHub Remote
 

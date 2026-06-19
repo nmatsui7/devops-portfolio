@@ -237,7 +237,7 @@
   "refresh": "10s",
   "schemaVersion": 39,
   "tags": [
-    "portfolio",
+    "tutorial",
     "local-demo"
   ],
   "templating": {
@@ -249,7 +249,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Portfolio App Local Overview",
+  "title": "DevOps Tutorial",
   "uid": null,
   "version": 1,
   "weekStart": ""

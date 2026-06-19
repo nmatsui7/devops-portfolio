@@ -1,6 +1,6 @@
 # Architecture
 
-This portfolio demonstrates a small static Nginx application with a local runnable path and AWS infrastructure scaffolding. The cloud resources are intentionally documented as scaffold/demo pieces until they are applied in a real AWS account.
+This tutorial demonstrates a small static Nginx application with a local runnable path and AWS infrastructure scaffolding. The cloud resources are intentionally documented as scaffold/demo pieces until they are applied in a real AWS account.
 
 ```mermaid
 flowchart LR

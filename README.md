@@ -2,7 +2,7 @@
 
 This repository is an intensive beginner-to-junior DevOps web tutorial and hands-on lab for learning DevOps operations. It uses a small containerized static web app to practice Docker, Docker Compose, GitHub Actions, Kubernetes, Terraform validation, monitoring with Prometheus/Grafana, and optional Ansible host-operations checks.
 
-The repo is also structured as a DevOps portfolio project. It is intentionally split between working local demo assets and cloud infrastructure scaffolding so learners and recruiters can see both the runnable path and the infrastructure design direction without confusing this for a production system.
+The repo is structured as a DevOps tutorial. It is intentionally split between working local demo assets and cloud infrastructure scaffolding so learners can see both the runnable path and the infrastructure design direction without confusing this for a production system.
 
 Start with the full tutorial at [docs/tutorial.html](docs/tutorial.html), then use this README as the quick reference for commands, architecture, validation, and scope.
 
@@ -24,8 +24,8 @@ files in a folder on your computer, and open `docs/tutorial.html` in a browser.
 If you already know Git, you can use this shortcut:
 
 ```bash
-git clone https://github.com/nmatsui7/devops-portfolio.git
-cd devops-portfolio
+git clone https://github.com/nmatsui7/devops-tutorial.git
+cd devops-tutorial
 ```
 
 Then open `docs/tutorial.html` in your browser to begin the tutorial.

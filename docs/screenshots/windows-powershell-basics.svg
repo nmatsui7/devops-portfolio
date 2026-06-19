@@ -10,10 +10,10 @@
   <text x="62" y="165" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">Path</text>
   <text x="62" y="195" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">----</text>
   <text x="62" y="225" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">C:\Users\Learner</text>
-  <text x="62" y="275" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner&gt; <tspan fill="#ffffff">cd devops-portfolio</tspan></text>
-  <text x="62" y="325" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-portfolio&gt; <tspan fill="#ffffff">dir</tspan></text>
+  <text x="62" y="275" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner&gt; <tspan fill="#ffffff">cd devops-tutorial</tspan></text>
+  <text x="62" y="325" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-tutorial&gt; <tspan fill="#ffffff">dir</tspan></text>
   <text x="62" y="360" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">README.md  app  docker  docs  infrastructure</text>
-  <text x="62" y="410" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-portfolio&gt;</text>
+  <text x="62" y="410" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-tutorial&gt;</text>
   <rect x="511" y="389" width="13" height="25" fill="#ffffff">
     <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
   </rect>

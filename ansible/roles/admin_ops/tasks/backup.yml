@@ -7,7 +7,7 @@
     group: root
     mode: "0755"
 
-- name: Deploy portfolio backup helper
+- name: Deploy backup helper script
   ansible.builtin.copy:
     src: "{{ admin_ops_backup_script_source }}"
     dest: "{{ admin_ops_backup_script_path }}"

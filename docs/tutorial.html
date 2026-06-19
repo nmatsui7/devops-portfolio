@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevOps Portfolio — Step-by-Step Tutorial</title>
+  <title>DevOps Tutorial — Step-by-Step</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -358,9 +358,9 @@
 <!-- ==================== MAIN ==================== -->
 <div class="main">
 
-<h1>DevOps Portfolio &mdash; Step-by-Step Tutorial</h1>
+<h1>DevOps Tutorial &mdash; Step-by-Step</h1>
 <p class="subtitle">
-  A beginner-friendly walkthrough of the entire DevOps portfolio project.
+  A beginner-friendly walkthrough of the entire DevOps tutorial.
   No prior experience required &mdash; just follow each step in order.
 </p>
 
@@ -371,15 +371,14 @@
 <h2>1. Introduction</h2>
 
 <p>
-  This tutorial walks you through a complete <strong>DevOps portfolio project</strong>
+  This tutorial walks you through a complete <strong>DevOps tutorial</strong>
   from start to finish. You'll learn how modern software teams deploy and manage
   applications using tools like Docker, Kubernetes, Terraform, and more.
 </p>
 
 <p>
   Each section is written for <strong>absolute beginners</strong>. We explain every
-  command, every file, and every concept along the way. By the end, you'll have a
-  working portfolio project you can show to employers.
+  command, every file, and every concept along the way.
 </p>
 
 <h3 id="why-devops">Why DevOps Exists</h3>
@@ -443,7 +442,7 @@
 </table>
 
 <p>
-  This portfolio project follows that history in miniature, but you do not need
+  This tutorial project follows that history in miniature, but you do not need
   to understand every tool yet. You will start with a small web page, then learn
   how DevOps tools help package it, run it with other services, check it
   automatically, deploy it to a local cluster, describe infrastructure, automate
@@ -459,7 +458,7 @@
 </p>
 
 <p>
-  This is an intensive beginner-to-junior DevOps portfolio tutorial. It does not
+  This is an intensive beginner-to-junior DevOps tutorial. It does not
   require coding experience. Basic terminal use is introduced as part of the
   tutorial, and each command or configuration file is explained as an instruction
   to follow. The tutorial is designed to be completed slowly across multiple
@@ -605,13 +604,13 @@
 
 <pre><code>pwd
 ls
-cd devops-portfolio</code><span class="code-label">terminal practice</span></pre>
+cd devops-tutorial</code><span class="code-label">terminal practice</span></pre>
 
 <table>
   <tr><th>Command</th><th>What it means</th></tr>
   <tr><td><code>pwd</code></td><td>Print the current folder path.</td></tr>
   <tr><td><code>ls</code></td><td>List files and folders in the current folder. In PowerShell, <code>dir</code> also works.</td></tr>
-  <tr><td><code>cd devops-portfolio</code></td><td>Change into the project folder after cloning the repository.</td></tr>
+  <tr><td><code>cd devops-tutorial</code></td><td>Change into the project folder after cloning the repository.</td></tr>
 </table>
 
 <h4>macOS/Linux and PowerShell Equivalents</h4>
@@ -895,9 +894,9 @@ helm version</code><span class="code-label">check</span></pre>
 </ol>
 
 <figure class="tutorial-figure">
-  <img src="screenshots/vscode-project-explorer.png" alt="Visual Studio Code showing the devops-portfolio project folder in the Explorer sidebar">
+  <img src="screenshots/vscode-project-explorer.png" alt="Visual Studio Code showing the devops-tutorial project folder in the Explorer sidebar">
   <figcaption>
-    VS Code with the full <code>devops-portfolio</code> folder open. The Explorer
+    VS Code with the full <code>devops-tutorial</code> folder open. The Explorer
     sidebar on the left shows project folders such as <code>.github/</code>,
     <code>app/</code>, <code>docker/</code>, and <code>docs/</code>. The center
     editor shows the selected file, here <code>docker/docker-compose.yml</code>.
@@ -928,7 +927,7 @@ helm version</code><span class="code-label">check</span></pre>
 </ul>
 
 <h3>Step 3: Get the Project Files</h3>
-<p>Now get the portfolio project folder onto your computer.</p>
+<p>Now get the tutorial project folder onto your computer.</p>
 
 <div class="step-box">
   <span class="step-num">1</span>
@@ -939,8 +938,8 @@ helm version</code><span class="code-label">check</span></pre>
 <div class="step-box">
   <span class="step-num">2</span>
   <p>If you have the project as a folder already, skip this step. Otherwise, create it:</p>
-  <pre><code>mkdir devops-portfolio
-cd devops-portfolio</code></pre>
+  <pre><code>mkdir devops-tutorial
+cd devops-tutorial</code></pre>
 </div>
 
 <div class="step-box">
@@ -1042,7 +1041,7 @@ cd devops-portfolio</code></pre>
 <h3>4.2 What's in the App Folder?</h3>
 
 <p>
-  Every DevOps project deploys <em>something</em>. In this portfolio, we have a
+  Every DevOps project deploys <em>something</em>. In this tutorial, we have a
   simple web application. Start by looking at what's inside <code>app/</code>:
 </p>
 
@@ -1064,7 +1063,7 @@ cd devops-portfolio</code></pre>
 <p>
   The app is intentionally simple &mdash; it's a static HTML page with a small
   browser script that checks the Nginx <code>/metrics</code> endpoint. The real
-  point of this portfolio is the <em>infrastructure around it</em>, not the app itself.
+  point of this tutorial is the <em>infrastructure around it</em>, not the app itself.
 </p>
 
 <h4>What Does the App Do?</h4>
@@ -1102,7 +1101,7 @@ python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 
 <p>
   Open your browser to <strong>http://localhost:8000</strong> (or whatever port the
-  command says). You should see the portfolio dashboard page!
+  command says). You should see the tutorial dashboard page!
 </p>
 
 <div class="warning">
@@ -1332,7 +1331,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 <p>Now let's build an image from our Dockerfile:</p>
 
 <pre><code># Make sure you're in the project root folder
-cd devops-portfolio
+cd devops-tutorial
 
 # Build the image
 docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="code-label">terminal</span></pre>
@@ -1756,7 +1755,7 @@ networks:
 <h4>What's Running Where?</h4>
 <table>
   <tr><th>Service</th><th>URL</th><th>Credentials</th></tr>
-  <tr><td>Portfolio App</td><td><a href="http://localhost:8080" style="color:var(--accent)">http://localhost:8080</a></td><td>none</td></tr>
+  <tr><td>Tutorial App</td><td><a href="http://localhost:8080" style="color:var(--accent)">http://localhost:8080</a></td><td>none</td></tr>
   <tr><td>Prometheus</td><td><a href="http://localhost:9090" style="color:var(--accent)">http://localhost:9090</a></td><td>none</td></tr>
   <tr><td>Grafana</td><td><a href="http://localhost:3000" style="color:var(--accent)">http://localhost:3000</a></td><td>admin / admin</td></tr>
   <tr><td>PostgreSQL</td><td>localhost:5432</td><td>portfolio / devpassword</td></tr>
@@ -2245,7 +2244,7 @@ on:
   <strong>&#x1F4A1; Static app CI:</strong> Because this app is static HTML served
   by Nginx, CI does not install application dependencies or run Node.js
   application tests. Instead, it focuses on validating the files that make up the
-  DevOps portfolio: HTML, YAML, shell scripts, Ansible, Docker, Terraform, and
+  DevOps tutorial: HTML, YAML, shell scripts, Ansible, Docker, Terraform, and
   Kubernetes.
 </div>
 
@@ -2282,7 +2281,7 @@ git add .
 git commit -m "Initial commit"
 
 # Connect to GitHub (replace YOUR_USER with your GitHub username)
-git remote add origin https://github.com/YOUR_USER/devops-portfolio.git
+git remote add origin https://github.com/YOUR_USER/devops-tutorial.git
 git branch -M main
 git push -u origin main</code><span class="code-label">first CI push</span></pre>
 
@@ -2450,9 +2449,8 @@ on:
 
 <div class="tip">
   <strong>&#x1F4A1; For this tutorial:</strong> You don't actually need AWS to learn
-  from the pipeline files. The important part is understanding <em>how</em> they work.
-  The pipeline files are "portfolio-ready" &mdash; you can show them in interviews
-  to demonstrate you understand CI/CD concepts.
+  from the pipeline files. The important part is understanding <em>how</em> they work
+  so you can apply the same patterns in real projects.
 </div>
 </section>
 
@@ -3867,7 +3865,7 @@ curl http://localhost:8080/metrics</code><span class="code-label">local metrics<
 </ol>
 
 <figure class="tutorial-figure">
-  <img src="screenshots/prometheus-targets-up.png" alt="Prometheus Targets page showing the portfolio app target in the UP state">
+  <img src="screenshots/prometheus-targets-up.png" alt="Prometheus Targets page showing the tutorial app target in the UP state">
   <figcaption>
     In Prometheus, <strong>UP</strong> means the scrape target responded
     successfully. Here, Prometheus is scraping
@@ -3892,7 +3890,7 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 <table>
   <tr><th>Query</th><th>What the result means</th></tr>
   <tr><td><code>up</code></td><td>Shows whether Prometheus can scrape each configured target; <code>1</code> means up, <code>0</code> means down</td></tr>
-  <tr><td><code>up{job="portfolio-app-local"}</code></td><td>Filters the scrape health result to only the portfolio app target</td></tr>
+  <tr><td><code>up{job="portfolio-app-local"}</code></td><td>Filters the scrape health result to only the tutorial app target</td></tr>
   <tr><td><code>portfolio_app_ready</code></td><td>Shows whether the demo app reports that it is ready</td></tr>
   <tr><td><code>portfolio_app_info</code></td><td>Shows a simple info metric proving the demo app metrics endpoint is being scraped</td></tr>
 </table>
@@ -3906,12 +3904,12 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 <table>
   <tr><th>Alert Name</th><th>Condition</th><th>Severity</th></tr>
   <tr>
-    <td>PortfolioAppDown</td>
+    <td>TutorialAppDown</td>
     <td>Prometheus cannot scrape the local app target for 1 minute</td>
     <td>critical</td>
   </tr>
   <tr>
-    <td>PortfolioAppNotReady</td>
+    <td>TutorialAppNotReady</td>
     <td>The app readiness metric is not reporting <code>portfolio_app_ready = 1</code> for 2 minutes</td>
     <td>warning</td>
   </tr>
@@ -3919,14 +3917,14 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 
 <p>Let's examine one alert rule in detail:</p>
 
-<pre><code>      - alert: PortfolioAppDown
+<pre><code>      - alert: TutorialAppDown
         expr: up{job="portfolio-app-local"} == 0
         for: 1m
         labels:
           severity: critical
         annotations:
-          summary: "Portfolio app target is down"
-          description: "Prometheus cannot scrape the local portfolio app target."</code></pre>
+          summary: "Tutorial app target is down"
+          description: "Prometheus cannot scrape the local tutorial app target."</code></pre>
 
 <table>
   <tr><td><code>expr</code></td><td>The PromQL (Prometheus Query Language) expression. Here, <code>up == 0</code> means Prometheus cannot successfully scrape the app target</td></tr>
@@ -3986,11 +3984,11 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
   <li>Click inside that dashed upload box, or drag the file into it, and select <code>monitoring/grafana-dashboard.json</code> from this project.</li>
   <li>Do not type anything into the <strong>Grafana.com dashboard URL or ID</strong> field. That field is only for dashboards hosted on Grafana.com, not for this project's local JSON file.</li>
   <li>Do not use the <strong>Import via dashboard JSON model</strong> text box unless you are manually pasting the full JSON contents.</li>
-  <li>After selecting the JSON file, Grafana opens an <strong>Options</strong> screen. If the <strong>Name</strong> field is empty, type <code>Portfolio App Local Overview</code>.</li>
+  <li>After selecting the JSON file, Grafana opens an <strong>Options</strong> screen. If the <strong>Name</strong> field is empty, type <code>DevOps Tutorial</code>.</li>
   <li>Leave <strong>Folder</strong> set to <strong>Dashboards</strong>. You can leave the <strong>Unique identifier (UID)</strong> field as-is; it is optional for this local lab.</li>
   <li>If Grafana asks for a Prometheus data source on this screen, click the <strong>Select a data source</strong> field under <strong>Prometheus</strong>. Do not type the placeholder text. Choose the option named <strong>prometheus</strong>.</li>
   <li>Click <strong>Import</strong>. If the button says <strong>Import (Overwrite)</strong>, that is also okay for this lab; it means Grafana thinks a dashboard with the same identity may already exist.</li>
-  <li>Confirm the dashboard page opens with the title <strong>Portfolio App Local Overview</strong> and three panels: <strong>Scrape Health</strong>, <strong>Readiness</strong>, and <strong>App Info</strong>. The panels should show values such as <code>1</code>, not errors or <code>No data</code>.</li>
+  <li>Confirm the dashboard page opens with the title <strong>DevOps Tutorial</strong> and three panels: <strong>Scrape Health</strong>, <strong>Readiness</strong>, and <strong>App Info</strong>. The panels should show values such as <code>1</code>, not errors or <code>No data</code>.</li>
 </ol>
 
 <div class="warning">
@@ -4003,7 +4001,7 @@ portfolio_app_info</code><span class="code-label">Prometheus queries</span></pre
 
 <div class="warning">
   <strong>Options screen troubleshooting:</strong> If Grafana says
-  <code>Name is required</code>, type <code>Portfolio App Local Overview</code>
+  <code>Name is required</code>, type <code>DevOps Tutorial</code>
   into the <strong>Name</strong> field before clicking <strong>Import</strong>.
 </div>
 
@@ -4075,7 +4073,7 @@ docker compose -f docker/docker-compose.yml up -d</code><span class="code-label"
     <li><strong>Logs</strong> &mdash; detailed records of events (like "User 123 logged in at 3:04pm")</li>
     <li><strong>Traces</strong> &mdash; following a request through multiple services (helps find bottlenecks)</li>
   </ul>
-  This portfolio covers metrics. For a complete system, you'd add a logging tool
+  This tutorial covers metrics. For a complete system, you'd add a logging tool
   (like ELK stack or Loki) and a tracing tool (like Jaeger or Tempo).
 </div>
 </section>
@@ -4142,7 +4140,7 @@ docker compose -f docker/docker-compose.yml up -d</code><span class="code-label"
     The Validation chapter uses those same commands differently. Here they become
     a repeatable operator checklist. Instead of learning one tool at a time, you
     are now checking the whole project before committing, pushing, deploying, or
-    recording portfolio evidence.
+    recording tutorial evidence.
   </p>
 </div>
 
@@ -4524,7 +4522,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <li><strong>Fork and push to GitHub</strong> &mdash; Put the project on your GitHub and watch the CI pipeline run.</li>
 </ol>
 
-<h3>Making the Portfolio Your Own</h3>
+<h3>Making the Tutorial Your Own</h3>
 <ol>
   <li><strong>Replace the sample app</strong> &mdash; Later, if you learn application development, swap in your own app such as a Python API or Go service</li>
   <li><strong>Add a real CI/CD demo</strong> &mdash; Use GitHub Actions (free for public repos) to build and push a Docker image</li>
@@ -4545,14 +4543,14 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
 </table>
 
 <div class="tip">
-  <strong>&#x1F4A1; Portfolio Tip for Interviews:</strong> When asked about this
-  project in an interview, focus on <strong>why</strong> you made each choice:
+  <strong>&#x1F4A1; Thinking Like a DevOps Engineer:</strong> The most important
+  skill is understanding <strong>why</strong> each tool or pattern is used:
   <ul>
     <li>"I used Terraform because we wanted infrastructure changes version-controlled and reviewable"</li>
     <li>"I used Kubernetes rolling deployments with rollback checks to reduce release risk"</li>
     <li>"I set up Prometheus alerts to catch issues before users notice them"</li>
   </ul>
-  Employers love candidates who understand the reasoning, not just the commands.
+  Understanding the reasoning behind each choice matters more than memorizing commands.
 </div>
 
 <p style="margin-top: 48px; text-align: center; color: var(--text2); font-size: 0.85rem;">

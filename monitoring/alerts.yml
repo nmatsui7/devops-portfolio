@@ -7,14 +7,14 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Portfolio app target is down"
-          description: "Prometheus cannot scrape the local portfolio app target."
+          summary: "Tutorial app target is down"
+          description: "Prometheus cannot scrape the local tutorial app target."
 
-      - alert: PortfolioAppNotReady
+      - alert: TutorialAppNotReady
         expr: portfolio_app_ready != 1
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "Portfolio app readiness metric is not healthy"
+          summary: "Tutorial app readiness metric is not healthy"
           description: "The local demo app is not reporting portfolio_app_ready = 1."
