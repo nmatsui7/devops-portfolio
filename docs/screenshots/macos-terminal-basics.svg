@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
+  <title id="title">Example macOS Terminal window</title>
+  <desc id="desc">A terminal window showing basic commands such as pwd, cd, and ls.</desc>
+  <rect width="960" height="520" fill="#0f172a"/>
+  <rect x="34" y="34" width="892" height="452" rx="18" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <rect x="34" y="34" width="892" height="54" rx="18" fill="#1f2937"/>
+  <rect x="34" y="68" width="892" height="20" fill="#1f2937"/>
+  <circle cx="66" cy="61" r="8" fill="#ff5f57"/>
+  <circle cx="94" cy="61" r="8" fill="#ffbd2e"/>
+  <circle cx="122" cy="61" r="8" fill="#28c840"/>
+  <text x="480" y="67" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="17" fill="#cbd5e1">Terminal - zsh</text>
+  <text x="62" y="125" font-family="Menlo, Consolas, monospace" font-size="22" fill="#94a3b8">Last login: Thu Jun 18 on ttys000</text>
+  <text x="62" y="170" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac ~ % <tspan fill="#e5e7eb">pwd</tspan></text>
+  <text x="62" y="205" font-family="Menlo, Consolas, monospace" font-size="22" fill="#e5e7eb">/Users/learner</text>
+  <text x="62" y="250" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac ~ % <tspan fill="#e5e7eb">cd devops-portfolio</tspan></text>
+  <text x="62" y="295" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac devops-portfolio % <tspan fill="#e5e7eb">ls</tspan></text>
+  <text x="62" y="330" font-family="Menlo, Consolas, monospace" font-size="22" fill="#e5e7eb">README.md  app  docker  docs  infrastructure</text>
+  <text x="62" y="375" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac devops-portfolio % <tspan fill="#e5e7eb">git --version</tspan></text>
+  <text x="62" y="410" font-family="Menlo, Consolas, monospace" font-size="22" fill="#e5e7eb">git version 2.45.0</text>
+  <rect x="62" y="437" width="13" height="26" fill="#e5e7eb">
+    <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+</svg>

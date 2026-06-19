@@ -285,8 +285,10 @@
     <a href="#how-to-study">How to Study</a>
     <a href="#who">Who Is This For?</a>
     <a href="#setup">Environment Setup</a>
+    <a href="#terminal-basics">Terminal Basics</a>
 
     <a href="#app" class="section-label">The Application</a>
+    <a href="#app-basics">Basic Web Concepts</a>
     <a href="#app-overview">Sample App Overview</a>
     <a href="#app-run">Running the App</a>
 
@@ -441,17 +443,26 @@
 </table>
 
 <p>
-  This portfolio project follows that history in miniature. Docker packages the
-  app, Compose runs a local environment, Kubernetes schedules containers,
-  Terraform describes infrastructure, Ansible automates host configuration,
-  GitHub Actions automates checks, and Prometheus/Grafana show whether the system
-  is healthy.
+  This portfolio project follows that history in miniature, but you do not need
+  to understand every tool yet. You will start with a small web page, then learn
+  how DevOps tools help package it, run it with other services, check it
+  automatically, deploy it to a local cluster, describe infrastructure, automate
+  server setup, and observe whether the system is healthy.
 </p>
 
 <p>
-  This is an intensive beginner-to-junior DevOps portfolio tutorial. It assumes
-  basic programming and terminal comfort, but it does not assume prior DevOps
-  experience. The tutorial is designed to be completed slowly across multiple
+  The tool names may look unfamiliar at first: Docker, Docker Compose,
+  Kubernetes, Terraform, Ansible, GitHub Actions, Prometheus, and Grafana. That
+  is normal. The tutorial introduces them one at a time, explains what problem
+  each tool solves, and gives you commands to follow before asking you to connect
+  the whole picture.
+</p>
+
+<p>
+  This is an intensive beginner-to-junior DevOps portfolio tutorial. It does not
+  require coding experience. Basic terminal use is introduced as part of the
+  tutorial, and each command or configuration file is explained as an instruction
+  to follow. The tutorial is designed to be completed slowly across multiple
   sessions, not in one sitting.
 </p>
 
@@ -515,16 +526,16 @@
 <p>This tutorial is for you if:</p>
 <ul>
   <li>You're new to DevOps and want a hands-on project for your resume</li>
-  <li>You know how to code but have never deployed anything</li>
+  <li>You want to learn how software is packaged, deployed, and monitored, even if you have never coded before</li>
   <li>You've heard terms like "Docker" and "Kubernetes" but don't know what they do</li>
-  <li>You want to understand the <em>whole picture</em> of how software gets from code to production</li>
+  <li>You want to understand the <em>whole picture</em> of how project files become a running system</li>
 </ul>
 
 <h3>What You Should Know</h3>
 <p>
-  You should be comfortable with basic terminal commands (navigating folders,
-  running programs) and have at least a little experience with a programming
-  language (any language). That's it. Everything else is explained here.
+  You do not need prior coding experience. You should be willing to follow
+  commands carefully, learn a few technical concepts as you go, and practice
+  basic terminal use inside this tutorial. Everything else is explained here.
 </p>
 </section>
 
@@ -539,25 +550,141 @@
   Don't skip this section &mdash; every tool here will be used later.
 </p>
 
+<h3 id="terminal-basics">Terminal Basics: macOS and Windows</h3>
+<p>
+  A terminal is the text-based place where you run commands. In this tutorial,
+  commands such as <code>docker compose up</code>, <code>terraform validate</code>,
+  and <code>kubectl get pods</code> are typed into a terminal, then the terminal
+  prints the result.
+</p>
+
+<div class="figure-grid">
+  <figure class="tutorial-figure">
+    <img src="screenshots/macos-terminal-basics.svg" alt="Example macOS Terminal window showing pwd, cd, and ls commands">
+    <figcaption>
+      Example macOS Terminal window. The prompt may end with <code>%</code> or
+      <code>$</code>. Type the command after the prompt.
+    </figcaption>
+  </figure>
+  <figure class="tutorial-figure">
+    <img src="screenshots/windows-powershell-basics.svg" alt="Example Windows PowerShell window showing pwd, cd, dir, and git version commands">
+    <figcaption>
+      Example Windows PowerShell window. The prompt often begins with
+      <code>PS</code> and shows the current folder.
+    </figcaption>
+  </figure>
+</div>
+
+<h4>Opening a Terminal</h4>
+<table>
+  <tr><th>Operating system</th><th>Beginner path</th></tr>
+  <tr>
+    <td>macOS</td>
+    <td>
+      Press <code>Command</code> + <code>Space</code>, type
+      <code>Terminal</code>, then press <code>Enter</code>. You can also open
+      Finder, then go to Applications &rarr; Utilities &rarr; Terminal.
+    </td>
+  </tr>
+  <tr>
+    <td>Windows</td>
+    <td>
+      Open the Start menu, type <code>PowerShell</code>, then press
+      <code>Enter</code>. Use PowerShell for the core Docker, Git, Kubernetes,
+      and Terraform commands. If you later use WSL2 for Ansible tools, open the
+      Ubuntu or WSL terminal for those commands.
+    </td>
+  </tr>
+</table>
+
+<h4>First Commands to Practice</h4>
+<p>
+  These commands help you see where you are, list files, move into a folder, and
+  confirm that Git is installed.
+</p>
+
+<pre><code>pwd
+ls
+cd devops-portfolio
+git --version</code><span class="code-label">terminal practice</span></pre>
+
+<table>
+  <tr><th>Command</th><th>What it means</th></tr>
+  <tr><td><code>pwd</code></td><td>Print the current folder path.</td></tr>
+  <tr><td><code>ls</code></td><td>List files and folders in the current folder. In PowerShell, <code>dir</code> also works.</td></tr>
+  <tr><td><code>cd devops-portfolio</code></td><td>Change into the project folder after cloning the repository.</td></tr>
+  <tr><td><code>git --version</code></td><td>Check whether Git is installed and reachable from your terminal.</td></tr>
+</table>
+
+<h4>macOS/Linux and PowerShell Equivalents</h4>
+<p>
+  Many commands in this tutorial work the same on macOS Terminal, Linux shells,
+  and Windows PowerShell. Some everyday navigation commands have Windows-friendly
+  alternatives:
+</p>
+
+<table>
+  <tr><th>Task</th><th>macOS/Linux</th><th>Windows PowerShell</th></tr>
+  <tr><td>Show current folder</td><td><code>pwd</code></td><td><code>pwd</code></td></tr>
+  <tr><td>List files</td><td><code>ls</code></td><td><code>dir</code> or <code>ls</code></td></tr>
+  <tr><td>Change folder</td><td><code>cd docs</code></td><td><code>cd docs</code></td></tr>
+  <tr><td>Go up one folder</td><td><code>cd ..</code></td><td><code>cd ..</code></td></tr>
+  <tr><td>Clear the screen</td><td><code>clear</code></td><td><code>cls</code> or <code>clear</code></td></tr>
+  <tr><td>Print a text file</td><td><code>cat README.md</code></td><td><code>type README.md</code> or <code>Get-Content README.md</code></td></tr>
+  <tr><td>Create a folder</td><td><code>mkdir notes</code></td><td><code>mkdir notes</code></td></tr>
+  <tr><td>Remove a file</td><td><code>rm old.txt</code></td><td><code>del old.txt</code> or <code>Remove-Item old.txt</code></td></tr>
+</table>
+
+<div class="info-box">
+  <strong>DevOps tool commands are usually the same:</strong> Commands such as
+  <code>git status</code>, <code>docker compose up</code>,
+  <code>terraform validate</code>, and <code>kubectl get pods</code> are tool
+  commands. They usually look the same in macOS Terminal and Windows PowerShell.
+</div>
+
+<div class="info-box">
+  <strong>Do not copy the prompt:</strong> Some examples on the internet show
+  prompts such as <code>$</code>, <code>%</code>, or <code>PS C:\Users\Learner&gt;</code>
+  before each command. Those prompt symbols show where the command begins. Copy
+  only the command itself.
+</div>
+
+<div class="warning">
+  <strong>If a command is not found:</strong> Close and reopen your terminal
+  after installing tools. If the command still fails, the tool may not be
+  installed or may not be available on your <code>PATH</code>, which is the list
+  of folders your terminal searches for commands.
+</div>
+
 <h3>Prerequisites for the Full Local Lab</h3>
 <p>
-  The full hands-on path uses Docker Compose first, then a local Kubernetes
-  cluster with Minikube. AWS/EKS is optional infrastructure scaffolding later in
-  the project; you do not need AWS to run the local tutorial.
+  The default hands-on path runs on your own computer. First, you will run the
+  app and its helper services together. Later, you will run the same app in a
+  small local cluster, which is a practice version of how teams run applications
+  across multiple machines. You do not need a cloud account for this path.
+</p>
+
+<p>
+  The tool names are introduced gradually. Docker Compose helps run several
+  containers together on your computer. Minikube creates a small local Kubernetes
+  cluster for practice. AWS and EKS are cloud deployment topics for later, not
+  requirements for the beginner local lab.
 </p>
 
 <div class="info-box">
   <strong>&#x1F4DD; No AWS required:</strong> The default local lab does not
-  require an AWS account. AWS, EKS, S3, ECR, and remote Terraform state appear
-  later as optional advanced sections. If Terraform asks for an S3 bucket, you
-  are in the AWS Terraform folder, not the local Terraform lab. Stop with
-  <code>Control-C</code> and switch to <code>infrastructure/terraform-local</code>.
+  require an AWS account. AWS is Amazon's cloud platform. EKS is Amazon's
+  Kubernetes service. S3 is Amazon's storage service, and ECR is Amazon's
+  container image registry. These appear later as optional advanced sections. If
+  Terraform asks for an S3 bucket, you are in the AWS Terraform folder, not the
+  local Terraform lab. Stop with <code>Control-C</code> and switch to
+  <code>infrastructure/terraform-local</code>.
 </div>
 
 <h4>Required Tools</h4>
 <table>
   <tr><th>Tool</th><th>Why We Need It</th></tr>
-  <tr><td>Git</td><td>Version control &mdash; tracks changes to code</td></tr>
+  <tr><td>Git</td><td>Version control &mdash; tracks changes to project files, including code, documents, configuration, and scripts</td></tr>
   <tr><td>Docker Desktop</td><td>Runs containers on your laptop</td></tr>
   <tr><td>Docker Compose</td><td>Starts the app, Postgres, Prometheus, and Grafana together</td></tr>
   <tr><td>kubectl</td><td>Talks to Kubernetes clusters</td></tr>
@@ -578,10 +705,27 @@
   <li><strong>yamllint</strong> &mdash; checks YAML formatting</li>
   <li><strong>actionlint</strong> &mdash; checks GitHub Actions workflows</li>
   <li><strong>shellcheck</strong> &mdash; checks shell scripts</li>
-  <li><strong>ansible</strong> and <strong>ansible-lint</strong> &mdash; validate the optional host operations code</li>
+  <li><strong>ansible</strong> and <strong>ansible-lint</strong> &mdash; validate the optional host operations automation files</li>
   <li><strong>helm</strong> &mdash; common Kubernetes package manager used in real projects</li>
-  <li><strong>Visual Studio Code</strong> &mdash; code editor, though any editor works</li>
+  <li><strong>Visual Studio Code</strong> &mdash; project file editor, though any editor works</li>
 </ul>
+
+<div class="info-box">
+  <strong>What is a package manager?</strong> A package manager is a tool that
+  installs, updates, and removes software from the terminal. Instead of visiting
+  many websites and downloading installers one by one, you can run one command
+  such as <code>brew install terraform</code> on macOS or
+  <code>winget install --id Hashicorp.Terraform -e</code> on Windows. Package
+  managers are common in DevOps because they make tool setup repeatable.
+</div>
+
+<div class="info-box">
+  <strong>What are lint tools?</strong> Lint tools inspect files before you run
+  them. They look for formatting mistakes, syntax errors, unsafe patterns, and
+  common misconfigurations. Think of linting as an early warning system: it helps
+  catch problems in YAML, shell scripts, GitHub Actions workflows, and Ansible
+  playbooks before those files break a build, deployment, or local lab.
+</div>
 
 <h4>Example: macOS Installation with Homebrew</h4>
 <p>
@@ -719,7 +863,7 @@ helm version</code><span class="code-label">check</span></pre>
 -> view Prometheus/Grafana</code><span class="code-label">order</span></pre>
 
 <h3>Step 1: Install Git</h3>
-<p>Git is the industry standard for version control. It lets you save snapshots of your code, collaborate with others, and deploy from specific versions.</p>
+<p>Git is the industry standard for version control. It lets you save snapshots of project files, including code, documents, configuration, and scripts. Teams use Git to collaborate, review changes, and return to earlier versions when needed.</p>
 
 <div class="step-box">
   <span class="step-num">Windows</span>
@@ -744,7 +888,7 @@ helm version</code><span class="code-label">check</span></pre>
 <p>You should see something like <code>git version 2.40.0</code>.</p>
 
 <h3>Step 2: Install Visual Studio Code</h3>
-<p>VS Code is a free code editor. We'll use it to edit project files.</p>
+<p>VS Code is a free project editor. Use it to open folders, read files, and edit project configuration.</p>
 
 <ol>
   <li>Go to <a href="https://code.visualstudio.com" style="color:var(--accent)">code.visualstudio.com</a></li>
@@ -752,16 +896,41 @@ helm version</code><span class="code-label">check</span></pre>
   <li>Run the installer</li>
 </ol>
 
+<figure class="tutorial-figure">
+  <img src="screenshots/vscode-project-explorer.png" alt="Visual Studio Code showing the devops-portfolio project folder in the Explorer sidebar">
+  <figcaption>
+    VS Code with the full <code>devops-portfolio</code> folder open. The Explorer
+    sidebar on the left shows project folders such as <code>.github/</code>,
+    <code>app/</code>, <code>docker/</code>, and <code>docs/</code>. The center
+    editor shows the selected file, here <code>docker/docker-compose.yml</code>.
+  </figcaption>
+</figure>
+
+<p>
+  VS Code is helpful because it lets you see the whole project structure in one
+  place. In this tutorial, you will often open a file in VS Code to read it, then
+  run related commands in your terminal.
+</p>
+
+<table>
+  <tr><th>VS Code area</th><th>What it means</th></tr>
+  <tr><td>Explorer sidebar</td><td>The file and folder tree for the project. Use this to find files like <code>docker-compose.yml</code>, <code>ci.yml</code>, and <code>tutorial.html</code>.</td></tr>
+  <tr><td>Dot folders</td><td>Folders such as <code>.github/</code> may be hidden in Finder or File Explorer, but VS Code shows them when the full project folder is open.</td></tr>
+  <tr><td>Editor tabs</td><td>Open files appear as tabs across the top. Click a tab to switch between files.</td></tr>
+  <tr><td>Main editor</td><td>The center area where you read and edit the selected file.</td></tr>
+  <tr><td>Line numbers</td><td>The numbers on the left side of the editor help you locate specific lines in a file.</td></tr>
+</table>
+
 <h4>Recommended VS Code Extensions</h4>
 <p>Once VS Code is open, click the Extensions icon on the left sidebar (or press <code>Ctrl+Shift+X</code>) and install these:</p>
 <ul>
   <li><strong>Docker</strong> &mdash; shows Docker containers inside VS Code</li>
   <li><strong>YAML</strong> &mdash; helps with Kubernetes and GitHub Actions files</li>
-  <li><strong>Prettier</strong> &mdash; auto-formats code</li>
+  <li><strong>Prettier</strong> &mdash; auto-formats supported project files</li>
 </ul>
 
-<h3>Step 3: Get the Project Code</h3>
-<p>Now let's get the portfolio project onto your computer.</p>
+<h3>Step 3: Get the Project Files</h3>
+<p>Now get the portfolio project folder onto your computer.</p>
 
 <div class="step-box">
   <span class="step-num">1</span>
@@ -793,8 +962,8 @@ cd devops-portfolio</code></pre>
 
 <div class="warning">
   <strong>&#x26A0;&#xFE0F; Important:</strong> Throughout this tutorial, whenever you see a
-  code block, you should <strong>type the commands yourself</strong> rather than
-  copy-pasting. It helps you learn and remember.
+  command block, type the commands yourself when possible rather than
+  copy-pasting. This helps you notice paths, flags, and command names.
 </div>
 </section>
 
@@ -804,12 +973,79 @@ cd devops-portfolio</code></pre>
 <section id="app">
 <h2>4. The Sample Application</h2>
 
+<section id="app-basics">
+<h3>4.1 Basic Web Concepts Before We Start</h3>
+
+<p>
+  Before looking at Docker, Kubernetes, and monitoring, it helps to know a few
+  basic web terms. You do not need to memorize these. Treat them as a small map
+  for the words that appear throughout the tutorial.
+</p>
+
+<table>
+  <tr><th>Term</th><th>Beginner explanation</th><th>Example in this project</th></tr>
+  <tr>
+    <td><strong>Server</strong></td>
+    <td>A computer or program that waits for requests and sends responses.</td>
+    <td>The Nginx program waits for browser requests.</td>
+  </tr>
+  <tr>
+    <td><strong>Web server</strong></td>
+    <td>A server that sends web pages or web responses over HTTP.</td>
+    <td>Nginx serves <code>app/index.html</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Database</strong></td>
+    <td>A place to store structured information, usually in tables.</td>
+    <td>The local lab includes PostgreSQL for database practice.</td>
+  </tr>
+  <tr>
+    <td><strong>Database server</strong></td>
+    <td>A program that accepts database requests, stores data, and returns results.</td>
+    <td>PostgreSQL runs as a container in Docker Compose.</td>
+  </tr>
+  <tr>
+    <td><strong>HTTP request</strong></td>
+    <td>A message from a browser or tool asking a server for something.</td>
+    <td>Your browser requests <code>http://localhost:8080</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>localhost</strong></td>
+    <td>A name that means "this computer."</td>
+    <td><code>http://localhost:8080</code> opens the app running on your machine.</td>
+  </tr>
+  <tr>
+    <td><strong>Port</strong></td>
+    <td>A numbered doorway into a program on a computer.</td>
+    <td>The app uses <code>8080</code>, Grafana uses <code>3000</code>, and PostgreSQL uses <code>5432</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Endpoint</strong></td>
+    <td>A specific URL path that a server responds to.</td>
+    <td><code>/health</code>, <code>/ready</code>, and <code>/metrics</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Static web page</strong></td>
+    <td>A web page served as files, without needing backend application logic.</td>
+    <td>This project's demo app is mostly <code>index.html</code> served by Nginx.</td>
+  </tr>
+</table>
+
+<div class="info-box">
+  <strong>How these pieces fit together:</strong> In this project, your browser
+  sends an HTTP request to <code>localhost:8080</code>. Docker forwards that
+  request to the Nginx web server inside a container. Nginx serves the static web
+  page and also responds to endpoints such as <code>/health</code> and
+  <code>/metrics</code>.
+</div>
+</section>
+
 <section id="app-overview">
-<h3>4.1 What's in the App Folder?</h3>
+<h3>4.2 What's in the App Folder?</h3>
 
 <p>
   Every DevOps project deploys <em>something</em>. In this portfolio, we have a
-  simple web application. Let's look at what's inside <code>app/</code>:
+  simple web application. Start by looking at what's inside <code>app/</code>:
 </p>
 
 <table>
@@ -854,11 +1090,11 @@ cd devops-portfolio</code></pre>
 </section>
 
 <section id="app-run">
-<h3>4.2 Running the App (Without Docker)</h3>
+<h3>4.3 Running the App (Without Docker)</h3>
 
-<p>Let's run the app directly on your computer first, so you understand the baseline.</p>
+<p>Run the app directly on your computer first, so you understand the baseline.</p>
 
-<p>Since <code>index.html</code> is a static file, we can serve it with any HTTP server. For simplicity, let's use Python's built-in server:</p>
+<p>Since <code>index.html</code> is a static file, it can be served with a basic HTTP server. For this first check, use Python's built-in server:</p>
 
 <pre><code># Open a terminal in the project folder
 cd app
@@ -902,7 +1138,8 @@ python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 <p>
   <strong>Docker</strong> is like those boxes, but for software. A Docker
   <strong>container</strong> packages your application with everything it needs
-  (code, dependencies, settings) so it runs identically on any computer.
+  (files, dependencies, and settings) so it runs the same way on different
+  computers.
 </p>
 
 <h4>Key Terms</h4>
@@ -924,10 +1161,10 @@ python3 -m http.server 8000</code><span class="code-label">terminal</span></pre>
 
 <div class="info-box">
   <strong>&#x1F4DD; The "It works on my machine!" Problem:</strong>
-  Before Docker, developers would write code, test it, and it would work on their
-  computer. But when they sent it to the server, something would break &mdash; different
-  operating system, missing library, wrong version. Docker solves this by packaging
-  <em>everything</em> together.
+  Before Docker, an application might work on one computer but break on a server
+  because the server had a different operating system, missing library, or wrong
+  version. Docker solves this by packaging the application and its runtime
+  environment together.
 </div>
 </section>
 
@@ -971,6 +1208,43 @@ docker run hello-world</code><span class="code-label">terminal</span></pre>
   <code>docker images</code>.
 </p>
 
+<figure class="tutorial-figure">
+  <img src="screenshots/docker-desktop-images-local-real.png" alt="Docker Desktop Images view showing local container images">
+  <figcaption>
+    Docker Desktop Images view. The left sidebar lets you switch between
+    Containers, Images, Logs, Volumes, Kubernetes, and other tools. The
+    <strong>Images</strong> page shows images stored on your computer. Each row
+    is one image, with its name, tag, image ID, creation time, size, and action
+    buttons.
+  </figcaption>
+</figure>
+
+<p>
+  In this screenshot, the <strong>Local</strong> tab is selected. That means
+  Docker Desktop is showing images already downloaded or built on this machine.
+  Images such as <code>postgres:16-alpine</code> came from a public registry,
+  while a project image such as <code>docker-app:latest</code> or
+  <code>portfolio-app:latest</code> is the kind of image you build from this
+  tutorial's Dockerfile.
+</p>
+
+<table>
+  <tr><th>Docker Desktop area</th><th>What it means</th></tr>
+  <tr><td>Containers</td><td>Shows running and stopped containers, which are live copies of images.</td></tr>
+  <tr><td>Images</td><td>Shows reusable image templates stored on your computer.</td></tr>
+  <tr><td>Local tab</td><td>Images available on your machine right now.</td></tr>
+  <tr><td>Name and Tag</td><td>The image name and version label, such as <code>postgres</code> and <code>16-alpine</code>.</td></tr>
+  <tr><td>Size</td><td>How much disk space the image uses.</td></tr>
+  <tr><td>Action buttons</td><td>Shortcuts to run, inspect, open options for, or delete an image.</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>Terminal and Docker Desktop show the same world:</strong> When you run
+  <code>docker images</code> in the terminal, you are viewing the command-line
+  version of this Images table. Docker Desktop is helpful when you want a visual
+  check, but the tutorial still uses commands so the steps are repeatable.
+</div>
+
 <p>
   The <strong>Docker Hub repositories</strong> or <strong>My Hub</strong> tab
   shows images in Docker Hub repositories that your signed-in Docker account can
@@ -1008,7 +1282,7 @@ docker run hello-world</code><span class="code-label">terminal</span></pre>
 <section id="dockerfile">
 <h3>5.3 Understanding the Dockerfile</h3>
 
-<p>Let's look at the Dockerfile in our project (<code>docker/Dockerfile</code>):</p>
+<p>Open the Dockerfile in this project (<code>docker/Dockerfile</code>) and read it as a short instruction file for building the image:</p>
 
 <pre><code>FROM nginx:1.27-alpine
 
@@ -1075,8 +1349,8 @@ docker build -t portfolio-app:latest -f docker/Dockerfile .</code><span class="c
 
 <p>
   Watch the output. Docker executes each instruction in the Dockerfile and caches
-  each step. If you build again later and the code hasn't changed, it'll use the
-  cache &mdash; much faster!
+  each step. If you build again later and the relevant files have not changed,
+  Docker can reuse the cache, which makes the next build much faster.
 </p>
 
 <div class="info-box">
@@ -1208,7 +1482,7 @@ docker image prune</code><span class="code-label">cheatsheet</span></pre>
 <ul>
   <li><strong>Docker Hub</strong> &mdash; the default, free for public images</li>
   <li><strong>GitHub Container Registry (GHCR)</strong> &mdash; integrated with GitHub</li>
-  <li><strong>Amazon ECR</strong> &mdash; AWS's registry, used in our Terraform code</li>
+  <li><strong>Amazon ECR</strong> &mdash; AWS's registry, included in the optional Terraform example</li>
 </ul>
 
 <h4>How to See Docker Hub</h4>
@@ -1592,34 +1866,37 @@ docker compose -f docker/docker-compose.yml logs -f | tee docs/screenshots/docke
 </p>
 
 <p>
-  <strong>CI/CD</strong> automates this checking and delivery process for software:
+  <strong>CI/CD</strong> automates checking and delivery. In this project, that
+  means GitHub checks the project files after you push them, then optionally
+  prepares a container image for deployment.
 </p>
 
 <table>
   <tr><th>Term</th><th>Meaning</th><th>Analogy</th></tr>
   <tr>
     <td><strong>CI</strong><br>(Continuous Integration)</td>
-    <td>Every time a developer pushes code, automatically run tests and checks</td>
+    <td>Every time someone pushes project changes, automatically run tests and checks</td>
     <td>Checking each paragraph for spelling and grammar as you write</td>
   </tr>
   <tr>
     <td><strong>CD</strong><br>(Continuous Deployment)</td>
-    <td>After tests pass, automatically deploy the code to production</td>
+    <td>After tests pass, automatically deploy the application or configuration to production</td>
     <td>After the essay is checked, automatically publish it to the class website</td>
   </tr>
 </table>
 
 <div class="info-box">
-  <strong>&#x1F4DD; Why It Matters:</strong> Without CI/CD, developers have to run
-  tests manually and copy files to servers by hand. They make mistakes, forget steps,
-  and waste time. CI/CD makes it automatic, repeatable, and reliable.
+  <strong>&#x1F4DD; Why It Matters:</strong> Without CI/CD, people have to run
+  checks manually and copy files to servers by hand. It is easy to miss a step
+  or use the wrong version. CI/CD makes the process automatic, repeatable, and
+  reliable.
 </div>
 </section>
 
 <section id="cicd-ci">
 <h3>7.2 The CI Pipeline (ci.yml)</h3>
 
-<p>Let's examine our CI pipeline file at <code>.github/workflows/ci.yml</code>:</p>
+<p>Open the CI pipeline file at <code>.github/workflows/ci.yml</code>. Read it as a checklist that GitHub follows automatically:</p>
 
 <div class="info-box">
   <strong>How to find it in VS Code:</strong> In the Explorer sidebar, open
@@ -1639,7 +1916,7 @@ on:
     branches: [main]</code><span class="code-label">trigger</span></pre>
 
 <p>
-  This says: "Run this workflow whenever code is pushed to <code>main</code> or
+  This says: "Run this workflow whenever project changes are pushed to <code>main</code> or
   <code>develop</code> branches, OR when a pull request targets <code>main</code>."
 </p>
 
@@ -1802,9 +2079,9 @@ on:
 
 <p>
   <strong>Prebuilt GitHub Actions</strong> are reusable CI/CD steps, referenced
-  with <code>uses:</code>, that perform common tasks like checking out code,
+  with <code>uses:</code>, that perform common tasks like checking out repository files,
   installing tools, building Docker images, or logging in to registries. For
-  example, <code>actions/checkout@v4</code> downloads your repository code,
+  example, <code>actions/checkout@v4</code> downloads your repository files,
   <code>hashicorp/setup-terraform@v3</code> installs Terraform, and
   <code>docker/build-push-action@v5</code> builds and pushes a Docker image.
   Use <code>uses:</code> for an existing packaged action; use <code>run:</code>
@@ -1830,7 +2107,7 @@ on:
 <table>
   <tr><th>Line</th><th>Meaning</th></tr>
   <tr><td><code>needs: lint</code></td><td>Do not start this job until the <code>lint</code> job succeeds</td></tr>
-  <tr><td><code>actions/checkout@v4</code></td><td>Download the repository code onto the runner</td></tr>
+  <tr><td><code>actions/checkout@v4</code></td><td>Download the repository files onto the runner</td></tr>
   <tr><td><code>xmllint --noout app/index.html</code></td><td>Parse the HTML file and report errors without printing the file contents</td></tr>
 </table>
 
@@ -1961,7 +2238,7 @@ on:
 <h4>Key Concepts</h4>
 <ul>
   <li><strong><code>needs:</code></strong> &mdash; creates dependencies. HTML validation waits for linting, infrastructure validation waits for HTML validation, and publishing waits for infrastructure validation.</li>
-  <li><strong>Actions</strong> &mdash; <code>uses:</code> references pre-built GitHub Actions. <code>actions/checkout@v4</code> fetches your code. Terraform, kubectl, and Kind actions prepare validation tools.</li>
+  <li><strong>Actions</strong> &mdash; <code>uses:</code> references pre-built GitHub Actions. <code>actions/checkout@v4</code> fetches your repository files. Terraform, kubectl, and Kind actions prepare validation tools.</li>
   <li><strong>Secrets</strong> &mdash; <code>${{ secrets.GITHUB_TOKEN }}</code> is automatically created by GitHub. You don't need to set it up.</li>
   <li><strong>Kind</strong> &mdash; CI starts a temporary Kubernetes cluster so <code>kubectl apply --dry-run=server</code> can validate manifests against a real API server.</li>
 </ul>
@@ -2221,7 +2498,7 @@ on:
   <tr><th>Concept</th><th>Analogy</th><th>YAML File</th></tr>
   <tr>
     <td><strong>Pod</strong></td>
-    <td>The smallest unit &mdash; a single running container</td>
+    <td>The smallest unit Kubernetes runs &mdash; usually one container plus its settings</td>
     <td>Defined inside a Deployment</td>
   </tr>
   <tr>
@@ -2232,7 +2509,7 @@ on:
   <tr>
     <td><strong>Service</strong></td>
     <td>A reception desk: "Talk to this address, and I'll forward you to a healthy pod"</td>
-    <td><code>deployment.yaml</code> (same file)</td>
+    <td><code>deployment.yaml</code> in this repo</td>
   </tr>
   <tr>
     <td><strong>Ingress</strong></td>
@@ -2242,12 +2519,12 @@ on:
   <tr>
     <td><strong>HPA</strong></td>
     <td>A thermostat: "If CPU > 70%, add more pods; if low, remove some"</td>
-    <td><code>deployment.yaml</code> (same file)</td>
+    <td><code>deployment.yaml</code> in this repo</td>
   </tr>
   <tr>
     <td><strong>Namespace</strong></td>
     <td>A floor in the hotel: separates different departments (production vs staging)</td>
-    <td><code>ingress.yaml</code></td>
+    <td><code>namespaces.yaml</code></td>
   </tr>
   <tr>
     <td><strong>PDB</strong></td>
@@ -2255,6 +2532,13 @@ on:
     <td><code>ingress.yaml</code></td>
   </tr>
 </table>
+
+<p>
+  A single YAML file can contain more than one Kubernetes resource. In this repo,
+  <code>deployment.yaml</code> includes the app Deployment, Service, and HPA,
+  while <code>namespaces.yaml</code> creates namespaces and
+  <code>ingress.yaml</code> contains Ingress-related resources.
+</p>
 
 <div class="tip">
   <strong>&#x1F4A1; YAML Format:</strong> Kubernetes uses YAML files. YAML is a
@@ -2304,8 +2588,9 @@ on:
 <h3>8.3 Deployment Explained</h3>
 
 <p>
-  Let's break down <code>infrastructure/kubernetes/deployment.yaml</code>. This
-  file defines the Kubernetes Deployment for the app.
+  Open <code>infrastructure/kubernetes/deployment.yaml</code>. This file tells
+  Kubernetes how to run the app, how many copies to keep, and how to check
+  whether those copies are healthy.
 </p>
 
 <p>
@@ -2365,7 +2650,7 @@ spec:
             - containerPort: 9090
               name: metrics</code></pre>
 
-<p>This section defines the <strong>pod template</strong> &mdash; what each pod looks like. The labels on the pod must match the selector above.</p>
+<p>This section defines the <strong>pod template</strong> &mdash; the reusable description Kubernetes follows when it creates each app Pod. The labels on the pod must match the selector above.</p>
 
 <pre><code>          env:
             - name: DB_HOST
@@ -2376,7 +2661,7 @@ spec:
 
 <p>
   Environment variables can come from <strong>Secrets</strong> (stored separately in
-  Kubernetes, not hard-coded). This is more secure &mdash; passwords never appear
+  Kubernetes, not typed directly into this manifest). This is more secure &mdash; passwords never appear
   in the YAML file.
 </p>
 
@@ -2880,15 +3165,16 @@ minikube delete</code><span class="code-label">cleanup</span></pre>
 
 <p>
   <strong>Terraform</strong> solves this by letting you define your infrastructure
-  in <strong>code</strong>. You write a file describing what you want (a VPC, a
+  in structured text files. You edit a file describing what you want (a VPC, a
   database, a Kubernetes cluster), and Terraform creates it automatically.
 </p>
 
 <div class="info-box">
   <strong>&#x1F4DD; Infrastructure as Code (IaC):</strong> This is the practice of
-  managing servers, databases, networks, and other infrastructure through code files
-  rather than manual configuration. All the benefits of coding (version control,
-  code review, automation) apply to your infrastructure too.
+  managing servers, databases, networks, and other infrastructure through versioned
+  configuration files rather than manual setup. You do not need to be a programmer
+  to start; the key idea is that infrastructure changes can be reviewed, repeated,
+  and automated.
 </div>
 
 <h4>Key Terraform Concepts</h4>
@@ -3251,17 +3537,17 @@ terraform validate</code><span class="code-label">AWS syntax check</span></pre>
 <h4>The Terraform Workflow Explained</h4>
 <ol>
   <li><strong>init</strong> &mdash; initializes providers and the configured backend, such as S3 remote state</li>
-  <li><strong>plan</strong> &mdash; compares your code with the current state and shows what will be added/changed/deleted (always review this carefully!)</li>
+  <li><strong>plan</strong> &mdash; compares your Terraform configuration files with the current state and shows what will be added/changed/deleted (always review this carefully!)</li>
   <li><strong>apply</strong> &mdash; executes the plan (creates/modifies resources)</li>
   <li><strong>destroy</strong> &mdash; tears everything down (always do this when experimenting to avoid costs)</li>
 </ol>
 
 <div class="info-box">
-  <strong>&#x1F4DD; Terraform Modules:</strong> Our code uses <strong>community modules</strong>
+  <strong>&#x1F4DD; Terraform Modules:</strong> This Terraform example uses <strong>community modules</strong>
   from the Terraform Registry (<code>terraform-aws-modules/eks/aws</code> and
   <code>terraform-aws-modules/rds/aws</code>). These are pre-built, tested recipes
   maintained by the community. Using modules saves us from writing hundreds of lines
-  of boilerplate code. The <code>source</code> and <code>version</code> fields tell
+  of repeated Terraform configuration. The <code>source</code> and <code>version</code> fields tell
   Terraform where to find them.
 </div>
 </section>
@@ -3444,7 +3730,7 @@ Checking http://localhost:8083
 <p>
   You started with a localhost Ansible playbook, then used Ansible over SSH to
   configure three Docker-based Linux targets as nginx web servers. This is the
-  core Ansible workflow: define hosts in an inventory, write a playbook, apply
+  core Ansible workflow: define hosts in an inventory, read or edit a playbook, apply
   the same desired state to multiple systems, and verify the result.
 </p>
 
@@ -3954,7 +4240,7 @@ ansible-lint ansible/local/local-practice.yml</code><span class="code-label">rec
   <tr><td><code>terraform validate</code></td><td>Terraform configuration validity</td><td>Infrastructure mistakes are expensive when discovered during apply</td></tr>
   <tr><td><code>kubectl apply --dry-run=client</code></td><td>Kubernetes manifest structure</td><td>Manifests should parse before touching a cluster</td></tr>
   <tr><td><code>ansible-playbook --syntax-check</code></td><td>Ansible playbook syntax</td><td>Host automation should parse before it reaches any server</td></tr>
-  <tr><td><code>ansible-lint</code></td><td>Ansible quality and best practices</td><td>Linting catches maintainability and safety issues in operations code</td></tr>
+  <tr><td><code>ansible-lint</code></td><td>Ansible quality and best practices</td><td>Linting catches maintainability and safety issues in automation files</td></tr>
 </table>
 
 <section id="val-yaml">
@@ -4039,7 +4325,7 @@ terraform -chdir=infrastructure/terraform-local plan -var="student_name=DevOpsLe
 
 <p><strong>What it checks:</strong> Formatting and syntax for the optional AWS Terraform scaffold without configuring the S3 backend.</p>
 
-<p><strong>Why it matters in DevOps:</strong> You can inspect the AWS Terraform code safely, but planning or applying it requires AWS.</p>
+<p><strong>Why it matters in DevOps:</strong> You can inspect the AWS Terraform configuration safely, but planning or applying it requires AWS.</p>
 
 <pre><code>cd infrastructure/terraform
 terraform init -backend=false
@@ -4146,7 +4432,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
 
 <p><strong>What it checks:</strong> Ansible best practices, maintainability rules, risky task patterns, and common role/playbook mistakes.</p>
 
-<p><strong>Why it matters in DevOps:</strong> Host automation should be readable, repeatable, and safe. Linting helps keep operational code from becoming fragile shell glue.</p>
+<p><strong>Why it matters in DevOps:</strong> Host automation should be readable, repeatable, and safe. Linting helps keep operational automation from becoming fragile shell glue.</p>
 
 <p><strong>Command used in this repo:</strong></p>
 
@@ -4183,7 +4469,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>Ansible</strong></td><td>A tool that automates server setup and configuration by running commands over SSH</td></tr>
   <tr><td><strong>Availability Zone</strong></td><td>A physically separate data center within an AWS region. Using multiple AZs protects against data center outages.</td></tr>
   <tr><td><strong>CIDR</strong></td><td>A way to describe a range of IP addresses (e.g., <code>10.0.0.0/16</code> = 65,536 addresses).</td></tr>
-  <tr><td><strong>CI/CD</strong></td><td>Continuous Integration / Continuous Deployment — automatically testing and deploying code</td></tr>
+  <tr><td><strong>CI/CD</strong></td><td>Continuous Integration / Continuous Deployment — automatically checking project changes and optionally deploying an application or configuration</td></tr>
   <tr><td><strong>Container</strong></td><td>A lightweight, standalone package that includes everything needed to run a piece of software</td></tr>
   <tr><td><strong>Docker</strong></td><td>The most popular tool for creating and running containers</td></tr>
   <tr><td><strong>Docker Compose</strong></td><td>A tool for defining and running multiple Docker containers together</td></tr>
@@ -4192,7 +4478,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>EKS</strong></td><td>Elastic Kubernetes Service — AWS's managed Kubernetes service</td></tr>
   <tr><td><strong>Grafana</strong></td><td>A visualization tool that turns metrics into graphs and dashboards</td></tr>
   <tr><td><strong>HPA</strong></td><td>Horizontal Pod Autoscaler — automatically adds/removes Kubernetes pods based on CPU/memory usage</td></tr>
-  <tr><td><strong>IaC</strong></td><td>Infrastructure as Code — managing servers and networks through code files</td></tr>
+  <tr><td><strong>IaC</strong></td><td>Infrastructure as Code — managing servers and networks through versioned configuration files instead of manual clicks</td></tr>
   <tr><td><strong>Ingress</strong></td><td>A Kubernetes resource that manages external access (DNS, SSL, routing) to services</td></tr>
   <tr><td><strong>Kubernetes (K8s)</strong></td><td>A system for automatically deploying, scaling, and managing containerized applications</td></tr>
   <tr><td><strong>Local state</strong></td><td>Terraform state stored on your own computer, usually in <code>terraform.tfstate</code>. This is enough for the beginner local lab.</td></tr>
@@ -4215,9 +4501,9 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <tr><td><strong>State</strong></td><td>Terraform's record of what infrastructure exists (stored in a state file)</td></tr>
   <tr><td><strong>sudo</strong></td><td>A command that runs another command with administrator privileges. Use it carefully because it can change system files and settings.</td></tr>
   <tr><td><strong>Tag</strong></td><td>A named version in git (e.g., <code>v1.2.3</code>), used to mark releases</td></tr>
-  <tr><td><strong>Terraform</strong></td><td>An IaC tool that creates, modifies, and deletes cloud resources based on code</td></tr>
+  <tr><td><strong>Terraform</strong></td><td>An IaC tool that creates, modifies, and deletes resources based on Terraform configuration files</td></tr>
   <tr><td><strong>Terraform backend</strong></td><td>Where Terraform stores its state. A local backend stores state on your computer; an S3 backend stores state in AWS.</td></tr>
-  <tr><td><strong><code>terraform init -backend=false</code></strong></td><td>Initializes Terraform without configuring the remote backend, useful for syntax validation of AWS Terraform code without an S3 bucket.</td></tr>
+  <tr><td><strong><code>terraform init -backend=false</code></strong></td><td>Initializes Terraform without configuring the remote backend, useful for syntax validation of AWS Terraform configuration without an S3 bucket.</td></tr>
   <tr><td><strong>TLS/SSL</strong></td><td>Encryption protocols that secure web traffic (the "https" in your browser bar)</td></tr>
   <tr><td><strong>VPC</strong></td><td>Virtual Private Cloud — a private network within AWS where your resources live</td></tr>
   <tr><td><strong>YAML</strong></td><td>A human-readable data format (like JSON but cleaner). Used by Kubernetes, Ansible, GitHub Actions, Docker Compose, and Terraform.</td></tr>
@@ -4236,13 +4522,13 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
 <ol>
   <li><strong>Run Docker Compose locally</strong> &mdash; Get the app, Postgres, Prometheus, and Grafana running on your laptop. See everything working together.</li>
   <li><strong>Explore the Grafana dashboards</strong> &mdash; Even with no real traffic, you'll see system metrics from the containers.</li>
-  <li><strong>Modify the sample app</strong> &mdash; Change the HTML, rebuild the Docker image, and see your changes live.</li>
+  <li><strong>Modify the sample app</strong> &mdash; Change a small piece of HTML text, rebuild the Docker image, and see your changes live.</li>
   <li><strong>Fork and push to GitHub</strong> &mdash; Put the project on your GitHub and watch the CI pipeline run.</li>
 </ol>
 
 <h3>Making the Portfolio Your Own</h3>
 <ol>
-  <li><strong>Replace the sample app</strong> &mdash; Swap in your own application (a Python API, a Go service, etc.)</li>
+  <li><strong>Replace the sample app</strong> &mdash; Later, if you learn application development, swap in your own app such as a Python API or Go service</li>
   <li><strong>Add a real CI/CD demo</strong> &mdash; Use GitHub Actions (free for public repos) to build and push a Docker image</li>
   <li><strong>Add a custom domain</strong> &mdash; Buy a domain like <code>yourname.dev</code> and point it to your app</li>
   <li><strong>Document your setup</strong> &mdash; Write a blog post or README about what you built and why</li>
@@ -4264,7 +4550,7 @@ ansible-playbook -i ansible/local/inventory.ini ansible/local/local-practice.yml
   <strong>&#x1F4A1; Portfolio Tip for Interviews:</strong> When asked about this
   project in an interview, focus on <strong>why</strong> you made each choice:
   <ul>
-    <li>"I used Terraform because we wanted infrastructure version-controlled and reviewable"</li>
+    <li>"I used Terraform because we wanted infrastructure changes version-controlled and reviewable"</li>
     <li>"I used Kubernetes rolling deployments with rollback checks to reduce release risk"</li>
     <li>"I set up Prometheus alerts to catch issues before users notice them"</li>
   </ul>
