@@ -15,9 +15,8 @@
   <text x="62" y="250" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac ~ % <tspan fill="#e5e7eb">cd devops-portfolio</tspan></text>
   <text x="62" y="295" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac devops-portfolio % <tspan fill="#e5e7eb">ls</tspan></text>
   <text x="62" y="330" font-family="Menlo, Consolas, monospace" font-size="22" fill="#e5e7eb">README.md  app  docker  docs  infrastructure</text>
-  <text x="62" y="375" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac devops-portfolio % <tspan fill="#e5e7eb">git --version</tspan></text>
-  <text x="62" y="410" font-family="Menlo, Consolas, monospace" font-size="22" fill="#e5e7eb">git version 2.45.0</text>
-  <rect x="62" y="437" width="13" height="26" fill="#e5e7eb">
+  <text x="62" y="375" font-family="Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">learner@Mac devops-portfolio %</text>
+  <rect x="418" y="354" width="13" height="26" fill="#e5e7eb">
     <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
   </rect>
 </svg>

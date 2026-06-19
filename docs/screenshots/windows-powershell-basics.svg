@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
   <title id="title">Example Windows PowerShell window</title>
-  <desc id="desc">A PowerShell window showing basic commands such as pwd, cd, dir, and git version.</desc>
+  <desc id="desc">A PowerShell window showing basic commands such as pwd, cd, and dir.</desc>
   <rect width="960" height="520" fill="#0f172a"/>
   <rect x="34" y="34" width="892" height="452" rx="12" fill="#012456" stroke="#1e40af" stroke-width="2"/>
   <rect x="34" y="34" width="892" height="48" rx="12" fill="#0b1f3a"/>
@@ -13,9 +13,8 @@
   <text x="62" y="275" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner&gt; <tspan fill="#ffffff">cd devops-portfolio</tspan></text>
   <text x="62" y="325" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-portfolio&gt; <tspan fill="#ffffff">dir</tspan></text>
   <text x="62" y="360" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">README.md  app  docker  docs  infrastructure</text>
-  <text x="62" y="410" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-portfolio&gt; <tspan fill="#ffffff">git --version</tspan></text>
-  <text x="62" y="445" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#ffffff">git version 2.45.0</text>
-  <rect x="62" y="462" width="13" height="25" fill="#ffffff">
+  <text x="62" y="410" font-family="Cascadia Mono, Consolas, monospace" font-size="21" fill="#bfdbfe">PS C:\Users\Learner\devops-portfolio&gt;</text>
+  <rect x="511" y="389" width="13" height="25" fill="#ffffff">
     <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
   </rect>
 </svg>
