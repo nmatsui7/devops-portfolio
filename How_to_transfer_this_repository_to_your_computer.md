@@ -178,11 +178,27 @@ Use one of the options below.
 
 ### Option A: If you downloaded a ZIP file
 
-1. Download the repository ZIP file.
-2. Unzip it.
-3. Open the unzipped folder.
-4. Select all files and folders inside it.
-5. Copy them into the `devops_portfolio` folder you created.
+To download the repository ZIP file from GitHub in your browser:
+
+1. Open the repository page on GitHub.
+2. Click the green <strong>Code</strong> button near the top of the file list.
+3. Click <strong>Download ZIP</strong>.
+4. Wait for the ZIP file to download.
+5. Open your Downloads folder.
+6. Double-click the ZIP file to unzip it.
+7. Open the unzipped folder.
+8. Select all files and folders inside it.
+9. Copy them into the `devops_portfolio` folder you created.
+
+![GitHub Code menu showing Download ZIP](docs/screenshots/github-code-download-zip.png)
+
+In the GitHub <strong>Code</strong> menu, <strong>Download ZIP</strong> is near
+the bottom. The clone tabs such as HTTPS, SSH, and GitHub CLI are for Git-based
+downloads. Beginners can use <strong>Download ZIP</strong> first.
+
+On macOS, unzipping usually creates a normal folder automatically. On Windows,
+you may need to right-click the ZIP file and choose <strong>Extract All</strong>,
+then open the extracted folder.
 
 Do not accidentally create a nested folder like this:
 
