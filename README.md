@@ -14,15 +14,21 @@ may see Markdown formatting characters such as backticks.
 
 ## Get the Project
 
-Install Git, clone the repository, enter the project folder, and open it in Visual Studio Code:
+If you are new to Git, terminals, or project folders, start here:
+
+[How to Transfer This Repository to Your Computer](How_to_transfer_this_repository_to_your_computer.md)
+
+That guide explains how to download the repository as a ZIP file, place the
+files in a folder on your computer, and open `docs/tutorial.html` in a browser.
+
+If you already know Git, you can use this shortcut:
 
 ```bash
 git clone https://github.com/nmatsui7/devops-portfolio.git
 cd devops-portfolio
-code .
 ```
 
-If the `code` command is not available yet, open VS Code manually, choose **File > Open Folder**, and select the `devops-portfolio` folder.
+Then open `docs/tutorial.html` in your browser to begin the tutorial.
 
 ## Prerequisites
 
