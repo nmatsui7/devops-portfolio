@@ -6,6 +6,12 @@ The repo is also structured as a DevOps portfolio project. It is intentionally s
 
 Start with the full tutorial at [docs/tutorial.html](docs/tutorial.html), then use this README as the quick reference for commands, architecture, validation, and scope.
 
+You can open Markdown files such as this README in any text editor or in VS Code.
+For complete beginners, they are often easiest to read on the GitHub website in a
+browser because GitHub displays headings, lists, links, and command boxes in a
+clean format. If you open a `.md` file directly in a text editor or VS Code, you
+may see Markdown formatting characters such as backticks.
+
 ## Get the Project
 
 Install Git, clone the repository, enter the project folder, and open it in Visual Studio Code:
