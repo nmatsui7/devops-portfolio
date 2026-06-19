@@ -36,8 +36,8 @@ In plain English, you will:
 4. Move into that folder.
 5. Install or check Git.
 6. Copy or place the repository files there.
-7. Open the folder in VS Code.
-8. Confirm the expected folders and files are visible.
+7. Confirm the expected folders and files are visible.
+8. Open `docs/tutorial.html` in your browser.
 
 ## Before you start
 
@@ -46,11 +46,13 @@ You need:
 - A computer running macOS or Windows.
 - The repository files, either from a ZIP download, GitHub, or a folder provided
   by someone else.
-- VS Code installed, if you want to follow the tutorial visually.
+- A web browser such as Chrome, Edge, Firefox, or Safari.
 
 This guide does not assume you know Git yet. If you use the ZIP option, Git is
 not needed to copy the files. However, Git is used later in the main tutorial, so
-this guide includes a simple install/check step.
+this guide includes a simple install/check step. The main tutorial explains how
+to install VS Code later, so you do not need VS Code before opening
+`tutorial.html`.
 
 ## Step 1: Open a terminal
 
@@ -270,29 +272,31 @@ Exact folder names may vary depending on the repository version. The important
 thing is that folders like `app`, `docker`, and `docs` are directly inside
 `devops_portfolio`.
 
-## Step 8: Open the folder in VS Code
+## Step 8: Open the main tutorial
 
-Run this command from inside the `devops_portfolio` folder:
+Open the `docs` folder, then double-click `tutorial.html`.
+
+Your browser should open the main tutorial page. This is where the full DevOps
+lesson begins.
+
+If double-clicking does not work:
+
+1. Open your web browser.
+2. Press `Command + O` on macOS or `Ctrl + O` on Windows.
+3. Choose `Documents/devops_portfolio/docs/tutorial.html`.
+
+The main tutorial includes the VS Code installation steps. After you install VS
+Code there, you can open the whole project folder in VS Code.
+
+Optional later step after VS Code is installed:
 
 ```sh
 code .
 ```
 
-What this means:
-
-- `code` opens Visual Studio Code.
-- `.` means "this current folder."
-
-If `code .` does not work, use the manual fallback:
-
-1. Open VS Code.
-2. Click File -> Open Folder.
-3. Choose `Documents/devops_portfolio`.
+`code` opens VS Code, and `.` means "this current folder."
 
 ![VS Code showing the project folder](docs/screenshots/vscode-project-explorer.png)
-
-In VS Code, open the entire project folder, not just one file. The Explorer
-sidebar should show folders such as `app`, `docker`, `docs`, and `.github`.
 
 ## Step 9: Confirm you are ready for the main tutorial
 
@@ -303,7 +307,7 @@ Use this checklist:
 - [ ] I installed Git or confirmed `git --version` works.
 - [ ] I placed the repository files inside that folder.
 - [ ] I can see folders like `app`, `docker`, and `docs`.
-- [ ] I opened the project folder in VS Code.
+- [ ] I opened `docs/tutorial.html` in my browser.
 - [ ] I am ready to continue with the main tutorial.
 
 ## Common beginner mistakes
@@ -315,7 +319,8 @@ Use this checklist:
 - Running commands from the wrong folder.
 - Copying the terminal prompt symbol, such as `$`, `%`, or
   `PS C:\Users\...>`.
-- Opening one file in VS Code instead of the whole project folder.
+- Looking for VS Code too early. The main tutorial explains how to install and
+  use VS Code after you open `docs/tutorial.html`.
 
 ## Quick mental model
 
