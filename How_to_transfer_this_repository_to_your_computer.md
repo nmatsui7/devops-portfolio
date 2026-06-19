@@ -34,9 +34,10 @@ In plain English, you will:
 2. Move to the Documents folder.
 3. Create a folder called `devops_portfolio`.
 4. Move into that folder.
-5. Copy or place the repository files there.
-6. Open the folder in VS Code.
-7. Confirm the expected folders and files are visible.
+5. Install or check Git.
+6. Copy or place the repository files there.
+7. Open the folder in VS Code.
+8. Confirm the expected folders and files are visible.
 
 ## Before you start
 
@@ -47,7 +48,9 @@ You need:
   by someone else.
 - VS Code installed, if you want to follow the tutorial visually.
 
-This guide does not assume you know Git yet. Git is optional here.
+This guide does not assume you know Git yet. If you use the ZIP option, Git is
+not needed to copy the files. However, Git is used later in the main tutorial, so
+this guide includes a simple install/check step.
 
 ## Step 1: Open a terminal
 
@@ -118,7 +121,58 @@ cd devops_portfolio
 Your terminal is now inside the `devops_portfolio` folder. The files you copy or
 download next should go into this folder.
 
-## Step 5: Put the repository files into this folder
+## Step 5: Install or check Git
+
+Git is a version control tool. It saves snapshots of project files, including
+documents, configuration files, scripts, and application files. You do not need
+to understand Git deeply yet. For now, just install it and confirm your terminal
+can find it.
+
+### Windows
+
+Beginner path:
+
+1. Go to [git-scm.com/install/windows](https://git-scm.com/install/windows).
+2. Download Git for Windows.
+3. Run the installer.
+4. Accept the default choices.
+5. Close and reopen PowerShell.
+
+If you are using `winget`, you can install Git from PowerShell with:
+
+```powershell
+winget install --id Git.Git -e
+```
+
+### macOS
+
+On macOS, open Terminal and run:
+
+```sh
+xcode-select --install
+```
+
+This installs Apple's command line tools, including Git. If macOS says the tools
+are already installed, that is fine.
+
+### Check that Git works
+
+Run:
+
+```sh
+git --version
+```
+
+You should see something like:
+
+```text
+git version 2.40.0
+```
+
+The exact version number does not need to match. If your terminal prints a Git
+version, Git is installed.
+
+## Step 6: Put the repository files into this folder
 
 Use one of the options below.
 
@@ -166,10 +220,10 @@ Example shape:
 git clone https://github.com/YOUR_USER/YOUR_REPOSITORY.git .
 ```
 
-Do not make Git your default path if you are not ready for it yet. The ZIP option
-is fine for beginners.
+Do not make Git your default transfer path if you are not ready for it yet. The
+ZIP option is fine for beginners.
 
-## Step 6: Check that the files are there
+## Step 7: Check that the files are there
 
 On macOS or Linux-style terminals, run:
 
@@ -200,7 +254,7 @@ Exact folder names may vary depending on the repository version. The important
 thing is that folders like `app`, `docker`, and `docs` are directly inside
 `devops_portfolio`.
 
-## Step 7: Open the folder in VS Code
+## Step 8: Open the folder in VS Code
 
 Run this command from inside the `devops_portfolio` folder:
 
@@ -224,12 +278,13 @@ If `code .` does not work, use the manual fallback:
 In VS Code, open the entire project folder, not just one file. The Explorer
 sidebar should show folders such as `app`, `docker`, `docs`, and `.github`.
 
-## Step 8: Confirm you are ready for the main tutorial
+## Step 9: Confirm you are ready for the main tutorial
 
 Use this checklist:
 
 - [ ] I can open Terminal or PowerShell.
 - [ ] I created the `devops_portfolio` folder.
+- [ ] I installed Git or confirmed `git --version` works.
 - [ ] I placed the repository files inside that folder.
 - [ ] I can see folders like `app`, `docker`, and `docs`.
 - [ ] I opened the project folder in VS Code.
